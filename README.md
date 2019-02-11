@@ -29,5 +29,8 @@ pytest test_pe.py
 
 # Whitney Architectural Description
 Compared to the first generation PE (Diablo), Whitney shall have two new features:
-* BFloat16 addition and multiplication
-* Transcendental functions (div, log, e^x, sin, pow)
+* BFloat16 addition and multiplication in every PE
+* Transcendental functions (div, log, e^x, sin, pow) implemented using a cluster of PEs and memory
+```diff
+- What types and precisions for the transcendental operations?
+```
