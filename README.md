@@ -10,7 +10,12 @@ git clone https://github.com/phanrahan/peak.git
 cd peak
 python setup.py install --user
 ```
-
+* Install whitney
+```
+git clone git@github.com:StanfordAHA/whitney.git
+cd whitney
+python setup.py install --user
+```
 * Run tests using
 ```
 pytest
