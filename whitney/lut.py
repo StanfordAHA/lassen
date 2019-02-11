@@ -1,6 +1,4 @@
-import sys
-sys.path.append('../peak/peak')
-from bits import Bits
+from peak.bits import Bits
 
 # Types for LUT operations
 Bit = Bits(1)

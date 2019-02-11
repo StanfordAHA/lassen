@@ -1,5 +1,5 @@
-from enum import Enum
-from lut import Bit
+from peak.enum import Enum
+from .lut import Bit
 
 #
 # Condition code field - selects which 1-bit result is retuned

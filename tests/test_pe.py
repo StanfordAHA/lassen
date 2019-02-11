@@ -1,5 +1,5 @@
-import asm as asm
-from sim import PE, Bit, Data
+import whitney.asm as asm
+from whitney.sim import PE, Bit, Data
 
 def test_and():
     # instantiate an PE - calls PE.__init__

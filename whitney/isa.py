@@ -1,13 +1,10 @@
-import sys
-sys.path.append('../peak/peak')
-
 from dataclasses import dataclass
-from bits import Bits
-from enum import Enum
-from product import Product
-from cond import Cond
-from mode import Mode
-from lut import Bit, LUT
+from peak.bits import Bits
+from peak.enum import Enum
+from peak.product import Product
+from .cond import Cond
+from .mode import Mode
+from .lut import Bit, LUT
 
 # https://github.com/StanfordAHA/CGRAGenerator/wiki/PE-Spec
 

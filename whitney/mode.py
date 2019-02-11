@@ -1,7 +1,6 @@
-from peak import Peak
-from peak import Register
-from enum import Enum
-from lut import Bit
+from peak import Peak, Register
+from peak.enum import Enum
+from .lut import Bit
 
 # Field for specifying register modes
 #

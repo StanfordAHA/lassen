@@ -1,8 +1,8 @@
 from dataclasses import dataclass
-from cond import Cond
-from mode import Mode
-from lut import Bit, LUT
-from isa import *
+from .cond import Cond
+from .mode import Mode
+from .lut import Bit, LUT
+from .isa import *
 
 # https://github.com/StanfordAHA/CGRAGenerator/wiki/PE-Spec
 
