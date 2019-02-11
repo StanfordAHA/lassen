@@ -1,7 +1,7 @@
 # Whitney
 The PE for the second generation CGRA (garnet).
 
-# Instructions to run
+## Instructions to run
 * Make sure you have python 3.7. Peak needs this.
 
 * First install peak
@@ -16,7 +16,7 @@ python setup.py install --user
 pytest test_pe.py
 ```
 
-# Tasks
+## Whitney related tasks
 | Date | Person | Status | Task |
 | ---- | ------ | ------ | ---- |
 | | | | Add BFloat16 add and multiply functional model to whitney |
@@ -27,7 +27,7 @@ pytest test_pe.py
 | | | | Add multi-PE support to Peak |
 | | | | Change CoreIR mapper, PnR to support multi-PE |
 
-# Whitney architectural description
+## Whitney architectural description
 Compared to the first generation PE (Diablo), Whitney shall have two new features:
 * BFloat16 addition and multiplication in every PE
 * Transcendental functions (div, log, e^x, sin, pow) implemented using a cluster of PEs and memory
