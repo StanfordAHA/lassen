@@ -13,7 +13,7 @@ python setup.py install --user
 
 * Run tests using
 ```
-pytest test_pe.py
+pytest
 ```
 
 ## Whitney related tasks
