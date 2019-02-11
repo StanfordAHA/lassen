@@ -27,7 +27,7 @@ pytest test_pe.py
 | | | | Add multi-PE support to Peak |
 | | | | Change CoreIR mapper, PnR to support multi-PE |
 
-# Whitney Architectural Description
+# Whitney architectural description
 Compared to the first generation PE (Diablo), Whitney shall have two new features:
 * BFloat16 addition and multiplication in every PE
 * Transcendental functions (div, log, e^x, sin, pow) implemented using a cluster of PEs and memory
