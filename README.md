@@ -26,3 +26,5 @@ pytest test_pe.py
 | | | | Figure out what to do about different latencies (if they are different for the floating point ops) |
 | | | | Add multi-PE support to Peak |
 | | | | Change CoreIR mapper, PnR to support multi-PE |
+
+# Whitney Architectural Description
