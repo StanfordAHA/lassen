@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/StanfordAHA/whitney.svg?branch=master)](https://travis-ci.com/StanfordAHA/whitney)
+
 # Whitney
 The PE for the second generation CGRA (garnet).
 
