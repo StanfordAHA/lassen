@@ -3,6 +3,7 @@ python:
 - '3.6'
 install:
 - pip install pytest-cov
+- git clone https://github.com/phanrahan/peak.git
 - pip install -e .
 script:
 - pytest
