@@ -3,10 +3,10 @@ python:
 - '3.7-dev'
 install:
 - pip install pytest-cov
-- git clone https://github.com/leonardt/bit_vector.git
-- pip install -e ./bit_vector
 - git clone https://github.com/phanrahan/peak.git
 - pip install -e ./peak
 - pip install -e .
+- git clone https://github.com/leonardt/bit_vector.git
+- pip install -e ./bit_vector
 script:
 - pytest tests/
