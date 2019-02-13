@@ -80,11 +80,6 @@ def alu(alu:ALU, signed:Signed, a:Data, b:Data, d:Bit):
         res, res_p = a >> Data(b[:4]), Bit(0)
     elif alu == ALU.SHL:
         res, res_p = a << Data(b[:4]), Bit(0)
-    elif alu == ALU.Neg:
-        if signed:
-            res, res_p = ~a+Bit(1), Bit(0)
-        else:
-            res, res_p = ~a, Bit(0)
     elif alu == ALU.FP_add:
         a_fp = _bv_to_bfloat(a)
         b_fp = _bv_to_bfloat(b)
