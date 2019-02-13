@@ -1,6 +1,6 @@
 from bit_vector import BitVector
 import struct
-import numpy
+import numpy as np
 
 def _bv_to_bfloat(a: BitVector):
     assert (a.num_bits == 16)
