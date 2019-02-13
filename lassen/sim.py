@@ -156,13 +156,13 @@ def _bv_to_bfloat(a: BitVector):
     fp = np.frombuffer(raw_data, dtype = np.float32)
     return fp
    
-def _bfloat_to_bv(a: np.float32):
+def _bfloat_to_bv(fp: np.float32):
     # Change np.float32 to 4 raw bytes
     raw_data = struct.pack('<f', fp)
     # Re-interpret 4 raw bytes as 2 unsigned ints
     # Convert float32 to bfloat16 by taking the upper 
     # 2 bytes (chop off 16 fraction bits)
-    bv_value = struct.unpack('<HH', data)[1]
+    bv_value = struct.unpack('<HH', raw_data)[1]
     # Create BitVector from value
     bv = BitVector(bv_value, 16)
     return bv
