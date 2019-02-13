@@ -29,7 +29,18 @@ class BFloat16(BitVector):
         b = _bv_to_bfloat(other)
         return _bfloat_to_bv(a + b)
     
+    def __sub__(self, other):
+        a = _bv_to_bfloat(self)
+        b = _bv_to_bfloat(other)
+        return _bfloat_to_bv(a - b)
+    
     def __mul__(self, other):
         a = _bv_to_bfloat(self)
         b = _bv_to_bfloat(other)
         return _bfloat_to_bv(a * b)
+
+    def __neg__(self):
+        # Just flip the sign bit
+        res = BitVector(self)
+        res[-1] = not res[-1]
+        return res
