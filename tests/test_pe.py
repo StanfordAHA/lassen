@@ -108,8 +108,8 @@ def test_mult2():
 def test_fp_add():
     pe = PE()
     inst = asm.fp_add()
-    res, res_p, irq = pe(inst, Data(0x804),Data(0x8804))
-    assert res==0
+    res, res_p, irq = pe(inst, Data(0x801),Data(0x782))
+    assert res==0x842
     assert res_p==0
     assert irq==0
 
@@ -118,7 +118,7 @@ def test_fp_mult():
     inst = asm.fp_mult()
     res, res_p, irq = pe(inst, Data(0),Data(0))
     assert res==0
-    assert res_p==0
+    assert res_p==1
     assert irq==0
 
 def test_lsl():
