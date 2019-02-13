@@ -86,9 +86,15 @@ def alu(alu:ALU, signed:Signed, a:Data, b:Data, d:Bit):
         else:
             res, res_p = ~a, Bit(0)
     elif alu == ALU.FP_add:
-        raise NotImplementedError(alu)
+        a_fp = _bv_to_bfloat(a)
+        b_fp = _bv_to_bfloat(b)
+        res = _bfloat_to_bv(a_fp + b_fp)
+        res_p = 0
     elif alu == ALU.FP_mult:
-        raise NotImplementedError(alu)
+        a_fp = _bv_to_bfloat(a)
+        b_fp = _bv_to_bfloat(b)
+        res = _bfloat_to_bv(a_fp * b_fp)
+        res_p = 0
     else:
         raise NotImplementedError(alu)
 
