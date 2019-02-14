@@ -26,7 +26,7 @@ pytest
 ## Whitney related tasks
 | Date | Person | Status | Task |
 | ---- | ------ | ------ | ---- |
-| Feb 13 | Alex | | Add BFloat16 add and multiply functional model to Lassen |
+| Feb 13 | Alex | Complete | Add BFloat16 add and multiply functional model to whitney |
 | | | | Add Float (configurable width?) type to CoreIR, create float add and multiply operator implementations in CoreIR by wrapping designware module |
 | | | | Add Float type to Magma |
 | | | | Generate verilog from Peak |
