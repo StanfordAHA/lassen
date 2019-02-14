@@ -24,23 +24,29 @@ def _bfloat_to_bv(fp: np.float32):
     return bv
 
 class BFloat16(BitVector):
-    def __add__(self, other):
+
+    def bfloat_add(self: BitVector, other: BitVector):
         a = _bv_to_bfloat(self)
         b = _bv_to_bfloat(other)
         return _bfloat_to_bv(a + b)
     
-    def __sub__(self, other):
+    def bfloat_sub(self: BitVector, other: BitVector):
         a = _bv_to_bfloat(self)
         b = _bv_to_bfloat(other)
         return _bfloat_to_bv(a - b)
     
-    def __mul__(self, other):
+    def bfloat_mul(self: BitVector, other: BitVector):
         a = _bv_to_bfloat(self)
         b = _bv_to_bfloat(other)
         return _bfloat_to_bv(a * b)
 
-    def __neg__(self):
+    def bfloat_neg(self: BitVector):
         # Just flip the sign bit
         res = BitVector(self)
         res[-1] = not res[-1]
         return res
+
+    __add__ = bfloat_add
+    __sub__ = bfloat_sub
+    __mul__ = bfloat_mul
+    __neg__ = bfloat_neg
