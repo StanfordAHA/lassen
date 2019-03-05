@@ -79,6 +79,51 @@ def alu(alu:ALU, signed:Signed, a:Data, b:Data, d:Bit):
         res, res_p = a >> b[:4], 0
     elif alu == ALU.SHL:
         res, res_p = a << b[:4], 0
+    elif alu == ALU.FAdd:
+        res, res_p = 0, 0
+    elif alu == ALU.FMul:
+        res, res_p = 0, 0
+    elif alu == ALU.FGetMant:
+        res, res_p = a[6:0], 0
+    elif alu == ALU.FAddIExp:
+        res, res_p = ((a[15]<<16) | ((a[14:7] + b[7:0])<<7)&(0xFF<<7)         | (a[6:0])), 0 
+    elif alu == ALU.FSubExp:
+        res, res_p = ((a[15]<<16) | ((a[14:7] - b[14:7] + 127)<<7)&(0xFF<<7)  | (a[6:0])), (((a[14:7] - b[14:7] + 127) < 0) | ((a[14:7] - b[14:7] + 127) > 255)) 
+    elif alu == ALU.FCnvExp2F:
+        biased_exp = a[14:7]
+        unbiased_exp = biased_exp - 127
+        if (unbiased_exp<0):
+          sign=0x8000
+          abs_exp=-1*unbiased_exp
+        else:
+          sign=0x0000
+          abs_exp=unbiased+exp
+        scale=-127
+        for bit_pos in range(8):
+          if (abs_exp[bit_pos]==1):
+            scale = bit_pos
+        if (scale>=0):
+          mant = abs_exp[scale-1:0]
+        else:
+          mant = 0
+        biased_scale = scale + 127
+        res, res_p = (sign | ((biased_scale<<7) & (0xFF<<7)) | mant), 0
+    elif alu == ALU.FGetFInt:
+        biased_exp = a[14:7]
+        unbiased_exp = biased_exp - 127
+        mant = (0x80 | a[6:0])
+        mant_shift = mant << unbiased_exp
+        sel = mant_shift[14:7]
+        #We are not checking for overflow when converting to int
+        res, res_p = sel, 0
+    elif alu == ALU.FGetFFrac:
+        biased_exp = a[14:7]
+        unbiased_exp = biased_exp - 127
+        mant = (0x80 | a[6:0])
+        mant_shift = mant << unbiased_exp
+        sel = mant_shift[6:0]
+        #We are not checking for overflow when converting to int
+        res, res_p = sel, 0
     elif alu == ALU.Neg:
         if signed:
             res, res_p = ~a+Bit(1), 0

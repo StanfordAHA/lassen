@@ -53,7 +53,18 @@ def smult1 ():
 def smult2 ():
     return inst(ALU.Mult2, signed=1)
 
-
+def fgetmant ():
+    return inst(ALU.FGetMant)
+def faddiexp ():
+    return inst(ALU.FAddIExp)
+def fsubexp ():
+    return inst(ALU.FSubExp)
+def fcnvexp2f ():
+    return inst(ALU.FCnvExp2F)
+def fgetfint ():
+    return inst(ALU.FGetFInt)
+def fgetffrac ():
+    return inst(ALU.FGetFFrac)
 
 def and_():
     return inst(ALU.And)

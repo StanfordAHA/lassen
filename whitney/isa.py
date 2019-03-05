@@ -12,6 +12,10 @@ from .lut import Bit, LUT
 DATAWIDTH = 16
 Data = Bits(DATAWIDTH)
 
+# MANT=8
+# EXP=8
+# FloatData = Bits(MANT-1+EXP+1)
+
 # Constant values for registers
 RegA_Const = Bits(DATAWIDTH)
 RegB_Const = Bits(DATAWIDTH)
@@ -28,21 +32,28 @@ RegF_Mode = Mode
 
 # ALU operations
 class ALU(Enum):
-    Add = 0
-    Sub = 1
-    Abs = 3
-    GTE_Max = 4
-    LTE_Min = 5
-    Sel = 8
-    Mult0 = 0xb
-    Mult1 = 0xc
-    Mult2 = 0xd
-    SHR = 0xf
-    SHL = 0x11
-    Or = 0x12
-    And = 0x13
-    XOr = 0x14
-
+    Add          = 0x0
+    Sub          = 0x1
+    Abs          = 0x3
+    GTE_Max      = 0x4
+    LTE_Min      = 0x5
+    Sel          = 0x8
+    Mult0        = 0xb
+    Mult1        = 0xc
+    Mult2        = 0xd
+    SHR          = 0xf
+    SHL          = 0x11
+    Or           = 0x12
+    And          = 0x13
+    XOr          = 0x14
+    FAdd         = 0x90
+    FMul         = 0x91
+    FGetMant     = 0x92
+    FAddIExp     = 0x93
+    FSubExp      = 0x94
+    FCnvExp2F    = 0x95
+    FGetFInt     = 0x96
+    FGetFFrac    = 0x97
 # Whether the operation is unsigned (0) or signed (1)
 Signed = Bits(1)
 
