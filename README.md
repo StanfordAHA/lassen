@@ -49,12 +49,20 @@ Compared to the first generation PE (Diablo), Whitney shall have two new feature
 * It is performed using `out = a * (1/b)`, the BFloat multiply already exists as an instruction. So we basically have to implement reciprocal, `1/b`
 * Let us say `b = +/- 1.f * 2 ^ x`
 * `1/b = +/- (1/1.f) * 2 ^ (-x)`
-* `(1/1.f)` is stored as a Bfloat in a look up table in a memory tile. It is a table with 128 entries as f is 7 bits. So you read this entry out, let us say it is some `1.g * 2 ^ y`
+* `(1/1.f)` is stored as a Bfloat in a look up table in a memory tile. It is a table with 128 entries as f is 7 bits. So you read this entry out, let us say it is some `+/- 1.g * 2 ^ y`
 * Then `1/b = +/- 1.g * 2 ^ y * 2 ^ (-x) = +/- 1.g * 2 ^ (y - x)`
 * We implement subtraction of the exponent portions of two BFloats as a new instruction in the PE
-* So div boils down to 16 bit lookup, one 8 bit signed integer subtraction and 1 BFloat multiply
+* So div boils down to a 16 bit lookup from a 128 entry table, one 8 bit signed integer subtraction and 1 BFloat multiply
+* We must take into account corner cases when a, b, out are not normal numbers
 
-2. log
+2. ln
+* Implements `out = ln(a)` where a and out are BFloats
+* Let us say `a = +/- 1.f * 2 ^ x`
+* `ln(a)` should error out a < 0
+* Otherwise, `ln(a) = ln(1.f * 2 ^ x) = ln(1.f) + x * ln(2)`
+* `ln(1.f)` is a look up table, similar to what we did for div
+* There is a special instruction to convert x to a BFloat, and `ln(2)` is also a BFloat
+* So ln boils down to a lookup, a BFloat multiply and a BFloat add
 
 3. e^x
 
