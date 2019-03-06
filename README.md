@@ -36,8 +36,28 @@ pytest
 
 ## Whitney architectural description
 Compared to the first generation PE (Diablo), Whitney shall have two new features:
-* BFloat16 addition and multiplication in every PE
-* Transcendental functions (div, log, e^x, sin, pow) implemented using a cluster of PEs and memory
-```diff
-- What types and precisions for the transcendental operations?
-```
+* BFloat addition and multiplication in every PE
+* Transcendental functions (div, log, e^x, sin, pow) on BFloats implemented using a cluster of PEs and memory. The PEs and memory will get some small special instructions to support these operations.
+* It will not support denormalized numbers
+
+### BFloat
++/- 1.mantissa * 2 ^ exponent, where mantissa is a 7 bit unsigned integer, and exponent is 8 bit signed integer (. dot means decimal point)
+
+### Transcendental functions
+1. div
+* Implements `out = a/b`, where a, b and out are all BFloats
+* It is performed using `out = a * (1/b)`, the BFloat multiply already exists as an instruction. So we basically have to implement reciprocal, `1/b`
+* Let us say `b = +/- 1.f * 2 ^ x`
+* `1/b = +/- (1/1.f) * 2 ^ (-x)`
+* `(1/1.f)` is stored as a Bfloat in a look up table in a memory tile. It is a table with 128 entries as f is 7 bits. So you read this entry out, let us say it is some `1.g * 2 ^ y`
+* Then `1/b = +/- 1.g * 2 ^ y * 2 ^ (-x) = +/- 1.g * 2 ^ (y - x)`
+* We implement subtraction of the exponent portions of two BFloats as a new instruction in the PE
+* So div boils down to 16 bit lookup, one 8 bit signed integer subtraction and 1 BFloat multiply
+
+2. log
+
+3. e^x
+
+4. sin
+
+5. pow
