@@ -58,10 +58,10 @@ Compared to the first generation PE (Diablo), Whitney shall have two new feature
 2. ln
 * Implements `out = ln(a)` where a and out are BFloats
 * Let us say `a = +/- 1.f * 2 ^ x`
-* `ln(a)` should error out a < 0
+* `ln(a)` should error out when `a < 0`
 * Otherwise, `ln(a) = ln(1.f * 2 ^ x) = ln(1.f) + x * ln(2)`
 * `ln(1.f)` is a look up table, similar to what we did for div
-* There is a special instruction to convert x to a BFloat, and `ln(2)` is also a BFloat
+* We add a special instruction to PE to convert 8 bit signed integer x to a BFloat, `ln(2)` is also a BFloat
 * So ln boils down to a lookup, a BFloat multiply and a BFloat add
 
 3. e^x
