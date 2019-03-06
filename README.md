@@ -62,7 +62,7 @@ Compared to the first generation PE (Diablo), Whitney shall have two new feature
 * Otherwise, `ln(a) = ln(1.f * 2 ^ x) = ln(1.f) + x * ln(2)`
 * `ln(1.f)` is a look up table, similar to what we did for div
 * We add a special instruction to PE to convert 8 bit signed integer x to a BFloat, `ln(2)` is also a BFloat
-* So ln boils down to a lookup, a BFloat multiply and a BFloat add
+* So ln boils down to a lookup, 8 bit signed integer to BFloat conversion, a BFloat multiply and a BFloat add
 
 3. e^x
 
