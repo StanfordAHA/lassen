@@ -70,7 +70,7 @@ Compared to the first generation PE (Diablo), Whitney shall have two new feature
 * Let us just work out the case when y is positive. If y is negative 2^y = 1/(2^-y) and we have already implemented reciprocal.
 * The largest BFloat number is `0 11111110 1111111 = 2^127 * (2 - 2^(-7))`. log2 of this number is `127.99..`. For any y larger than `127.99..`, `2^y` will be infinity. 
 * So we are only concerned with values of y between 0 and 128. We can break this range into two parts:
-* 0 <= y < 1 => 1 <= 2^y < 2
+* 0 <= y < 1 => 1 <= 2^y < 2. What happens here?
 * 1 <= y < 128: here the exponent is positive, and only the last three bits are significant, and we have 7 mantissa bits, so we have a look up table with a 10 bit address (1024 entries)?
 
 
