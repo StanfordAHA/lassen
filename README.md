@@ -67,8 +67,12 @@ Compared to the first generation PE (Diablo), Whitney shall have two new feature
 3. e^x
 * `e^x = 2^(log2(e^x)) = 2^(x * log2(e)) = 2^y`
 * We already have BFloat multiply, and `log2(e)` is a BFloat constant, so we can multiply them to get a BFloat `y`
-* The largest BFloat number is `0 11111110 1111111 = 2^127 * (2 - 2^(-7)) = 3.3895314 * 10^38`. log2 of this number is `127.99..`. So for any y larger than `127.99..`, `2^y` will be infinity. So we only need to consider y that has exponent values upto 7, that is 3 bits of exponent.
-* 
+* Let us just work out the case when y is positive. If y is negative 2^y = 1/(2^-y) and we have already implemented reciprocal.
+* The largest BFloat number is `0 11111110 1111111 = 2^127 * (2 - 2^(-7))`. log2 of this number is `127.99..`. For any y larger than `127.99..`, `2^y` will be infinity. 
+* So we are only concerned with values of y between 0 and 128. We can break this range into two parts:
+* 0 <= y < 1 => 1 <= 2^y < 2
+* 1 <= y < 128: here the exponent is positive, and only the last three bits are significant, and we have 7 mantissa bits, so we have a look up table with a 10 bit address (1024 entries)?
+
 
 4. sin
 * To compute sin(x), first we convert x to a value y between -pi/2 to pi/2 which has the same sin
