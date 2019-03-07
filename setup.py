@@ -2,15 +2,15 @@ from setuptools import setup
 import sys
 
 setup(
-    name='whitney',
+    name='lassen',
     version='0.0.1',
-    url='https://github.com/StanfordAHA/whitney',
+    url='https://github.com/StanfordAHA/lassen',
     license='MIT',
     maintainer='Priyanka Raina',
     maintainer_email='praina@stanford.edu',
     description='PE for the CGRA written in Peak',
     packages=[
-        "whitney",
+        "lassen",
     ],
     install_requires=[
         "peak"
