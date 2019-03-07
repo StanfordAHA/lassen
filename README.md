@@ -65,9 +65,9 @@ Compared to the first generation PE (Diablo), Whitney shall have two new feature
 * So ln boils down to a lookup, 8 bit signed integer to BFloat conversion, a BFloat multiply and a BFloat add
 
 3. e^x
-* e^x = 2^(log2(e^x)) = 2^(x * log2(e)) = 2^y
-* We already have BFloat multiply, and log2(e) is a BFloat constant, so we can multiply them to get a BFloat y
-* The largest BFloat number is 0 11111110 1111111 = 2^127 * (2 - 2^(-7)) = 3.3895314 * 10^38. ln of this number is 88.72. So for any x larger than 88.72, e^x will be infinity. So we only need to consider y that has exponent values upto 7, that is 3 bits of exponent.
+* `e^x = 2^(log2(e^x)) = 2^(x * log2(e)) = 2^y`
+* We already have BFloat multiply, and `log2(e)` is a BFloat constant, so we can multiply them to get a BFloat `y`
+* The largest BFloat number is `0 11111110 1111111 = 2^127 * (2 - 2^(-7)) = 3.3895314 * 10^38`. log2 of this number is `127.99..`. So for any y larger than `127.99..`, `2^y` will be infinity. So we only need to consider y that has exponent values upto 7, that is 3 bits of exponent.
 * 
 
 4. sin
