@@ -1,4 +1,4 @@
-from bit_vector import BitVector, SIntVector, overflow
+from hwtypes import BitVector, SIntVector, overflow
 from peak import Peak
 from .mode import Mode, RegisterMode
 from .lut import Bit, LUT, lut
@@ -48,13 +48,13 @@ def alu(alu:ALU, signed:Signed, a:Data, b:Data, d:Bit):
         V = overflow(a, b_not, res)
         res_p = C
     elif alu == ALU.Mult0:
-        res, C, V = mul[:16], 0, 0 # wrong C, V
+        res, C, V = mul[:16], Bit(0), Bit(0) # wrong C, V
         res_p = C
     elif alu == ALU.Mult1:
-        res, C, V = mul[8:24], 0, 0 # wrong C, V
+        res, C, V = mul[8:24], Bit(0), Bit(0) # wrong C, V
         res_p = C
     elif alu == ALU.Mult2:
-        res, C, V = mul[16:32], 0, 0 # wrong C, V
+        res, C, V = mul[16:32], Bit(0), Bit(0) # wrong C, V
         res_p = C
     elif alu == ALU.GTE_Max:
         # C, V = a-b?
@@ -68,22 +68,22 @@ def alu(alu:ALU, signed:Signed, a:Data, b:Data, d:Bit):
         pred = a >= 0
         res, res_p = pred.ite(a,-a), Bit(a[-1])
     elif alu == ALU.Sel:
-        res, res_p = d.ite(a,b), 0
+        res, res_p = d.ite(a,b), Bit(0)
     elif alu == ALU.And:
-        res, res_p = a & b, 0
+        res, res_p = a & b, Bit(0)
     elif alu == ALU.Or:
-        res, res_p = a | b, 0
+        res, res_p = a | b, Bit(0)
     elif alu == ALU.XOr:
-        res, res_p = a ^ b, 0
+        res, res_p = a ^ b, Bit(0)
     elif alu == ALU.SHR:
-        res, res_p = a >> b[:4], 0
+        res, res_p = a >> Data(b[:4]), Bit(0)
     elif alu == ALU.SHL:
-        res, res_p = a << b[:4], 0
+        res, res_p = a << Data(b[:4]), Bit(0)
     elif alu == ALU.Neg:
         if signed:
-            res, res_p = ~a+Bit(1), 0
+            res, res_p = ~a+Bit(1), Bit(0)
         else:
-            res, res_p = ~a, 0
+            res, res_p = ~a, Bit(0)
     else:
         raise NotImplementedError(alu)
 

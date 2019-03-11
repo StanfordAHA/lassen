@@ -1,5 +1,5 @@
 from peak import Peak, Register
-from peak.enum import Enum
+from peak.adt import Enum
 from .lut import Bit
 
 # Field for specifying register modes

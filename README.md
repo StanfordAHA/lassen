@@ -1,6 +1,6 @@
-[![Build Status](https://travis-ci.com/StanfordAHA/whitney.svg?branch=master)](https://travis-ci.com/StanfordAHA/whitney)
+[![Build Status](https://travis-ci.com/StanfordAHA/lassen.svg?branch=master)](https://travis-ci.com/StanfordAHA/lassen)
 
-# Whitney
+# Lassen
 The PE for the second generation CGRA (garnet).
 
 ## Instructions to run
@@ -12,10 +12,10 @@ git clone https://github.com/phanrahan/peak.git
 cd peak
 python setup.py install --user
 ```
-* Install whitney
+* Install Lassen
 ```
-git clone git@github.com:StanfordAHA/whitney.git
-cd whitney
+git clone git@github.com:StanfordAHA/lassen.git
+cd lassen
 python setup.py install --user
 ```
 * Run tests using
@@ -26,7 +26,7 @@ pytest
 ## Whitney related tasks
 | Date | Person | Status | Task |
 | ---- | ------ | ------ | ---- |
-| Feb 13 | Alex | | Add BFloat16 add and multiply functional model to whitney |
+| Feb 13 | Alex | | Add BFloat16 add and multiply functional model to Lassen |
 | | | | Add Float (configurable width?) type to CoreIR, create float add and multiply operator implementations in CoreIR by wrapping designware module |
 | | | | Add Float type to Magma |
 | | | | Generate verilog from Peak |
