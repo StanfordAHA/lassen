@@ -105,6 +105,31 @@ def test_mult2():
     assert res_p==0
     assert irq==0
 
+def test_fp_add():
+    pe = PE()
+    inst = asm.fp_add()
+    # [sign, exponent (decimal), mantissa (binary)]:
+    # a   = [0, -111, 1.0000001]
+    # b   = [0, -112, 1.0000010]
+    # res = [0, -111, 1.1000010]
+    res, res_p, irq = pe(inst, Data(0x801),Data(0x782))
+    assert res==0x842
+    assert res_p==0
+    assert irq==0
+
+def test_fp_mult():
+    pe = PE()
+    inst = asm.fp_mult()
+    # [sign, exponent (decimal), mantissa (binary)]:
+    # a   = [0, 2, 1.0000000]
+    # b   = [0, 1, 1.0000001]
+    # res = [0, 3, 1.0000001]
+    # mant = mant(a) * mant(b)
+    # exp = exp(a) + exp(b)
+    res, res_p, irq = pe(inst, Data(0x4080),Data(0x4001))
+    assert res==0x4101
+    assert res_p==0
+    assert irq==0
 
 def test_lsl():
     pe = PE()

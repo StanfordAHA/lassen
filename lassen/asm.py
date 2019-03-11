@@ -53,6 +53,11 @@ def smult1 ():
 def smult2 ():
     return inst(ALU.Mult2, signed=1)
 
+def fp_add():
+    return inst(ALU.FP_add)
+
+def fp_mult():
+    return inst(ALU.FP_mult)
 
 
 def and_():

@@ -4,7 +4,9 @@ from .mode import Mode, RegisterMode
 from .lut import Bit, LUT, lut
 from .cond import Cond, cond
 from .isa import *
-
+from .bfloat import BFloat16
+import struct
+import numpy as np
 
 # simulate the PE ALU
 #
@@ -79,11 +81,16 @@ def alu(alu:ALU, signed:Signed, a:Data, b:Data, d:Bit):
         res, res_p = a >> Data(b[:4]), Bit(0)
     elif alu == ALU.SHL:
         res, res_p = a << Data(b[:4]), Bit(0)
-    elif alu == ALU.Neg:
-        if signed:
-            res, res_p = ~a+Bit(1), Bit(0)
-        else:
-            res, res_p = ~a, Bit(0)
+    elif alu == ALU.FP_add:
+        a = BFloat16(a)
+        b = BFloat16(b)
+        res = a + b
+        res_p = 0
+    elif alu == ALU.FP_mult:
+        a = BFloat16(a)
+        b = BFloat16(b)
+        res = a * b
+        res_p = 0
     else:
         raise NotImplementedError(alu)
 
@@ -133,6 +140,4 @@ class PE(Peak):
         irq = Bit(0) # NYI
 
         # return 16-bit result, 1-bit result, irq
-        return alu_res, res_p, irq
-
-
+        return alu_res, res_p, irq 

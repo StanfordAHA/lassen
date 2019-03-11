@@ -40,6 +40,8 @@ class ALU(Enum):
     Or = 0x12
     And = 0x13
     XOr = 0x14
+    FP_add = 0x15
+    FP_mult = 0x16
 
 # Whether the operation is unsigned (0) or signed (1)
 class Signed(Enum):
