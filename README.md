@@ -23,10 +23,10 @@ python setup.py install --user
 pytest
 ```
 
-## Whitney related tasks
+## Tasks
 | Date | Person | Status | Task |
 | ---- | ------ | ------ | ---- |
-| Feb 13 | Alex | Complete | Add BFloat16 add and multiply functional model to whitney |
+| Feb 13 | Alex | Complete | Add BFloat16 add and multiply functional model |
 | | | | Add Float (configurable width?) type to CoreIR, create float add and multiply operator implementations in CoreIR by wrapping designware module |
 | | | | Add Float type to Magma |
 | | | | Generate verilog from Peak |
@@ -34,8 +34,8 @@ pytest
 | | | | Add multi-PE support to Peak |
 | | | | Change CoreIR mapper, PnR to support multi-PE |
 
-## Whitney architectural description
-Compared to the first generation PE (Diablo), Whitney shall have two new features:
+## Architectural description
+Compared to the first generation PE (Diablo), Lassen shall have two new features:
 * BFloat addition and multiplication in every PE
 * Transcendental functions (div, log, e^x, sin, pow) on BFloats implemented using a cluster of PEs and memory. The PEs and memory will get some small special instructions to support these operations.
 * It will not support denormalized numbers
