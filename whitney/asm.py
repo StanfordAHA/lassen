@@ -53,6 +53,10 @@ def smult1 ():
 def smult2 ():
     return inst(ALU.Mult2, signed=1)
 
+def fadd ():
+    return inst(ALU.FAdd)
+def fmul ():
+    return inst(ALU.FMul)
 def fgetmant ():
     return inst(ALU.FGetMant)
 def faddiexp ():

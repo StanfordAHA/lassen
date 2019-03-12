@@ -1,6 +1,31 @@
 import whitney.asm as asm
 from whitney.sim import PE, Bit, Data
 
+def test_fadd():
+    # instantiate an PE - calls PE.__init__
+    pe = PE()
+    # format an 'and' instruction
+    inst = asm.fadd() 
+    # execute PE instruction with the arguments as inputs -  call PE.__call__
+    res, res_p, irq = pe(inst, Data(0x000A), Data(0x0001))
+    assert res==0x0085
+    assert res_p==0
+    assert irq==0
+
+def test_fmul():
+    # instantiate an PE - calls PE.__init__
+    pe = PE()
+    # format an 'and' instruction
+    inst = asm.fmul() 
+    # execute PE instruction with the arguments as inputs -  call PE.__call__
+    res, res_p, irq = pe(inst, Data(0x4000), Data(0x4040))
+    # 4000 => Sign=0; Exp=0x80; Mant=0x00 (0100 0000 0000 0000) (num 2)
+    # 4040 => Sign=0; Exp=0x80; Mant=0x40 (0100 0000 0100 0000) (num 3)
+    # es:40C0 => Sign=0; Exp=0x81; Mant=0x40 (0100 0000 1100 0000) (num 6)
+    assert res==0x40C0
+    assert res_p==0
+    assert irq==0
+
 def test_get_mant():
     # instantiate an PE - calls PE.__init__
     pe = PE()
@@ -9,6 +34,74 @@ def test_get_mant():
     # execute PE instruction with the arguments as inputs -  call PE.__call__
     res, res_p, irq = pe(inst, Data(0x7F8A), Data(0x0000))
     assert res==0xA
+    assert res_p==0
+    assert irq==0
+
+def test_add_exp_imm():
+    # instantiate an PE - calls PE.__init__
+    pe = PE()
+    # format an 'and' instruction
+    inst = asm.faddiexp() 
+    # execute PE instruction with the arguments as inputs -  call PE.__call__
+    res, res_p, irq = pe(inst, Data(0x7F8A), Data(0x0005))
+    # 7F8A => Sign=0; Exp=0xFF; Mant=0x0A
+    # Add 5 to exp => Sign=0; Exp=0x04; Mant=0x0A i.e. float  = 0x020A
+    assert res==0x020A
+    assert res_p==0
+    assert irq==0
+
+def test_sub_exp():
+    # instantiate an PE - calls PE.__init__
+    pe = PE()
+    # format an 'and' instruction
+    inst = asm.fsubexp() 
+    # execute PE instruction with the arguments as inputs -  call PE.__call__
+    res, res_p, irq = pe(inst, Data(0x7F8A), Data(0x4005))
+    # 7F8A => Sign=0; Exp=0xFF; Mant=0x0A
+    # 4005 => Sign=0; Exp=0x80; Mant=0x05 (0100 0000 0000 0101)
+    # res: 7F0A => Sign=0; Exp=0xFE; Mant=0x0A (0111 1111 0000 1010)
+    assert res==0x7F0A
+    assert res_p==0
+    assert irq==0
+
+def test_cnvt_exp_to_float():
+    # instantiate an PE - calls PE.__init__
+    pe = PE()
+    # format an 'and' instruction
+    inst = asm.fcnvexp2f() 
+    # execute PE instruction with the arguments as inputs -  call PE.__call__
+    res, res_p, irq = pe(inst, Data(0x4005), Data(0x0000))
+    # 4005 => Sign=0; Exp=0x80; Mant=0x05 (0100 0000 0000 0101) i.e. unbiased exp = 1
+    # res: 3F80 => Sign=0; Exp=0x7F; Mant=0x00 (0011 1111 1000 0000)
+    assert res==0x3F80
+    assert res_p==0
+    assert irq==0
+
+def test_get_float_int():
+    # instantiate an PE - calls PE.__init__
+    pe = PE()
+    # format an 'and' instruction
+    inst = asm.fgetfint() 
+    # execute PE instruction with the arguments as inputs -  call PE.__call__
+    res, res_p, irq = pe(inst, Data(0x4020), Data(0x0000))
+    #2.5 = 10.1 i.e. exp = 1 with 1.01 # biased exp = 128 i.e 80
+    #float is 0100 0000 0010 0000 i.e. 4020
+    # res: int(2.5) =  2
+    assert res==0x2
+    assert res_p==0
+    assert irq==0
+
+def test_get_float_frac():
+    # instantiate an PE - calls PE.__init__
+    pe = PE()
+    # format an 'and' instruction
+    inst = asm.fgetffrac() 
+    # execute PE instruction with the arguments as inputs -  call PE.__call__
+    res, res_p, irq = pe(inst, Data(0x4020), Data(0x0000))
+    #2.5 = 10.1 i.e. exp = 1 with 1.01 # biased exp = 128 i.e 80
+    #float is 0100 0000 0010 0000 i.e. 4020
+    # res: frac(2.5) = 0.5D = 0.1B i.e. 1000 0000
+    assert res==0x80
     assert res_p==0
     assert irq==0
 
