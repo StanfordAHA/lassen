@@ -65,18 +65,16 @@ Compared to the first generation PE (Diablo), Lassen shall have two new features
 * So ln boils down to a lookup, 8 bit signed integer to BFloat conversion, a BFloat multiply and a BFloat add
 
 3. e^x
-* `e^x = 2^(log2(e^x)) = 2^(x * log2(e)) = 2^y`
-* We already have BFloat multiply, and `log2(e)` is a BFloat constant, so we can multiply them to get a BFloat `y`
+* `e^x = (2^(1/ln(2)))^x = 2^(x/ln(2)) = 2^y`
+* We can get `y` with existing instructions. Bfloat multiply it with a constant 1/ln(2).
 * Let us just work out the case when y is positive. If y is negative 2^y = 1/(2^-y) and we have already implemented reciprocal.
-* The largest BFloat number is `0 11111110 1111111 = 2^127 * (2 - 2^(-7))`. log2 of this number is `127.99..`. For any y larger than `127.99..`, `2^y` will be infinity. 
-* So we are only concerned with values of y between 0 and 128. We can break this range into two parts:
-* 0 <= y < 1 => 1 <= 2^y < 2. What happens here?
-* 1 <= y < 128: here the exponent is positive, and only the last three bits are significant, and we have 7 mantissa bits, so we have a look up table with a 10 bit address (1024 entries)?
-
+* Convert Bfloat y to a+b where a is integer part and b is fractional part. When b is smaller than 2^-6 it is zero in Bfloat16.
+* We look up 2^b from a table, this has 64 entries.
+* Then we increment exponent of the looked up number by a. 
 
 4. sin
-* To compute sin(x), first we convert x to a value y between -pi/2 to pi/2 which has the same sin
-* We implement sin(y), y is between -1.57 and 1.57
+* To compute sin(x), first we calculate y = x mod (pi/2)
+* If y is less than some number, return y, else lookup in table. This gets rid of most negative exponents, and table it basically dependent on mantissa.
 
 5. pow
 * a^x = e^(ln(a^x)) = e^(x * ln(a))
