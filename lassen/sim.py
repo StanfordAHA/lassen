@@ -27,9 +27,9 @@ import numpy as np
 #   C (carry generated)
 #   V (overflow generated)
 #
-def gen_alu(family: TypeFamily):
+def gen_alu(family: TypeFamily, datawidth):
     Bit = family.Bit
-    Data = family.BitVector[DATAWIDTH]
+    Data = family.BitVector[datawidth]
 
     @name_outputs(res=Data, res_p=Bit, Z=Bit, N=Bit, C=Bit, V=Bit)
     def alu(inst:Inst, a:Data, b:Data, d:Bit):
@@ -200,7 +200,7 @@ class PE(Peak):
         rf = self.regf(inst.regf, inst.bit2, bit2, clk_en)
 
         # calculate alu results
-        alu = gen_alu(BitVector.get_family())
+        alu = gen_alu(BitVector.get_family(), DATAWIDTH)
         alu_res, alu_res_p, Z, N, C, V = alu(inst, ra, rb, rd)
 
         # calculate lut results
