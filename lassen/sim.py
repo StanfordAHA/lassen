@@ -97,8 +97,8 @@ def alu(alu:ALU, signed:Signed, a:Data, b:Data, d:Bit):
         sign = BitVector((a & 0x8000),16)
         exp = BitVector(((a & 0x7F80)>>7),8)
         exp_check = BitVector(exp,9)
-        exp += SIntVector(b)
-        exp_check += SIntVector(b)
+        exp += SIntVector(b[0:8])
+        exp_check += SIntVector(b[0:9])
         exp_shift = BitVector(exp,16)
         exp_shift = exp_shift << 7
         mant = BitVector((a & 0x7F),16);
@@ -114,7 +114,7 @@ def alu(alu:ALU, signed:Signed, a:Data, b:Data, d:Bit):
         res, res_p = (signa | exp_shift | manta), 0
     elif alu == ALU.FCnvExp2F:
         biased_exp = SIntVector(((a & 0x7F80)>>7),8)
-        unbiased_exp = biased_exp - 127
+        unbiased_exp = biased_exp - SIntVector[8](127)
         if (unbiased_exp<0):
           sign=BitVector(0x8000,16)
           abs_exp=~unbiased_exp+1
@@ -136,11 +136,11 @@ def alu(alu:ALU, signed:Signed, a:Data, b:Data, d:Bit):
         expa = BitVector(((a & 0x7F80)>>7),8)
         manta = BitVector((a & 0x7F),16) | 0x80;
 
-        unbiased_exp = SIntVector(expa) - 127
+        unbiased_exp = SIntVector(expa) - SIntVector[8](127)
         if (unbiased_exp<0):
           manta_shift = BitVector(0,16)
         else:
-          manta_shift = BitVector(manta,16) << unbiased_exp
+          manta_shift = BitVector(manta,16) << BitVector[16](unbiased_exp)
         #We are not checking for overflow when converting to int
         res, res_p = (manta_shift>>7), 0
     elif alu == ALU.FGetFFrac:
@@ -148,11 +148,11 @@ def alu(alu:ALU, signed:Signed, a:Data, b:Data, d:Bit):
         expa = BitVector(((a & 0x7F80)>>7),8)
         manta = BitVector((a & 0x7F),16) | 0x80;
 
-        unbiased_exp = SIntVector(expa) - 127
+        unbiased_exp = SIntVector(expa) - SIntVector[8](127)
         if (unbiased_exp<0):
-          manta_shift = BitVector(manta,16) >> unbiased_exp
+          manta_shift = BitVector(manta,16) >> BitVector[16](-unbiased_exp)
         else:
-          manta_shift = BitVector(manta,16) << unbiased_exp
+          manta_shift = BitVector(manta,16) << BitVector[16](unbiased_exp)
         #We are not checking for overflow when converting to int
         res, res_p = ((manta_shift & 0x07F)<<1), 0
     else:
