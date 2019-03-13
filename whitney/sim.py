@@ -1,4 +1,4 @@
-from bit_vector import BitVector, SIntVector, UIntVector
+from bit_vector import BitVector, SIntVector, overflow
 from peak import Peak
 from .mode import Mode, RegisterMode
 from .lut import Bit, LUT, lut
@@ -26,6 +26,7 @@ from .isa import *
 #   V (overflow generated)
 #
 def alu(alu:ALU, signed:Signed, a:Data, b:Data, d:Bit):
+
     if signed:
         a = SIntVector(a)
         b = SIntVector(b)
@@ -39,12 +40,12 @@ def alu(alu:ALU, signed:Signed, a:Data, b:Data, d:Bit):
     V = 0
     if   alu == ALU.Add:
         res, C = a.adc(b, Bit(0))
-        V = 0#overflow(a, b, res)
+        V = overflow(a, b, res)
         res_p = C
     elif alu == ALU.Sub:
         b_not = ~b
         res, C = a.adc(b_not, Bit(1)) 
-        V = 0#overflow(a, b_not, res)
+        V = overflow(a, b_not, res)
         res_p = C
     elif alu == ALU.Mult0:
         res, C, V = mul[:16], 0, 0 # wrong C, V
@@ -78,65 +79,6 @@ def alu(alu:ALU, signed:Signed, a:Data, b:Data, d:Bit):
         res, res_p = a >> b[:4], 0
     elif alu == ALU.SHL:
         res, res_p = a << b[:4], 0
-    elif alu == ALU.FAdd:
-        signa = BitVector((a & 0x8000),16)
-        expa  = BitVector(((a & 0x7F80)>>7),8)
-        manta = BitVector((a & 0x7F),16) | 0x80
-        signb = BitVector((b & 0x8000),16)
-        expb  = BitVector(((b & 0x7F80)>>7),8)
-        mantb = BitVector((b & 0x7F),16) | 0x80
-        if (expb>expa):
-          manta>>(expb-expa)
-          finalexp = expb
-        else:
-          mantb>>(expa-expb)
-          finalexp = expa
-
-        if ((signa>0) & (signb>0)):
-          finalsign = BitVector(0x8000,16)
-        elif ((signa==0) & (signb==0)):
-          finalsign = BitVector(0x0000, 16)
-        else:
-          if (mantb>=manta):
-            finalsign = signb 
-          else:
-            finalsign = signa
-          if (signa>0):
-            manta = ~manta + 1
-          if (signb>0):
-            mantb = ~mantb + 1
-
-        finalmant = manta + mantb
-        if ((finalmant[8]==Bit(1)) & (signa==signb)):
-          finalmant = finalmant >> 1
-          finalexp += 1
-        normmant = finalmant & 0x7F
-        exp_shift = finalexp << 7
-        res, res_p = (finalsign | exp_shift | normmant), 0
-    elif alu == ALU.FMul:
-        signa = BitVector((a & 0x8000),16)
-        expa  = BitVector(((a & 0x7F80)>>7),8)
-        manta = BitVector((a & 0x7F),16) | 0x80
-        signb = BitVector((b & 0x8000),16)
-        expb  = BitVector(((b & 0x7F80)>>7),8)
-        mantb = BitVector((b & 0x7F),16) | 0x80
-
-        intexp = BitVector(expa + expb - 127,16)
-
-        finalsign = signa ^ signb
-
-        intmant = UIntVector((manta * mantb) >> 8,8)
-        scale=-127
-        for bit_pos in range(8):
-          if (intmant[bit_pos]==Bit(1)):
-            scale = bit_pos
-        if (scale>=0):
-          normmant = BitVector((intmant * (2**(7-scale))) & 0x7F,16)
-        else:
-          normmant = BitVector(0,16)
-        exp_shift = BitVector(intexp << 7,16)
-        res, res_p = (finalsign | exp_shift | normmant), 0
-        print(res)
     elif alu == ALU.FGetMant:
         res, res_p = (a & 0x7F), 0
     elif alu == ALU.FAddIExp:
@@ -211,7 +153,7 @@ def alu(alu:ALU, signed:Signed, a:Data, b:Data, d:Bit):
         raise NotImplementedError(alu)
 
     Z = res == 0
-    N = 0 
+    N = Bit(res[-1]) 
 
     return res, res_p, Z, N, C, V
 
