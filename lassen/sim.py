@@ -80,7 +80,7 @@ def alu(alu:ALU, signed:Signed, a:Data, b:Data, d:Bit):
     elif alu == ALU.SHR:
         res, res_p = a >> Data(b[:4]), Bit(0)
     elif alu == ALU.SHL:
-        res, res_p = a << Data(b[:4]), 0
+        res, res_p = a << Data(b[:4]), Bit(0)
     elif alu == ALU.FP_add:
         a = BFloat16(a)
         b = BFloat16(b)
