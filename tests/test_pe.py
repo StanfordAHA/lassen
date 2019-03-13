@@ -105,6 +105,7 @@ def test_mult2():
     assert res_p==0
     assert irq==0
 
+
 def test_lsl():
     pe = PE()
     inst = asm.lsl()

@@ -153,7 +153,7 @@ def alu(alu:ALU, signed:Signed, a:Data, b:Data, d:Bit):
         raise NotImplementedError(alu)
 
     Z = res == 0
-    N = Bit(res[-1]) 
+    N = Bit(res[-1])
 
     return res, res_p, Z, N, C, V
 
