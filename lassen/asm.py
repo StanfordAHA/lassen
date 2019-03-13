@@ -56,6 +56,12 @@ def smult2 ():
 def fgetmant ():
     return inst(ALU.FGetMant)
 
+def fp_add():
+    return inst(ALU.FP_add)
+
+def fp_mult():
+    return inst(ALU.FP_mult)
+
 def faddiexp ():
     return inst(ALU.FAddIExp)
 

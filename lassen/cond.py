@@ -1,4 +1,4 @@
-from peak.enum import Enum
+from peak.adt import Enum
 from .lut import Bit
 
 #

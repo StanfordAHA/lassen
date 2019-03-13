@@ -1,7 +1,5 @@
-from dataclasses import dataclass
-from peak.bits import Bits
-from peak.enum import Enum
-from peak.product import Product
+from hwtypes import BitVector, Bit
+from peak.adt import Enum, Product
 from .cond import Cond
 from .mode import Mode
 from .lut import Bit, LUT
@@ -10,14 +8,14 @@ from .lut import Bit, LUT
 
 # Current PE has 16-bit data path
 DATAWIDTH = 16
-Data = Bits(DATAWIDTH)
+Data = BitVector[DATAWIDTH]
 
 # Constant values for registers
-RegA_Const = Bits(DATAWIDTH)
-RegB_Const = Bits(DATAWIDTH)
-RegD_Const = Bits(1)
-RegE_Const = Bits(1)
-RegF_Const = Bits(1)
+RegA_Const = BitVector[DATAWIDTH]
+RegB_Const = BitVector[DATAWIDTH]
+RegD_Const = Bit
+RegE_Const = Bit
+RegF_Const = Bit
 
 # Modes for registers
 RegA_Mode = Mode
@@ -42,19 +40,22 @@ class ALU(Enum):
     Or = 0x12
     And = 0x13
     XOr = 0x14
+    FP_add = 0x15
+    FP_mult = 0x16
     FGetMant     = 0x92
     FAddIExp     = 0x93
     FSubExp      = 0x94
     FCnvExp2F    = 0x95
     FGetFInt     = 0x96
     FGetFFrac    = 0x97
-# Whether the operation is unsigned (0) or signed (1)
-Signed = Bits(1)
 
+# Whether the operation is unsigned (0) or signed (1)
+class Signed(Enum):
+    unsigned = 0
+    signed = 1
 #
 # Each configuration is given by the following fields
 #
-@dataclass
 class Inst(Product):
     alu:ALU          # ALU operation
     signed:Signed    # unsigned or signed 
