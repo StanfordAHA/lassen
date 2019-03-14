@@ -1,18 +1,19 @@
 from lassen.asm import add, sub, and_, or_, xor
-from lassen.sim import gen_pe
-from lassen.mode import gen_mode
+from lassen.sim import gen_pe, gen_pe_type_family
+from lassen.mode import gen_mode_type
 import magma as m
 import pytest
+from hwtypes import BitVector
 
 
-Mode = gen_mode()
+Mode = gen_mode_type(gen_pe_type_family(BitVector.get_family()))
 
 
 @pytest.mark.parametrize('op', [add, and_, or_, xor])
 @pytest.mark.parametrize('mode', [Mode.BYPASS, Mode.DELAY])
 def test_rtl(op, mode):
-    pe_functional_model = gen_pe()()
-    pe_magma = gen_pe(mode="rtl")
+    pe_functional_model = gen_pe(BitVector.get_family())()
+    pe_magma = gen_pe(m.get_family())
     tester = fault.Tester(pe_magma, clock=PE.CLK)
 
     inst = op(ra_mode=mode, rb_mode=mode)

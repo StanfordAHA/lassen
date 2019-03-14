@@ -1,10 +1,12 @@
 from hwtypes import BitVector, SIntVector, overflow, TypeFamily
 from peak import Peak, name_outputs
-from .mode import gen_mode, gen_register_mode
+import peak.adt
+from .mode import gen_register_mode
 from .lut import Bit, gen_lut_type, gen_lut
 from .cond import gen_cond
 from .isa import *
 from .bfloat import BFloat16
+from .family import gen_pe_type_family
 import struct
 import numpy as np
 import magma as m
@@ -28,11 +30,11 @@ import magma as m
 #   C (carry generated)
 #   V (overflow generated)
 #
-def gen_alu(family: TypeFamily, datawidth, mode="sim"):
+def gen_alu(family: TypeFamily, datawidth):
     Bit = family.Bit
     Data = family.BitVector[datawidth]
     SInt = family.Signed[datawidth]
-    Inst = gen_inst(mode)
+    Inst = gen_inst_type(family)
 
     # @name_outputs(res=Data, res_p=Bit, Z=Bit, N=Bit, C=Bit, V=Bit)
     def alu(inst:Inst, a:Data, b:Data, d:Bit) -> (Data, Bit, Bit, Bit, Bit,
@@ -173,27 +175,24 @@ def gen_alu(family: TypeFamily, datawidth, mode="sim"):
         N = Bit(res[-1])
     
         return res, res_p, Z, N, C, V
-    if mode == "sim":
-        return alu
-    elif mode == "rtl":
-        return m.circuit.combinational(alu)
+    if family.Bit is m.Bit:
+        alu = m.circuit.combinational(alu)
 
-def gen_pe(mode="sim"):
-    if mode == "sim":
-        family = BitVector.get_family()
-    elif mode == "rtl":
-        family = m.get_family()
-    alu = gen_alu(family, DATAWIDTH, mode)
+    return alu
+
+def gen_pe(family):
+    family = gen_pe_type_family(family)
+    alu = gen_alu(family, DATAWIDTH)
     lut = gen_lut(family)
-    cond = gen_cond(mode)
+    cond = gen_cond(family)
 
     Bit = family.Bit
     Data = family.BitVector[DATAWIDTH]
 
-    DataReg = gen_register_mode(Data, mode=mode)
-    BitReg = gen_register_mode(Bit, mode=mode)
+    DataReg = gen_register_mode(Data)
+    BitReg = gen_register_mode(Bit)
 
-    Inst = gen_inst(mode)
+    Inst = gen_inst_type(family)
 
     class PE(Peak):
 
@@ -237,8 +236,6 @@ def gen_pe(mode="sim"):
 
             # return 16-bit result, 1-bit result, irq
             return alu_res, res_p, irq 
-    if mode == "sim":
-        return PE
-    elif mode == "rtl":
-        return m.circuit.sequential(PE)
-    raise NotImplementedError(mode)
+    if family.Bit is m.Bit:
+        PE = m.circuit.sequential(PE)
+    return PE

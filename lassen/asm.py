@@ -1,30 +1,30 @@
 from dataclasses import dataclass
 from .cond import gen_cond_type
-from .mode import gen_mode
+from .mode import gen_mode_type
 from .lut import Bit, gen_lut_type
 from .isa import *
+from .sim import gen_pe_type_family
+from hwtypes import BitVector
 
-Mode = gen_mode()
+sim_family = gen_pe_type_family(BitVector.get_family())
+Mode = gen_mode_type(sim_family)
 
-# https://github.com/StanfordAHA/CGRAGenerator/wiki/PE-Spec
 
-#
-# Format a configuration of the PE - sets all fields
-#
-def inst(alu, signed=0, lut=0, cond=gen_cond_type().Z,
-    ra_mode=Mode.BYPASS, ra_const=0,
-    rb_mode=Mode.BYPASS, rb_const=0,
-    rd_mode=Mode.BYPASS, rd_const=0,
-    re_mode=Mode.BYPASS, re_const=0,
-    rf_mode=Mode.BYPASS, rf_const=0
-    ):
-
+def inst(alu, signed=0, lut=0, cond=gen_cond_type(sim_family).Z,
+         ra_mode=Mode.BYPASS, ra_const=0,
+         rb_mode=Mode.BYPASS, rb_const=0,
+         rd_mode=Mode.BYPASS, rd_const=0,
+         re_mode=Mode.BYPASS, re_const=0,
+         rf_mode=Mode.BYPASS, rf_const=0):
+    """
+    https://github.com/StanfordAHA/CGRAGenerator/wiki/PE-Spec
+    Format a configuration of the PE - sets all fields
+    """
     return Inst(alu, Signed(signed), gen_lut_type()(lut), cond,
-        RegA_Mode(ra_mode), RegA_Const(ra_const),
-        RegB_Mode(rb_mode), RegB_Const(rb_const),
-        RegD_Mode(rd_mode), RegD_Const(rd_const),
-        RegE_Mode(re_mode), RegE_Const(re_const),
-        RegF_Mode(rf_mode), RegF_Const(rf_const) )
+                RegA_Mode(ra_mode), RegA_Const(ra_const), RegB_Mode(rb_mode),
+                RegB_Const(rb_const), RegD_Mode(rd_mode), RegD_Const(rd_const),
+                RegE_Mode(re_mode), RegE_Const(re_const), RegF_Mode(rf_mode),
+                RegF_Const(rf_const))
 
 # helper functions to format configurations
 

@@ -1,35 +1,26 @@
 from peak import Peak, gen_register
 from peak.adt import Enum
 from .lut import Bit
+from .family import gen_pe_type_family
 from hwtypes import BitVector
 import magma as m
 
-def gen_mode(mode="sim"):
-    if mode == "sim":
-        class Mode(Enum):
-            CONST = 0   # Register returns constant in constant field
-            VALID = 1   # Register written with clock enable, previous value returned
-            BYPASS = 2  # Register is bypassed and input value is returned
-            DELAY = 3   # Register written with input value, previous value returned
-    elif mode == "rtl":
-        Mode = m.Enum(
-            CONST=0,  # Register returns constant in constant field
-            VALID=1,  # Register written with clock enable, previous value returned
-            BYPASS=2,  # Register is bypassed and input value is returned
-            DELAY=3  # Register written with input value, previous value returned
-        )
-    # Field for specifying register modes
-    #
+def gen_mode_type(family):
+    """
+    Field for specifying register modes
+    """
+    class Mode(family.Enum):
+        CONST = 0   # Register returns constant in constant field
+        VALID = 1   # Register written with clock enable, previous value returned
+        BYPASS = 2  # Register is bypassed and input value is returned
+        DELAY = 3   # Register written with input value, previous value returned
     return Mode
 
 
-def gen_register_mode(T, mode="sim", init=0):
-    if mode == "sim":
-        family = BitVector.get_family()
-    elif mode == "rtl":
-        family = m.get_family()
-    Reg = gen_register(T, mode=mode, init=init)
-    Mode = gen_mode(mode)
+def gen_register_mode(T, init=0):
+    family = gen_pe_type_family(T.get_family())
+    Reg = gen_register(T, init=init)
+    Mode = gen_mode_type(family)
 
     class RegisterMode(Peak):
         def __init__(self):
@@ -48,8 +39,6 @@ def gen_register_mode(T, mode="sim", init=0):
             elif mode == Mode.VALID:
                 return self.register(value, clk_en)
 
-    if mode == "sim":
-        return RegisterMode
-    elif mode == "rtl":
-        return m.circuit.sequential(RegisterMode)
-    raise NotImplementedError(mode)
+    if family.Bit is m.Bit:
+        RegisterMode = m.circuit.sequential(RegisterMode)
+    return RegisterMode

@@ -2,56 +2,34 @@ from peak.adt import Enum
 from .lut import Bit
 import magma as m
 
-def gen_cond_type(mode="sim"):
-#
-# Condition code field - selects which 1-bit result is retuned
-#
-    if mode == "sim":
-        class Cond(Enum):
-            Z = 0    # EQ
-            Z_n = 1  # NE
-            C = 2    # UGE
-            C_n = 3  # ULT
-            N = 4    # <  0
-            N_n = 5  # >= 0
-            V = 6    # Overflow
-            V_n = 7  # No overflow
-            EQ = 0
-            NE = 1
-            UGE = 2
-            ULT = 3
-            UGT = 8
-            ULE = 9
-            SGE = 10
-            SLT = 11
-            SGT = 12
-            SLE = 13
-            LUT = 14
-            ALU = 15
-    elif mode == "rtl":
-        Cond = m.Enum(
-            Z=0,    # EQ
-            Z_n=1,  # NE
-            C=2,    # UGE
-            C_n=3,  # ULT
-            N=4,    # <  0
-            N_n=5,  # >= 0
-            V=6,    # Overflow
-            V_n=7,  # No overflow
-            EQ=0,
-            NE=1,
-            UGE=2,
-            ULT=3,
-            UGT=8,
-            ULE=9,
-            SGE=10,
-            SLT=11,
-            SGT=12,
-            SLE=13,
-            LUT=14,
-            ALU=15
-        )
+
+def gen_cond_type(family):
+    """
+    Condition code field - selects which 1-bit result is retuned
+    """
+    class Cond(family.Enum):
+        Z = 0    # EQ
+        Z_n = 1  # NE
+        C = 2    # UGE
+        C_n = 3  # ULT
+        N = 4    # <  0
+        N_n = 5  # >= 0
+        V = 6    # Overflow
+        V_n = 7  # No overflow
+        EQ = 0
+        NE = 1
+        UGE = 2
+        ULT = 3
+        UGT = 8
+        ULE = 9
+        SGE = 10
+        SLT = 11
+        SGT = 12
+        SLE = 13
+        LUT = 14
+        ALU = 15
     return Cond
+
 
 def gen_cond(mode="sim"):
     #
