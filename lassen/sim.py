@@ -7,6 +7,7 @@ from .isa import *
 from .bfloat import BFloat16
 import struct
 import numpy as np
+import magma as m
 
 # simulate the PE ALU
 #
@@ -171,26 +172,37 @@ def gen_alu(family: TypeFamily, datawidth):
         return res, res_p, Z, N, C, V
     return alu
 
-def gen_pe():
-    alu = gen_alu(BitVector.get_family(), DATAWIDTH)
+def gen_pe(mode="sim"):
+    if mode == "sim":
+        family = BitVector.get_family()
+    elif mode == "rtl":
+        family = m.get_family()
+    alu = gen_alu(family, DATAWIDTH)
+
+    Bit = family.Bit
+    Data = family.BitVector[DATAWIDTH]
+
+    DataReg = gen_register_mode(Data, mode=mode)
+    BitReg = gen_register_mode(Bit, mode=mode)
+
     class PE(Peak):
 
         def __init__(self):
             # Declare PE state
 
             # Data registers
-            self.rega = gen_register_mode(BitVector.get_family())(Data)
-            self.regb = gen_register_mode(BitVector.get_family())(Data)
+            self.rega: DataReg = DataReg()
+            self.regb: DataReg = DataReg()
 
             # Bit Registers
-            self.regd = gen_register_mode(BitVector.get_family())(Bit)
-            self.rege = gen_register_mode(BitVector.get_family())(Bit)
-            self.regf = gen_register_mode(BitVector.get_family())(Bit)
+            self.regd: BitReg = BitReg()
+            self.rege: BitReg = BitReg()
+            self.regf: BitReg = BitReg()
 
         def __call__(self, inst: Inst, \
             data0: Data, data1: Data = Data(0), \
             bit0: Bit = Bit(0), bit1: Bit = Bit(0), bit2: Bit = Bit(0), \
-            clk_en: Bit = Bit(1)):
+            clk_en: Bit = Bit(1)) -> (Data, Bit, Bit):
 
             # Simulate one clock cycle
 
@@ -215,4 +227,8 @@ def gen_pe():
 
             # return 16-bit result, 1-bit result, irq
             return alu_res, res_p, irq 
-    return PE
+    if mode == "sim":
+        return PE
+    elif mode == "rtl":
+        return m.circuit.sequential(PE)
+    raise NotImplementedError(mode)

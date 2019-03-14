@@ -65,5 +65,5 @@ def cond(code:Cond, alu:Bit, lut:Bit, Z:Bit, N:Bit, C:Bit, V:Bit) -> Bit:
         return alu
     elif code == Cond.LUT:
         return lut
-    # raise NotImplementedError(code)
+    raise NotImplementedError(code)
 

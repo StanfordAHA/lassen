@@ -1,7 +1,8 @@
 from peak import Peak, gen_register
 from peak.adt import Enum
 from .lut import Bit
-from hwtypes import TypeFamily
+from hwtypes import BitVector
+import magma as m
 
 # Field for specifying register modes
 #
@@ -12,19 +13,19 @@ class Mode(Enum):
     DELAY = 3   # Register written with input value, previous value returned
 
 
-def gen_register_mode(family: TypeFamily, datawidth=None):
-    T = family
-    if datawidth is not None:
-        T = T[datawidth]
+def gen_register_mode(T, mode="sim", init=0):
+    if mode == "sim":
+        family = BitVector.get_family()
+    elif mode == "rtl":
+        family = m.get_family()
+    Reg = gen_register(T, mode=mode, init=init)
 
     class RegisterMode(Peak):
-        def __init__(self, init=0):
-            self.register: T = gen_register(T)(init)
+        def __init__(self):
+            self.register: Reg = Reg()
 
-        def reset(self):
-            self.register.reset()
-
-        def __call__(self, mode: Mode, const, value, clk_en: Bit):
+        def __call__(self, mode: Mode, const: T, value: T,
+                     clk_en: family.Bit) -> T:
             if mode == Mode.CONST:
                 self.register(value, False)
                 return const
@@ -38,4 +39,8 @@ def gen_register_mode(family: TypeFamily, datawidth=None):
             else:
                 raise NotImplementedError()
 
-    return RegisterMode
+    if mode == "sim":
+        return RegisterMode
+    elif mode == "rtl":
+        return m.circuit.sequential(RegisterMode)
+    raise NotImplementedError(mode)
