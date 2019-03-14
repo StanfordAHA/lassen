@@ -1,6 +1,6 @@
 from hwtypes import BitVector, SIntVector, overflow, TypeFamily
 from peak import Peak, name_outputs
-from .mode import Mode, RegisterMode
+from .mode import Mode, gen_register_mode
 from .lut import Bit, LUT, lut
 from .cond import Cond, cond
 from .isa import *
@@ -171,46 +171,48 @@ def gen_alu(family: TypeFamily, datawidth):
         return res, res_p, Z, N, C, V
     return alu
 
-class PE(Peak):
+def gen_pe():
+    alu = gen_alu(BitVector.get_family(), DATAWIDTH)
+    class PE(Peak):
 
-    def __init__(self):
-        # Declare PE state
+        def __init__(self):
+            # Declare PE state
 
-        # Data registers
-        self.rega = RegisterMode(Data)
-        self.regb = RegisterMode(Data)
+            # Data registers
+            self.rega = gen_register_mode(BitVector.get_family())(Data)
+            self.regb = gen_register_mode(BitVector.get_family())(Data)
 
-        # Bit Registers
-        self.regd = RegisterMode(Bit)
-        self.rege = RegisterMode(Bit)
-        self.regf = RegisterMode(Bit) 
+            # Bit Registers
+            self.regd = gen_register_mode(BitVector.get_family())(Bit)
+            self.rege = gen_register_mode(BitVector.get_family())(Bit)
+            self.regf = gen_register_mode(BitVector.get_family())(Bit)
 
-    def __call__(self, inst: Inst, \
-        data0: Data, data1: Data = Data(0), \
-        bit0: Bit = Bit(0), bit1: Bit = Bit(0), bit2: Bit = Bit(0), \
-        clk_en: Bit = Bit(1)):
+        def __call__(self, inst: Inst, \
+            data0: Data, data1: Data = Data(0), \
+            bit0: Bit = Bit(0), bit1: Bit = Bit(0), bit2: Bit = Bit(0), \
+            clk_en: Bit = Bit(1)):
 
-        # Simulate one clock cycle
+            # Simulate one clock cycle
 
-        ra = self.rega(inst.rega, inst.data0, data0, clk_en)
-        rb = self.regb(inst.regb, inst.data1, data1, clk_en)
+            ra = self.rega(inst.rega, inst.data0, data0, clk_en)
+            rb = self.regb(inst.regb, inst.data1, data1, clk_en)
 
-        rd = self.regd(inst.regd, inst.bit0, bit0, clk_en)
-        re = self.rege(inst.rege, inst.bit1, bit1, clk_en)
-        rf = self.regf(inst.regf, inst.bit2, bit2, clk_en)
+            rd = self.regd(inst.regd, inst.bit0, bit0, clk_en)
+            re = self.rege(inst.rege, inst.bit1, bit1, clk_en)
+            rf = self.regf(inst.regf, inst.bit2, bit2, clk_en)
 
-        # calculate alu results
-        alu = gen_alu(BitVector.get_family(), DATAWIDTH)
-        alu_res, alu_res_p, Z, N, C, V = alu(inst, ra, rb, rd)
+            # calculate alu results
+            alu_res, alu_res_p, Z, N, C, V = alu(inst, ra, rb, rd)
 
-        # calculate lut results
-        lut_res = lut(inst.lut, rd, re, rf)
+            # calculate lut results
+            lut_res = lut(inst.lut, rd, re, rf)
 
-        # calculate 1-bit result
-        res_p = cond(inst.cond, alu_res, lut_res, Z, N, C, V)
+            # calculate 1-bit result
+            res_p = cond(inst.cond, alu_res, lut_res, Z, N, C, V)
 
-        # calculate interrupt request 
-        irq = Bit(0) # NYI
+            # calculate interrupt request 
+            irq = Bit(0) # NYI
 
-        # return 16-bit result, 1-bit result, irq
-        return alu_res, res_p, irq 
+            # return 16-bit result, 1-bit result, irq
+            return alu_res, res_p, irq 
+    return PE
