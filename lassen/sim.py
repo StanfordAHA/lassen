@@ -1,8 +1,8 @@
 from hwtypes import BitVector, SIntVector, overflow, TypeFamily
 from peak import Peak, name_outputs
-from .mode import Mode, gen_register_mode
-from .lut import Bit, LUT, lut
-from .cond import Cond, cond
+from .mode import gen_mode, gen_register_mode
+from .lut import Bit, gen_lut_type, gen_lut
+from .cond import gen_cond
 from .isa import *
 from .bfloat import BFloat16
 import struct
@@ -28,18 +28,21 @@ import magma as m
 #   C (carry generated)
 #   V (overflow generated)
 #
-def gen_alu(family: TypeFamily, datawidth):
+def gen_alu(family: TypeFamily, datawidth, mode="sim"):
     Bit = family.Bit
     Data = family.BitVector[datawidth]
+    SInt = family.Signed[datawidth]
+    Inst = gen_inst(mode)
 
-    @name_outputs(res=Data, res_p=Bit, Z=Bit, N=Bit, C=Bit, V=Bit)
-    def alu(inst:Inst, a:Data, b:Data, d:Bit):
-        signed = inst.signed
+    # @name_outputs(res=Data, res_p=Bit, Z=Bit, N=Bit, C=Bit, V=Bit)
+    def alu(inst:Inst, a:Data, b:Data, d:Bit) -> (Data, Bit, Bit, Bit, Bit,
+                                                  Bit):
+        signed = inst.signed_
         alu = inst.alu
     
         if signed:
-            a = SIntVector(a)
-            b = SIntVector(b)
+            a = SInt(a)
+            b = SInt(b)
             mula, mulb = a.sext(16), b.sext(16)
         else:
             mula, mulb = a.zext(16), b.zext(16)
@@ -105,8 +108,8 @@ def gen_alu(family: TypeFamily, datawidth):
             sign = BitVector((a & 0x8000),16)
             exp = BitVector(((a & 0x7F80)>>7),8)
             exp_check = BitVector(exp,9)
-            exp += SIntVector(b[0:8])
-            exp_check += SIntVector(b[0:9])
+            exp += SInt(b[0:8])
+            exp_check += SInt(b[0:9])
             exp_shift = BitVector(exp,16)
             exp_shift = exp_shift << 7
             mant = BitVector((a & 0x7F),16);
@@ -121,8 +124,8 @@ def gen_alu(family: TypeFamily, datawidth):
             manta = BitVector((a & 0x7F),16);
             res, res_p = (signa | exp_shift | manta), Bit(0)
         elif alu == ALU.FCnvExp2F:
-            biased_exp = SIntVector(((a & 0x7F80)>>7),8)
-            unbiased_exp = biased_exp - SIntVector[8](127)
+            biased_exp = SInt(((a & 0x7F80)>>7),8)
+            unbiased_exp = biased_exp - SInt[8](127)
             if (unbiased_exp<0):
               sign=BitVector(0x8000,16)
               abs_exp=~unbiased_exp+1
@@ -144,7 +147,7 @@ def gen_alu(family: TypeFamily, datawidth):
             expa = BitVector(((a & 0x7F80)>>7),8)
             manta = BitVector((a & 0x7F),16) | 0x80;
     
-            unbiased_exp = SIntVector(expa) - SIntVector[8](127)
+            unbiased_exp = SInt(expa) - SInt[8](127)
             if (unbiased_exp<0):
               manta_shift = BitVector(0,16)
             else:
@@ -156,7 +159,7 @@ def gen_alu(family: TypeFamily, datawidth):
             expa = BitVector(((a & 0x7F80)>>7),8)
             manta = BitVector((a & 0x7F),16) | 0x80;
     
-            unbiased_exp = SIntVector(expa) - SIntVector[8](127)
+            unbiased_exp = SInt(expa) - SInt[8](127)
             if (unbiased_exp<0):
               manta_shift = BitVector(manta,16) >> BitVector[16](-unbiased_exp)
             else:
@@ -170,20 +173,27 @@ def gen_alu(family: TypeFamily, datawidth):
         N = Bit(res[-1])
     
         return res, res_p, Z, N, C, V
-    return alu
+    if mode == "sim":
+        return alu
+    elif mode == "rtl":
+        return m.circuit.combinational(alu)
 
 def gen_pe(mode="sim"):
     if mode == "sim":
         family = BitVector.get_family()
     elif mode == "rtl":
         family = m.get_family()
-    alu = gen_alu(family, DATAWIDTH)
+    alu = gen_alu(family, DATAWIDTH, mode)
+    lut = gen_lut(family)
+    cond = gen_cond(mode)
 
     Bit = family.Bit
     Data = family.BitVector[DATAWIDTH]
 
     DataReg = gen_register_mode(Data, mode=mode)
     BitReg = gen_register_mode(Bit, mode=mode)
+
+    Inst = gen_inst(mode)
 
     class PE(Peak):
 

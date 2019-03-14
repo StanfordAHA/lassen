@@ -4,13 +4,23 @@ from .lut import Bit
 from hwtypes import BitVector
 import magma as m
 
-# Field for specifying register modes
-#
-class Mode(Enum):
-    CONST = 0   # Register returns constant in constant field
-    VALID = 1   # Register written with clock enable, previous value returned
-    BYPASS = 2  # Register is bypassed and input value is returned
-    DELAY = 3   # Register written with input value, previous value returned
+def gen_mode(mode="sim"):
+    if mode == "sim":
+        class Mode(Enum):
+            CONST = 0   # Register returns constant in constant field
+            VALID = 1   # Register written with clock enable, previous value returned
+            BYPASS = 2  # Register is bypassed and input value is returned
+            DELAY = 3   # Register written with input value, previous value returned
+    elif mode == "rtl":
+        Mode = m.Enum(
+            CONST=0,  # Register returns constant in constant field
+            VALID=1,  # Register written with clock enable, previous value returned
+            BYPASS=2,  # Register is bypassed and input value is returned
+            DELAY=3  # Register written with input value, previous value returned
+        )
+    # Field for specifying register modes
+    #
+    return Mode
 
 
 def gen_register_mode(T, mode="sim", init=0):
@@ -19,6 +29,7 @@ def gen_register_mode(T, mode="sim", init=0):
     elif mode == "rtl":
         family = m.get_family()
     Reg = gen_register(T, mode=mode, init=init)
+    Mode = gen_mode(mode)
 
     class RegisterMode(Peak):
         def __init__(self):
@@ -36,8 +47,6 @@ def gen_register_mode(T, mode="sim", init=0):
                 return self.register(value, True)
             elif mode == Mode.VALID:
                 return self.register(value, clk_en)
-            else:
-                raise NotImplementedError()
 
     if mode == "sim":
         return RegisterMode
