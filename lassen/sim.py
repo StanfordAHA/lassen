@@ -37,18 +37,27 @@ class ALU(Peak):
     def __call__(self,inst:Inst, a:Data, b:Data, d:Bit):
         signed = inst.signed
         alu = inst.alu
-        
-        a + b
+
+        #print('precast: ')
+        #print(f'a : {type(a)}')
+        #print(f'b : {type(b)}')
         if signed:
             a = self.Signed(a)
             b = self.Signed(b)
             mula, mulb = a.sext(16), b.sext(16)
         else:
             mula, mulb = a.zext(16), b.zext(16)
-    
-        #print(mula, mulb, type(mula),type(mulb))
-        mul = mula * mulb
-    
+
+        try:
+            mul = mula * mulb
+        except Exception as e:
+            #print('except: ')
+            #print(f'a : {type(a)}')
+            #print(f'b : {type(b)}')
+            #print(f'ma : {type(mula)}')
+            #print(f'mb : {type(mulb)}')
+            raise e
+
         C = self.Bit(0)
         V = self.Bit(0)
         if   alu == ALUOP.Add:
@@ -57,7 +66,7 @@ class ALU(Peak):
             res_p = C
         elif alu == ALUOP.Sub:
             b_not = ~b
-            res, C = a.adc(b_not, self.Bit(1)) 
+            res, C = a.adc(b_not, self.Bit(1))
             V = overflow(a, b_not, res)
             res_p = C
         elif alu == ALUOP.Mult0:
@@ -118,7 +127,7 @@ class ALU(Peak):
             signa = self.BitVector((a & 0x8000),16)
             expa = self.BitVector(((a & 0x7F80)>>7),8)
             expb = self.BitVector(((b & 0x7F80)>>7),8)
-            expa = (expa - expb + 127) 
+            expa = (expa - expb + 127)
             exp_shift = self.BitVector(expa,16)
             exp_shift = exp_shift << 7
             manta = self.BitVector((a & 0x7F),16);
@@ -146,7 +155,7 @@ class ALU(Peak):
             signa = self.BitVector((a & 0x8000),16)
             expa = self.BitVector(((a & 0x7F80)>>7),8)
             manta = self.BitVector((a & 0x7F),16) | 0x80;
-    
+
             unbiased_exp = self.Signed(expa) - self.Signed[8](127)
             if (unbiased_exp<0):
               manta_shift = self.BitVector(0,16)
@@ -158,7 +167,7 @@ class ALU(Peak):
             signa = self.BitVector((a & 0x8000),16)
             expa = self.BitVector(((a & 0x7F80)>>7),8)
             manta = self.BitVector((a & 0x7F),16) | 0x80;
-    
+
             unbiased_exp = self.Signed(expa) - self.Signed[8](127)
             if (unbiased_exp<0):
               manta_shift = self.BitVector(manta,16) >> self.BitVector[16](-unbiased_exp)
@@ -168,12 +177,12 @@ class ALU(Peak):
             res, res_p = ((manta_shift & 0x07F)<<1), self.Bit(0)
         else:
             raise NotImplementedError(alu)
-    
+
         Z = res == 0
         N = self.Bit(res[-1])
-    
+
         return res, res_p, Z, N, C, V
-    
+
 class PE(Peak):
 
     def __init__(self,family: TypeFamily, datawidth=16):
@@ -181,31 +190,35 @@ class PE(Peak):
         self.Data = family.BitVector[datawidth]
         self.SIntVector = family.Signed
         self.BitVector = family.BitVector
-        
+
         # Declare PE state
         self.alu = ALU(family,datawidth)
         # Data registers
-        self.rega = RegisterMode(Data)
-        self.regb = RegisterMode(Data)
+        self.rega = RegisterMode(family, datawidth)
+        self.regb = RegisterMode(family, datawidth)
 
         # Bit Registers
-        self.regd = RegisterMode(Bit)
-        self.rege = RegisterMode(Bit)
-        self.regf = RegisterMode(Bit) 
+        self.regd = RegisterMode(family, None)
+        self.rege = RegisterMode(family, None)
+        self.regf = RegisterMode(family, None)
 
     @name_outputs(alu_res=Data, res_p=Bit, irq=Bit)
     def __call__(self, inst: Inst, \
         data0: Data, data1: Data = None, \
         bit0: Bit = None, bit1: Bit = None, bit2: Bit = None, \
         clk_en: Bit = None):
-        
+
         if data1 is None: data1 = self.Data(0)
         if bit0 is None: bit0 = self.Bit(0)
         if bit1 is None: bit1 = self.Bit(0)
         if bit2 is None: bit2 = self.Bit(0)
         if clk_en is None: clk_en = self.Bit(1)
-        
- 
+
+        #print('__call__: ')
+        #print(f'data0 : {type(data0)}')
+        #print(f'data1 : {type(data1)}')
+
+
 
         # Simulate one clock cycle
 
@@ -225,8 +238,8 @@ class PE(Peak):
         # calculate 1-bit result
         res_p = cond(inst.cond, alu_res, lut_res, Z, N, C, V)
 
-        # calculate interrupt request 
+        # calculate interrupt request
         irq = self.Bit(0) # NYI
 
         # return 16-bit result, 1-bit result, irq
-        return alu_res, res_p, irq 
+        return alu_res, res_p, irq
