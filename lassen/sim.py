@@ -48,19 +48,11 @@ class ALU(Peak):
         else:
             mula, mulb = a.zext(16), b.zext(16)
 
-        try:
-            mul = mula * mulb
-        except Exception as e:
-            #print('except: ')
-            #print(f'a : {type(a)}')
-            #print(f'b : {type(b)}')
-            #print(f'ma : {type(mula)}')
-            #print(f'mb : {type(mulb)}')
-            raise e
+        mul = mula * mulb
 
         C = self.Bit(0)
         V = self.Bit(0)
-        if   alu == ALUOP.Add:
+        if  alu == ALUOP.Add:
             res, C = a.adc(b, self.Bit(0))
             V = overflow(a, b, res)
             res_p = C
@@ -114,65 +106,65 @@ class ALU(Peak):
         elif alu == ALUOP.FGetMant:
             res, res_p = (a & 0x7F), self.Bit(0)
         elif alu == ALUOP.FAddIExp:
-            sign = self.BitVector((a & 0x8000),16)
-            exp = self.BitVector(((a & 0x7F80)>>7),8)
-            exp_check = self.BitVector(exp,9)
+            sign = self.BitVector[16]((a & 0x8000))
+            exp = self.BitVector[8](((a & 0x7F80)>>7))
+            exp_check = self.BitVector[9](exp)
             exp += self.Signed(b[0:8])
             exp_check += self.Signed(b[0:9])
-            exp_shift = self.BitVector(exp,16)
+            exp_shift = self.BitVector[16](exp)
             exp_shift = exp_shift << 7
-            mant = self.BitVector((a & 0x7F),16);
+            mant = self.BitVector[16]((a & 0x7F));
             res, res_p = (sign | exp_shift | mant), (exp_check > 255)
         elif alu == ALUOP.FSubExp:
-            signa = self.BitVector((a & 0x8000),16)
-            expa = self.BitVector(((a & 0x7F80)>>7),8)
-            expb = self.BitVector(((b & 0x7F80)>>7),8)
+            signa = self.BitVector[16]((a & 0x8000))
+            expa = self.BitVector[8](((a & 0x7F80)>>7))
+            expb = self.BitVector[8](((b & 0x7F80)>>7))
             expa = (expa - expb + 127)
-            exp_shift = self.BitVector(expa,16)
+            exp_shift = self.BitVector[16](expa)
             exp_shift = exp_shift << 7
-            manta = self.BitVector((a & 0x7F),16);
+            manta = self.BitVector[16]((a & 0x7F));
             res, res_p = (signa | exp_shift | manta), self.Bit(0)
         elif alu == ALUOP.FCnvExp2F:
             biased_exp = self.Signed(((a & 0x7F80)>>7),8)
             unbiased_exp = biased_exp - self.Signed[8](127)
             if (unbiased_exp<0):
-              sign=self.BitVector(0x8000,16)
+              sign=self.BitVector[16](0x8000)
               abs_exp=~unbiased_exp+1
             else:
-              sign=self.BitVector(0x0000,16)
+              sign=self.BitVector[16](0x0000)
               abs_exp=unbiased_exp
             scale=-127
             for bit_pos in range(8):
               if (abs_exp[bit_pos]==self.Bit(1)):
                 scale = bit_pos
             if (scale>=0):
-              normmant = self.BitVector((abs_exp * (2**(7-scale))) & 0x7F,16)
+              normmant = self.BitVector[16]((abs_exp * (2**(7-scale))) & 0x7F)
             else:
-              normmant = self.BitVector(0,16)
+              normmant = self.BitVector[16](0)
             biased_scale = scale + 127
             res, res_p = (sign | ((biased_scale<<7) & (0xFF<<7)) | normmant), self.Bit(0)
         elif alu == ALUOP.FGetFInt:
-            signa = self.BitVector((a & 0x8000),16)
-            expa = self.BitVector(((a & 0x7F80)>>7),8)
-            manta = self.BitVector((a & 0x7F),16) | 0x80;
+            signa = self.BitVector[16]((a & 0x8000))
+            expa = self.BitVector[8](((a & 0x7F80)>>7))
+            manta = self.BitVector[16]((a & 0x7F)) | 0x80;
 
             unbiased_exp = self.Signed(expa) - self.Signed[8](127)
             if (unbiased_exp<0):
-              manta_shift = self.BitVector(0,16)
+              manta_shift = self.BitVector[16](0)
             else:
-              manta_shift = self.BitVector(manta,16) << self.BitVector[16](unbiased_exp)
+              manta_shift = self.BitVector[16](manta) << self.BitVector[16](unbiased_exp)
             #We are not checking for overflow when converting to int
             res, res_p = (manta_shift>>7), self.Bit(0)
         elif alu == ALUOP.FGetFFrac:
-            signa = self.BitVector((a & 0x8000),16)
-            expa = self.BitVector(((a & 0x7F80)>>7),8)
-            manta = self.BitVector((a & 0x7F),16) | 0x80;
+            signa = self.BitVector[16]((a & 0x8000))
+            expa = self.BitVector[8](((a & 0x7F80)>>7))
+            manta = self.BitVector[16]((a & 0x7F)) | 0x80;
 
             unbiased_exp = self.Signed(expa) - self.Signed[8](127)
             if (unbiased_exp<0):
-              manta_shift = self.BitVector(manta,16) >> self.BitVector[16](-unbiased_exp)
+              manta_shift = self.BitVector[16](manta) >> self.BitVector[16](-unbiased_exp)
             else:
-              manta_shift = self.BitVector(manta,16) << self.BitVector[16](unbiased_exp)
+              manta_shift = self.BitVector[16](manta) << self.BitVector[16](unbiased_exp)
             #We are not checking for overflow when converting to int
             res, res_p = ((manta_shift & 0x07F)<<1), self.Bit(0)
         else:
