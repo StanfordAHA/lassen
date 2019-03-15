@@ -25,7 +25,7 @@ RegE_Mode = Mode
 RegF_Mode = Mode
 
 # ALU operations
-class ALU(Enum):
+class ALUOP(Enum):
     Add = 0
     Sub = 1
     Abs = 3
@@ -57,7 +57,7 @@ class Signed(Enum):
 # Each configuration is given by the following fields
 #
 class Inst(Product):
-    alu:ALU          # ALU operation
+    alu:ALUOP          # ALU operation
     signed:Signed    # unsigned or signed 
     lut:LUT          # LUT operation as a 3-bit LUT
     cond:Cond        # Condition code (see cond.py)

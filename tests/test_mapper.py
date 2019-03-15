@@ -1,15 +1,13 @@
-from lassen.sim import gen_pe, Bit, Data
+from lassen.sim import PE
 from lassen.isa import Inst
 from hwtypes import BitVector
 import coreir
 import metamapper as mm
 
-PE = gen_pe(BitVector.get_family(),16)
-
 def test_discover():
     c = coreir.Context()
     mapper = mm.PeakMapper(c,"pe_ns")
-    Alu = mapper.add_peak_primitive("PE",gen_pe)
+    Alu = mapper.add_peak_primitive("PE",PE)
     mapper.discover_peak_rewrite_rules(width=16)
     #test the mapper on simple add4 app
     app = c.load_from_file("tests/add4.json")

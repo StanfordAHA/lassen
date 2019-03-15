@@ -31,12 +31,14 @@ class ALU(Peak):
     def __init__(self,family: TypeFamily, datawidth=16):
         self.Bit = family.Bit
         self.Data = family.BitVector[datawidth]
-        self.SIntVector = family.Signed
+        self.Signed = family.Signed
+        self.BitVector = family.BitVector
 
     def __call__(self,inst:Inst, a:Data, b:Data, d:Bit):
         signed = inst.signed
         alu = inst.alu
-    
+        
+        a + b
         if signed:
             a = self.Signed(a)
             b = self.Signed(b)
@@ -44,123 +46,124 @@ class ALU(Peak):
         else:
             mula, mulb = a.zext(16), b.zext(16)
     
+        #print(mula, mulb, type(mula),type(mulb))
         mul = mula * mulb
     
         C = self.Bit(0)
         V = self.Bit(0)
-        if   alu == ALU.Add:
+        if   alu == ALUOP.Add:
             res, C = a.adc(b, self.Bit(0))
             V = overflow(a, b, res)
             res_p = C
-        elif alu == ALU.Sub:
+        elif alu == ALUOP.Sub:
             b_not = ~b
             res, C = a.adc(b_not, self.Bit(1)) 
             V = overflow(a, b_not, res)
             res_p = C
-        elif alu == ALU.Mult0:
+        elif alu == ALUOP.Mult0:
             res, C, V = mul[:16], self.Bit(0), self.Bit(0) # wrong C, V
             res_p = C
-        elif alu == ALU.Mult1:
+        elif alu == ALUOP.Mult1:
             res, C, V = mul[8:24], self.Bit(0), self.Bit(0) # wrong C, V
             res_p = C
-        elif alu == ALU.Mult2:
+        elif alu == ALUOP.Mult2:
             res, C, V = mul[16:32], self.Bit(0), self.Bit(0) # wrong C, V
             res_p = C
-        elif alu == ALU.GTE_Max:
+        elif alu == ALUOP.GTE_Max:
             # C, V = a-b?
             pred = a >= b
             res, res_p = pred.ite(a,b), a >= b
-        elif alu == ALU.LTE_Min:
+        elif alu == ALUOP.LTE_Min:
             # C, V = a-b?
             pred = a <= b
             res, res_p = pred.ite(a,b), a >= b
-        elif alu == ALU.Abs:
+        elif alu == ALUOP.Abs:
             pred = a >= 0
             res, res_p = pred.ite(a,-a), self.Bit(a[-1])
-        elif alu == ALU.Sel:
+        elif alu == ALUOP.Sel:
             res, res_p = d.ite(a,b), self.Bit(0)
-        elif alu == ALU.And:
+        elif alu == ALUOP.And:
             res, res_p = a & b, self.Bit(0)
-        elif alu == ALU.Or:
+        elif alu == ALUOP.Or:
             res, res_p = a | b, self.Bit(0)
-        elif alu == ALU.XOr:
+        elif alu == ALUOP.XOr:
             res, res_p = a ^ b, self.Bit(0)
-        elif alu == ALU.SHR:
+        elif alu == ALUOP.SHR:
             res, res_p = a >> self.Data(b[:4]), self.Bit(0)
-        elif alu == ALU.SHL:
+        elif alu == ALUOP.SHL:
             res, res_p = a << self.Data(b[:4]), self.Bit(0)
-        elif alu == ALU.FP_add:
+        elif alu == ALUOP.FP_add:
             a = BFloat16(a)
             b = BFloat16(b)
             res = a + b
             res_p = self.Bit(0)
-        elif alu == ALU.FP_mult:
+        elif alu == ALUOP.FP_mult:
             a = BFloat16(a)
             b = BFloat16(b)
             res = a * b
             res_p = self.Bit(0)
-        elif alu == ALU.FGetMant:
+        elif alu == ALUOP.FGetMant:
             res, res_p = (a & 0x7F), self.Bit(0)
-        elif alu == ALU.FAddIExp:
-            sign = BitVector((a & 0x8000),16)
-            exp = BitVector(((a & 0x7F80)>>7),8)
-            exp_check = BitVector(exp,9)
+        elif alu == ALUOP.FAddIExp:
+            sign = self.BitVector((a & 0x8000),16)
+            exp = self.BitVector(((a & 0x7F80)>>7),8)
+            exp_check = self.BitVector(exp,9)
             exp += self.Signed(b[0:8])
             exp_check += self.Signed(b[0:9])
-            exp_shift = BitVector(exp,16)
+            exp_shift = self.BitVector(exp,16)
             exp_shift = exp_shift << 7
-            mant = BitVector((a & 0x7F),16);
+            mant = self.BitVector((a & 0x7F),16);
             res, res_p = (sign | exp_shift | mant), (exp_check > 255)
-        elif alu == ALU.FSubExp:
-            signa = BitVector((a & 0x8000),16)
-            expa = BitVector(((a & 0x7F80)>>7),8)
-            expb = BitVector(((b & 0x7F80)>>7),8)
+        elif alu == ALUOP.FSubExp:
+            signa = self.BitVector((a & 0x8000),16)
+            expa = self.BitVector(((a & 0x7F80)>>7),8)
+            expb = self.BitVector(((b & 0x7F80)>>7),8)
             expa = (expa - expb + 127) 
-            exp_shift = BitVector(expa,16)
+            exp_shift = self.BitVector(expa,16)
             exp_shift = exp_shift << 7
-            manta = BitVector((a & 0x7F),16);
+            manta = self.BitVector((a & 0x7F),16);
             res, res_p = (signa | exp_shift | manta), self.Bit(0)
-        elif alu == ALU.FCnvExp2F:
+        elif alu == ALUOP.FCnvExp2F:
             biased_exp = self.Signed(((a & 0x7F80)>>7),8)
             unbiased_exp = biased_exp - self.Signed[8](127)
             if (unbiased_exp<0):
-              sign=BitVector(0x8000,16)
+              sign=self.BitVector(0x8000,16)
               abs_exp=~unbiased_exp+1
             else:
-              sign=BitVector(0x0000,16)
+              sign=self.BitVector(0x0000,16)
               abs_exp=unbiased_exp
             scale=-127
             for bit_pos in range(8):
               if (abs_exp[bit_pos]==self.Bit(1)):
                 scale = bit_pos
             if (scale>=0):
-              normmant = BitVector((abs_exp * (2**(7-scale))) & 0x7F,16)
+              normmant = self.BitVector((abs_exp * (2**(7-scale))) & 0x7F,16)
             else:
-              normmant = BitVector(0,16)
+              normmant = self.BitVector(0,16)
             biased_scale = scale + 127
             res, res_p = (sign | ((biased_scale<<7) & (0xFF<<7)) | normmant), self.Bit(0)
-        elif alu == ALU.FGetFInt:
-            signa = BitVector((a & 0x8000),16)
-            expa = BitVector(((a & 0x7F80)>>7),8)
-            manta = BitVector((a & 0x7F),16) | 0x80;
+        elif alu == ALUOP.FGetFInt:
+            signa = self.BitVector((a & 0x8000),16)
+            expa = self.BitVector(((a & 0x7F80)>>7),8)
+            manta = self.BitVector((a & 0x7F),16) | 0x80;
     
             unbiased_exp = self.Signed(expa) - self.Signed[8](127)
             if (unbiased_exp<0):
-              manta_shift = BitVector(0,16)
+              manta_shift = self.BitVector(0,16)
             else:
-              manta_shift = BitVector(manta,16) << BitVector[16](unbiased_exp)
+              manta_shift = self.BitVector(manta,16) << self.BitVector[16](unbiased_exp)
             #We are not checking for overflow when converting to int
             res, res_p = (manta_shift>>7), self.Bit(0)
-        elif alu == ALU.FGetFFrac:
-            signa = BitVector((a & 0x8000),16)
-            expa = BitVector(((a & 0x7F80)>>7),8)
-            manta = BitVector((a & 0x7F),16) | 0x80;
+        elif alu == ALUOP.FGetFFrac:
+            signa = self.BitVector((a & 0x8000),16)
+            expa = self.BitVector(((a & 0x7F80)>>7),8)
+            manta = self.BitVector((a & 0x7F),16) | 0x80;
     
             unbiased_exp = self.Signed(expa) - self.Signed[8](127)
             if (unbiased_exp<0):
-              manta_shift = BitVector(manta,16) >> BitVector[16](-unbiased_exp)
+              manta_shift = self.BitVector(manta,16) >> self.BitVector[16](-unbiased_exp)
             else:
-              manta_shift = BitVector(manta,16) << BitVector[16](unbiased_exp)
+              manta_shift = self.BitVector(manta,16) << self.BitVector[16](unbiased_exp)
             #We are not checking for overflow when converting to int
             res, res_p = ((manta_shift & 0x07F)<<1), self.Bit(0)
         else:
@@ -171,47 +174,59 @@ class ALU(Peak):
     
         return res, res_p, Z, N, C, V
     
-    class PE(Peak):
+class PE(Peak):
 
-        def __init__(self):
-            # Declare PE state
+    def __init__(self,family: TypeFamily, datawidth=16):
+        self.Bit = family.Bit
+        self.Data = family.BitVector[datawidth]
+        self.SIntVector = family.Signed
+        self.BitVector = family.BitVector
+        
+        # Declare PE state
+        self.alu = ALU(family,datawidth)
+        # Data registers
+        self.rega = RegisterMode(Data)
+        self.regb = RegisterMode(Data)
 
-            # Data registers
-            self.rega = RegisterMode(Data)
-            self.regb = RegisterMode(Data)
+        # Bit Registers
+        self.regd = RegisterMode(Bit)
+        self.rege = RegisterMode(Bit)
+        self.regf = RegisterMode(Bit) 
 
-            # Bit Registers
-            self.regd = RegisterMode(Bit)
-            self.rege = RegisterMode(Bit)
-            self.regf = RegisterMode(Bit) 
+    @name_outputs(alu_res=Data, res_p=Bit, irq=Bit)
+    def __call__(self, inst: Inst, \
+        data0: Data, data1: Data = None, \
+        bit0: Bit = None, bit1: Bit = None, bit2: Bit = None, \
+        clk_en: Bit = None):
+        
+        if data1 is None: data1 = self.Data(0)
+        if bit0 is None: bit0 = self.Bit(0)
+        if bit1 is None: bit1 = self.Bit(0)
+        if bit2 is None: bit2 = self.Bit(0)
+        if clk_en is None: clk_en = self.Bit(1)
+        
+ 
 
-        @name_outputs(alu_res=Data, res_p=Bit, irq=Bit)
-        def __call__(self, inst: Inst, \
-            data0: Data, data1: Data = self.Data(0), \
-            bit0: Bit = self.Bit(0), bit1: Bit = self.Bit(0), bit2: Bit = self.Bit(0), \
-            clk_en: Bit = self.Bit(1)):
+        # Simulate one clock cycle
 
-            # Simulate one clock cycle
+        ra = self.rega(inst.rega, inst.data0, data0, clk_en)
+        rb = self.regb(inst.regb, inst.data1, data1, clk_en)
 
-            ra = self.rega(inst.rega, inst.data0, data0, clk_en)
-            rb = self.regb(inst.regb, inst.data1, data1, clk_en)
+        rd = self.regd(inst.regd, inst.bit0, bit0, clk_en)
+        re = self.rege(inst.rege, inst.bit1, bit1, clk_en)
+        rf = self.regf(inst.regf, inst.bit2, bit2, clk_en)
 
-            rd = self.regd(inst.regd, inst.bit0, bit0, clk_en)
-            re = self.rege(inst.rege, inst.bit1, bit1, clk_en)
-            rf = self.regf(inst.regf, inst.bit2, bit2, clk_en)
+        # calculate alu results
+        alu_res, alu_res_p, Z, N, C, V = self.alu(inst, ra, rb, rd)
 
-            # calculate alu results
-            alu_res, alu_res_p, Z, N, C, V = alu(inst, ra, rb, rd)
+        # calculate lut results
+        lut_res = lut(inst.lut, rd, re, rf)
 
-            # calculate lut results
-            lut_res = lut(inst.lut, rd, re, rf)
+        # calculate 1-bit result
+        res_p = cond(inst.cond, alu_res, lut_res, Z, N, C, V)
 
-            # calculate 1-bit result
-            res_p = cond(inst.cond, alu_res, lut_res, Z, N, C, V)
+        # calculate interrupt request 
+        irq = self.Bit(0) # NYI
 
-            # calculate interrupt request 
-            irq = self.Bit(0) # NYI
-
-            # return 16-bit result, 1-bit result, irq
-            return alu_res, res_p, irq 
-    return PE
+        # return 16-bit result, 1-bit result, irq
+        return alu_res, res_p, irq 
