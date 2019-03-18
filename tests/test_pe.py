@@ -1,9 +1,11 @@
 import lassen.asm as asm
 from lassen.sim import PE, Bit, Data
+from hwtypes import BitVector
+
+pe = PE(BitVector.get_family())
 
 def test_and():
     # instantiate an PE - calls PE.__init__
-    pe = PE()
     # format an 'and' instruction
     inst = asm.and_() 
     # execute PE instruction with the arguments as inputs -  call PE.__call__
@@ -13,7 +15,6 @@ def test_and():
     assert irq==0
 
 def test_or():
-    pe = PE()
     inst = asm.or_()
     res, res_p, irq = pe(inst, Data(1),Data(3))
     assert res==3
@@ -21,7 +22,6 @@ def test_or():
     assert irq==0
 
 def test_xor():
-    pe = PE()
     inst = asm.xor()
     res, res_p, irq = pe(inst, Data(1),Data(3))
     assert res==2
@@ -29,7 +29,6 @@ def test_xor():
     assert irq==0
 
 def test_inv():
-    pe = PE()
     inst = asm.sub()
     res, res_p, irq = pe(inst, Data(0xffff),Data(1))
     assert res==0xfffe
@@ -37,7 +36,6 @@ def test_inv():
     assert irq==0
 
 def test_neg():
-    pe = PE()
     inst = asm.neg()
     res, res_p, irq = pe(inst, Data(0),Data(1))
     assert res==0xffff
@@ -45,7 +43,6 @@ def test_neg():
     assert irq==0
 
 def test_add():
-    pe = PE()
     inst = asm.add()
     res, res_p, irq = pe(inst, Data(1),Data(3))
     assert res==4
@@ -53,7 +50,6 @@ def test_add():
     assert irq==0
 
 def test_sub():
-    pe = PE()
     inst = asm.sub()
     res, res_p, irq = pe(inst, Data(1),Data(3))
     assert res==-2
@@ -61,7 +57,6 @@ def test_sub():
     assert irq==0
 
 def test_mult0():
-    pe = PE()
 
     inst = asm.umult0()
     res, res_p, irq = pe(inst, Data(2),Data(3))
@@ -76,7 +71,6 @@ def test_mult0():
     assert irq==0
 
 def test_mult1():
-    pe = PE()
 
     inst = asm.umult1()
     res, res_p, irq = pe(inst, Data(0x200),Data(3))
@@ -91,7 +85,6 @@ def test_mult1():
     assert irq==0
 
 def test_mult2():
-    pe = PE()
 
     inst = asm.umult2()
     res, res_p, irq = pe(inst, Data(0x200),Data(0x300))
@@ -106,7 +99,6 @@ def test_mult2():
     assert irq==0
 
 def test_fp_add():
-    pe = PE()
     inst = asm.fp_add()
     # [sign, exponent (decimal), mantissa (binary)]:
     # a   = [0, -111, 1.0000001]
@@ -118,7 +110,6 @@ def test_fp_add():
     assert irq==0
 
 def test_fp_mult():
-    pe = PE()
     inst = asm.fp_mult()
     # [sign, exponent (decimal), mantissa (binary)]:
     # a   = [0, 2, 1.0000000]
@@ -132,7 +123,6 @@ def test_fp_mult():
     assert irq==0
 
 def test_lsl():
-    pe = PE()
     inst = asm.lsl()
     res, res_p, irq = pe(inst, Data(2),Data(1))
     assert res==4
@@ -140,7 +130,6 @@ def test_lsl():
     assert irq==0
 
 def test_lsr():
-    pe = PE()
     inst = asm.lsr()
     res, res_p, irq = pe(inst, Data(2),Data(1))
     assert res==1
@@ -148,7 +137,6 @@ def test_lsr():
     assert irq==0
 
 def test_asr():
-    pe = PE()
     inst = asm.asr()
     res, res_p, irq = pe(inst, Data(-2),Data(1))
     assert res==65535
@@ -156,7 +144,6 @@ def test_asr():
     assert irq==0
 
 def test_sel():
-    pe = PE()
     inst = asm.sel()
     res, res_p, irq = pe(inst, Data(1),Data(2),Bit(0))
     assert res==2
@@ -164,7 +151,6 @@ def test_sel():
     assert irq==0
 
 def test_umin():
-    pe = PE()
     inst = asm.umin()
     res, res_p, irq = pe(inst, Data(1),Data(2))
     assert res==1
@@ -172,7 +158,6 @@ def test_umin():
     assert irq==0
 
 def test_umax():
-    pe = PE()
     inst = asm.umax()
     res, res_p, irq = pe(inst, Data(1),Data(2))
     assert res==2
@@ -180,7 +165,6 @@ def test_umax():
     assert irq==0
 
 def test_smin():
-    pe = PE()
     inst = asm.smin()
     res, res_p, irq = pe(inst, Data(1),Data(2))
     assert res==1
@@ -188,7 +172,6 @@ def test_smin():
     assert irq==0
 
 def test_smax():
-    pe = PE()
     inst = asm.smax()
     res, res_p, irq = pe(inst, Data(1),Data(2))
     assert res==2
@@ -196,7 +179,6 @@ def test_smax():
     assert irq==0
 
 def test_abs():
-    pe = PE()
     inst = asm.abs()
     res, res_p, irq = pe(inst,Data(-1))
     assert res==1
@@ -204,68 +186,57 @@ def test_abs():
     assert irq==0
 
 def test_eq():
-    pe = PE()
     inst = asm.eq()
     res, res_p, irq = pe(inst,Data(1),Data(1))
     assert res_p==1
 
 def test_ne():
-    pe = PE()
     inst = asm.ne()
     res, res_p, irq = pe(inst,Data(1),Data(1))
     assert res_p==0
 
 def test_uge():
-    pe = PE()
     inst = asm.uge()
     res, res_p, irq = pe(inst,Data(1),Data(1))
     assert res_p==1
 
 def test_ule():
-    pe = PE()
     inst = asm.ule()
     res, res_p, irq = pe(inst,Data(1),Data(1))
     assert res_p==1
 
 def test_ugt():
-    pe = PE()
     inst = asm.ugt()
     res, res_p, irq = pe(inst,Data(1),Data(1))
     assert res_p==0
 
 def test_ult():
-    pe = PE()
     inst = asm.ult()
     res, res_p, irq = pe(inst,Data(1),Data(1))
     assert res_p==0
 
 def test_sge():
-    pe = PE()
     inst = asm.sge()
     res, res_p, irq = pe(inst,Data(1),Data(1))
     assert res_p==1
 
 def test_sle():
-    pe = PE()
     inst = asm.sle()
     res, res_p, irq = pe(inst,Data(1),Data(1))
     assert res_p==1
 
 def test_sgt():
-    pe = PE()
     inst = asm.sgt()
     res, res_p, irq = pe(inst,Data(1),Data(1))
     assert res_p==0
 
 def test_slt():
-    pe = PE()
     inst = asm.slt()
     res, res_p, irq = pe(inst,Data(1),Data(1))
     assert res_p==0
 
 def test_get_mant():
     # instantiate an PE - calls PE.__init__
-    pe = PE()
     # format an 'and' instruction
     inst = asm.fgetmant() 
     # execute PE instruction with the arguments as inputs -  call PE.__call__
@@ -276,7 +247,6 @@ def test_get_mant():
 
 def test_add_exp_imm():
     # instantiate an PE - calls PE.__init__
-    pe = PE()
     # format an 'and' instruction
     inst = asm.faddiexp() 
     # execute PE instruction with the arguments as inputs -  call PE.__call__
@@ -289,7 +259,6 @@ def test_add_exp_imm():
 
 def test_sub_exp():
     # instantiate an PE - calls PE.__init__
-    pe = PE()
     # format an 'and' instruction
     inst = asm.fsubexp() 
     # execute PE instruction with the arguments as inputs -  call PE.__call__
@@ -303,7 +272,6 @@ def test_sub_exp():
 
 def test_cnvt_exp_to_float():
     # instantiate an PE - calls PE.__init__
-    pe = PE()
     # format an 'and' instruction
     inst = asm.fcnvexp2f() 
     # execute PE instruction with the arguments as inputs -  call PE.__call__
@@ -316,7 +284,6 @@ def test_cnvt_exp_to_float():
 
 def test_get_float_int():
     # instantiate an PE - calls PE.__init__
-    pe = PE()
     # format an 'and' instruction
     inst = asm.fgetfint() 
     # execute PE instruction with the arguments as inputs -  call PE.__call__
@@ -330,7 +297,6 @@ def test_get_float_int():
 
 def test_get_float_frac():
     # instantiate an PE - calls PE.__init__
-    pe = PE()
     # format an 'and' instruction
     inst = asm.fgetffrac() 
     # execute PE instruction with the arguments as inputs -  call PE.__call__

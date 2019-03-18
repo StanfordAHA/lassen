@@ -27,119 +27,119 @@ def inst(alu, signed=0, lut=0, cond=Cond.Z,
 # helper functions to format configurations
 
 def add():
-    return inst(ALU.Add)
+    return inst(ALUOP.Add)
 
 def sub ():
-    return inst(ALU.Sub)
+    return inst(ALUOP.Sub)
 
 def neg ():
-    return inst(ALU.Sub)
+    return inst(ALUOP.Sub)
 
 def umult0 ():
-    return inst(ALU.Mult0)
+    return inst(ALUOP.Mult0)
 
 def umult1 ():
-    return inst(ALU.Mult1)
+    return inst(ALUOP.Mult1)
 
 def umult2 ():
-    return inst(ALU.Mult2)
+    return inst(ALUOP.Mult2)
 
 def smult0 ():
-    return inst(ALU.Mult0, signed=1)
+    return inst(ALUOP.Mult0, signed=1)
 
 def smult1 ():
-    return inst(ALU.Mult1, signed=1)
+    return inst(ALUOP.Mult1, signed=1)
 
 def smult2 ():
-    return inst(ALU.Mult2, signed=1)
+    return inst(ALUOP.Mult2, signed=1)
 
 def fgetmant ():
-    return inst(ALU.FGetMant)
+    return inst(ALUOP.FGetMant)
 
 def fp_add():
-    return inst(ALU.FP_add)
+    return inst(ALUOP.FP_add)
 
 def fp_mult():
-    return inst(ALU.FP_mult)
+    return inst(ALUOP.FP_mult)
 
 def faddiexp ():
-    return inst(ALU.FAddIExp)
+    return inst(ALUOP.FAddIExp)
 
 def fsubexp ():
-    return inst(ALU.FSubExp)
+    return inst(ALUOP.FSubExp)
 
 def fcnvexp2f ():
-    return inst(ALU.FCnvExp2F)
+    return inst(ALUOP.FCnvExp2F)
 
 def fgetfint ():
-    return inst(ALU.FGetFInt)
+    return inst(ALUOP.FGetFInt)
 
 def fgetffrac ():
-    return inst(ALU.FGetFFrac)
+    return inst(ALUOP.FGetFFrac)
 
 def and_():
-    return inst(ALU.And)
+    return inst(ALUOP.And)
 
 def or_():
-    return inst(ALU.Or)
+    return inst(ALUOP.Or)
 
 def xor():
-    return inst(ALU.XOr)
+    return inst(ALUOP.XOr)
 
 def lsl():
-    return inst(ALU.SHL)
+    return inst(ALUOP.SHL)
 
 def lsr():
-    return inst(ALU.SHR)
+    return inst(ALUOP.SHR)
 
 def asr():
-    return inst(ALU.SHR, signed=1)
+    return inst(ALUOP.SHR, signed=1)
 
 def sel():
-    return inst(ALU.Sel)
+    return inst(ALUOP.Sel)
 
 def abs():
-    return inst(ALU.Abs, signed=1)
+    return inst(ALUOP.Abs, signed=1)
 
 def umin():
-    return inst(ALU.LTE_Min)
+    return inst(ALUOP.LTE_Min)
 
 def umax():
-    return inst(ALU.GTE_Max)
+    return inst(ALUOP.GTE_Max)
 
 def smin():
-    return inst(ALU.LTE_Min, signed=1)
+    return inst(ALUOP.LTE_Min, signed=1)
 
 def smax():
-    return inst(ALU.GTE_Max, signed=1)
+    return inst(ALUOP.GTE_Max, signed=1)
 
 def eq():
-    return inst(ALU.Sub, cond=Cond.Z)
+    return inst(ALUOP.Sub, cond=Cond.Z)
 
 def ne():
-    return inst(ALU.Sub, cond=Cond.Z_n)
+    return inst(ALUOP.Sub, cond=Cond.Z_n)
 
 def ult():
-    return inst(ALU.Sub, cond=Cond.ULT)
+    return inst(ALUOP.Sub, cond=Cond.ULT)
 
 def ule():
-    return inst(ALU.Sub, cond=Cond.ULE)
+    return inst(ALUOP.Sub, cond=Cond.ULE)
 
 def ugt():
-    return inst(ALU.Sub, cond=Cond.UGT)
+    return inst(ALUOP.Sub, cond=Cond.UGT)
 
 def uge():
-    return inst(ALU.Sub, cond=Cond.UGE)
+    return inst(ALUOP.Sub, cond=Cond.UGE)
 
 def slt():
-    return inst(ALU.Sub, cond=Cond.SLT)
+    return inst(ALUOP.Sub, cond=Cond.SLT)
 
 def sle():
-    return inst(ALU.Sub, cond=Cond.SLE)
+    return inst(ALUOP.Sub, cond=Cond.SLE)
 
 def sgt():
-    return inst(ALU.Sub, cond=Cond.SGT)
+    return inst(ALUOP.Sub, cond=Cond.SGT)
 
 def sge():
-    return inst(ALU.Sub, cond=Cond.SGE)
+    return inst(ALUOP.Sub, cond=Cond.SGE)
 

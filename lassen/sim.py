@@ -29,10 +29,11 @@ import numpy as np
 #
 class ALU(Peak):
     def __init__(self,family: TypeFamily, datawidth=16):
-        self.Bit = family.Bit
-        self.Data = family.BitVector[datawidth]
-        self.Signed = family.Signed
-        self.BitVector = family.BitVector
+        super(ALU,self).__init__(family,datawidth)
+        #self.Bit = family.Bit
+        #self.Data = family.BitVector[datawidth]
+        #self.Signed = family.Signed
+        #self.BitVector = family.BitVector
 
     def __call__(self,inst:Inst, a:Data, b:Data, d:Bit):
         signed = inst.signed
