@@ -97,82 +97,82 @@ def gen_alu(family: TypeFamily, datawidth):
             res, res_p = a >> Data(b[:4]), Bit(0)
         elif alu == ALU.SHL:
             res, res_p = a << Data(b[:4]), Bit(0)
-        #elif alu == ALU.FP_add:
-        #    a = BFloat16(a)
-        #    b = BFloat16(b)
-        #    res = a + b
-        #    res_p = Bit(0)
-        #elif alu == ALU.FP_mult:
-        #    a = BFloat16(a)
-        #    b = BFloat16(b)
-        #    res = a * b
-        #    res_p = Bit(0)
-        #elif alu == ALU.FGetMant:
-        #    res, res_p = (a & 0x7F), Bit(0)
-        #elif alu == ALU.FAddIExp:
-        #    sign = BitVector((a & 0x8000),16)
-        #    exp = BitVector(((a & 0x7F80)>>7),8)
-        #    exp_check = BitVector(exp,9)
-        #    exp += SInt(b[0:8])
-        #    exp_check += SInt(b[0:9])
-        #    exp_shift = BitVector(exp,16)
-        #    exp_shift = exp_shift << 7
-        #    mant = BitVector((a & 0x7F),16);
-        #    res, res_p = (sign | exp_shift | mant), (exp_check > 255)
-        #elif alu == ALU.FSubExp:
-        #    signa = BitVector((a & 0x8000),16)
-        #    expa = BitVector(((a & 0x7F80)>>7),8)
-        #    expb = BitVector(((b & 0x7F80)>>7),8)
-        #    expa = (expa - expb + 127) 
-        #    exp_shift = BitVector(expa,16)
-        #    exp_shift = exp_shift << 7
-        #    manta = BitVector((a & 0x7F),16);
-        #    res, res_p = (signa | exp_shift | manta), Bit(0)
-        #elif alu == ALU.FCnvExp2F:
-        #    biased_exp = SInt(((a & 0x7F80)>>7),8)
-        #    unbiased_exp = biased_exp - SInt[8](127)
-        #    if (unbiased_exp<0):
-        #      sign=BitVector(0x8000,16)
-        #      abs_exp=~unbiased_exp+1
-        #    else:
-        #      sign=BitVector(0x0000,16)
-        #      abs_exp=unbiased_exp
-        #    scale=-127
-        #    for bit_pos in range(8):
-        #      if (abs_exp[bit_pos]==Bit(1)):
-        #        scale = bit_pos
-        #    if (scale>=0):
-        #      normmant = BitVector((abs_exp * (2**(7-scale))) & 0x7F,16)
-        #    else:
-        #      normmant = BitVector(0,16)
-        #    biased_scale = scale + 127
-        #    res, res_p = (sign | ((biased_scale<<7) & (0xFF<<7)) | normmant), Bit(0)
-        #elif alu == ALU.FGetFInt:
-        #    signa = BitVector((a & 0x8000),16)
-        #    expa = BitVector(((a & 0x7F80)>>7),8)
-        #    manta = BitVector((a & 0x7F),16) | 0x80;
+        elif alu == ALU.FP_add:
+            a = BFloat16(a)
+            b = BFloat16(b)
+            res = a + b
+            res_p = Bit(0)
+        elif alu == ALU.FP_mult:
+            a = BFloat16(a)
+            b = BFloat16(b)
+            res = a * b
+            res_p = Bit(0)
+        elif alu == ALU.FGetMant:
+            res, res_p = (a & 0x7F), Bit(0)
+        elif alu == ALU.FAddIExp:
+            sign = BitVector((a & 0x8000),16)
+            exp = BitVector(((a & 0x7F80)>>7),8)
+            exp_check = BitVector(exp,9)
+            exp += SInt(b[0:8])
+            exp_check += SInt(b[0:9])
+            exp_shift = BitVector(exp,16)
+            exp_shift = exp_shift << 7
+            mant = BitVector((a & 0x7F),16);
+            res, res_p = (sign | exp_shift | mant), (exp_check > 255)
+        elif alu == ALU.FSubExp:
+            signa = BitVector((a & 0x8000),16)
+            expa = BitVector(((a & 0x7F80)>>7),8)
+            expb = BitVector(((b & 0x7F80)>>7),8)
+            expa = (expa - expb + 127) 
+            exp_shift = BitVector(expa,16)
+            exp_shift = exp_shift << 7
+            manta = BitVector((a & 0x7F),16);
+            res, res_p = (signa | exp_shift | manta), Bit(0)
+        elif alu == ALU.FCnvExp2F:
+            biased_exp = SInt(((a & 0x7F80)>>7),8)
+            unbiased_exp = biased_exp - SInt[8](127)
+            if (unbiased_exp<0):
+              sign=BitVector(0x8000,16)
+              abs_exp=~unbiased_exp+1
+            else:
+              sign=BitVector(0x0000,16)
+              abs_exp=unbiased_exp
+            scale=-127
+            for bit_pos in range(8):
+              if (abs_exp[bit_pos]==Bit(1)):
+                scale = bit_pos
+            if (scale>=0):
+              normmant = BitVector((abs_exp * (2**(7-scale))) & 0x7F,16)
+            else:
+              normmant = BitVector(0,16)
+            biased_scale = scale + 127
+            res, res_p = (sign | ((biased_scale<<7) & (0xFF<<7)) | normmant), Bit(0)
+        elif alu == ALU.FGetFInt:
+            signa = BitVector((a & 0x8000),16)
+            expa = BitVector(((a & 0x7F80)>>7),8)
+            manta = BitVector((a & 0x7F),16) | 0x80;
     
-        #    unbiased_exp = SInt(expa) - SInt[8](127)
-        #    if (unbiased_exp<0):
-        #      manta_shift = BitVector(0,16)
-        #    else:
-        #      manta_shift = BitVector(manta,16) << BitVector[16](unbiased_exp)
-        #    #We are not checking for overflow when converting to int
-        #    res, res_p = (manta_shift>>7), Bit(0)
-        #elif alu == ALU.FGetFFrac:
-        #    signa = BitVector((a & 0x8000),16)
-        #    expa = BitVector(((a & 0x7F80)>>7),8)
-        #    manta = BitVector((a & 0x7F),16) | 0x80;
+            unbiased_exp = SInt(expa) - SInt[8](127)
+            if (unbiased_exp<0):
+              manta_shift = BitVector(0,16)
+            else:
+              manta_shift = BitVector(manta,16) << BitVector[16](unbiased_exp)
+            #We are not checking for overflow when converting to int
+            res, res_p = (manta_shift>>7), Bit(0)
+        elif alu == ALU.FGetFFrac:
+            signa = BitVector((a & 0x8000),16)
+            expa = BitVector(((a & 0x7F80)>>7),8)
+            manta = BitVector((a & 0x7F),16) | 0x80;
     
-        #    unbiased_exp = SInt(expa) - SInt[8](127)
-        #    if (unbiased_exp<0):
-        #      manta_shift = BitVector(manta,16) >> BitVector[16](-unbiased_exp)
-        #    else:
-        #      manta_shift = BitVector(manta,16) << BitVector[16](unbiased_exp)
-        #    #We are not checking for overflow when converting to int
-        #    res, res_p = ((manta_shift & 0x07F)<<1), Bit(0)
-        #else:
-        #    raise NotImplementedError(alu)
+            unbiased_exp = SInt(expa) - SInt[8](127)
+            if (unbiased_exp<0):
+              manta_shift = BitVector(manta,16) >> BitVector[16](-unbiased_exp)
+            else:
+              manta_shift = BitVector(manta,16) << BitVector[16](unbiased_exp)
+            #We are not checking for overflow when converting to int
+            res, res_p = ((manta_shift & 0x07F)<<1), Bit(0)
+        else:
+            raise NotImplementedError(alu)
     
         Z = res == 0
         N = Bit(res[-1])
