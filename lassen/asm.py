@@ -8,9 +8,16 @@ from hwtypes import BitVector
 
 sim_family = gen_pe_type_family(BitVector.get_family())
 Mode = gen_mode_type(sim_family)
+ALU = gen_alu_type(sim_family)
+Inst = gen_inst_type(sim_family)
+LUT = gen_lut_type(sim_family)
+Signed = gen_signed_type(sim_family)
+DataConst = sim_family.BitVector[DATAWIDTH]
+BitConst = sim_family.Bit
+Cond = gen_cond_type(sim_family)
 
 
-def inst(alu, signed=0, lut=0, cond=gen_cond_type(sim_family).Z,
+def inst(alu, signed=0, lut=0, cond=Cond.Z,
          ra_mode=Mode.BYPASS, ra_const=0,
          rb_mode=Mode.BYPASS, rb_const=0,
          rd_mode=Mode.BYPASS, rd_const=0,
@@ -20,11 +27,11 @@ def inst(alu, signed=0, lut=0, cond=gen_cond_type(sim_family).Z,
     https://github.com/StanfordAHA/CGRAGenerator/wiki/PE-Spec
     Format a configuration of the PE - sets all fields
     """
-    return Inst(alu, Signed(signed), gen_lut_type()(lut), cond,
-                RegA_Mode(ra_mode), RegA_Const(ra_const), RegB_Mode(rb_mode),
-                RegB_Const(rb_const), RegD_Mode(rd_mode), RegD_Const(rd_const),
-                RegE_Mode(re_mode), RegE_Const(re_const), RegF_Mode(rf_mode),
-                RegF_Const(rf_const))
+    return Inst(alu, Signed(signed), LUT(lut), cond,
+                Mode(ra_mode), DataConst(ra_const), Mode(rb_mode),
+                DataConst(rb_const), Mode(rd_mode), BitConst(rd_const),
+                Mode(re_mode), BitConst(re_const), Mode(rf_mode),
+                BitConst(rf_const))
 
 # helper functions to format configurations
 

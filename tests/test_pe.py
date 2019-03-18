@@ -1,9 +1,15 @@
 import lassen.asm as asm
-from lassen.sim import gen_pe, Bit, Data
+from lassen.sim import gen_pe
+from lassen.isa import DATAWIDTH
+from hwtypes import BitVector, Bit
+
+Bit = Bit
+Data = BitVector[DATAWIDTH]
+
 
 def test_and():
     # instantiate an PE - calls PE.__init__
-    pe = gen_pe()()
+    pe = gen_pe(BitVector.get_family())()
     # format an 'and' instruction
     inst = asm.and_() 
     # execute PE instruction with the arguments as inputs -  call PE.__call__
@@ -13,7 +19,7 @@ def test_and():
     assert irq==0
 
 def test_or():
-    pe = gen_pe()()
+    pe = gen_pe(BitVector.get_family())()
     inst = asm.or_()
     res, res_p, irq = pe(inst, Data(1),Data(3))
     assert res==3
@@ -21,7 +27,7 @@ def test_or():
     assert irq==0
 
 def test_xor():
-    pe = gen_pe()()
+    pe = gen_pe(BitVector.get_family())()
     inst = asm.xor()
     res, res_p, irq = pe(inst, Data(1),Data(3))
     assert res==2
@@ -29,7 +35,7 @@ def test_xor():
     assert irq==0
 
 def test_inv():
-    pe = gen_pe()()
+    pe = gen_pe(BitVector.get_family())()
     inst = asm.sub()
     res, res_p, irq = pe(inst, Data(0xffff),Data(1))
     assert res==0xfffe
@@ -37,7 +43,7 @@ def test_inv():
     assert irq==0
 
 def test_neg():
-    pe = gen_pe()()
+    pe = gen_pe(BitVector.get_family())()
     inst = asm.neg()
     res, res_p, irq = pe(inst, Data(0),Data(1))
     assert res==0xffff
@@ -45,7 +51,7 @@ def test_neg():
     assert irq==0
 
 def test_add():
-    pe = gen_pe()()
+    pe = gen_pe(BitVector.get_family())()
     inst = asm.add()
     res, res_p, irq = pe(inst, Data(1),Data(3))
     assert res==4
@@ -53,7 +59,7 @@ def test_add():
     assert irq==0
 
 def test_sub():
-    pe = gen_pe()()
+    pe = gen_pe(BitVector.get_family())()
     inst = asm.sub()
     res, res_p, irq = pe(inst, Data(1),Data(3))
     assert res==-2
@@ -61,7 +67,7 @@ def test_sub():
     assert irq==0
 
 def test_mult0():
-    pe = gen_pe()()
+    pe = gen_pe(BitVector.get_family())()
 
     inst = asm.umult0()
     res, res_p, irq = pe(inst, Data(2),Data(3))
@@ -76,7 +82,7 @@ def test_mult0():
     assert irq==0
 
 def test_mult1():
-    pe = gen_pe()()
+    pe = gen_pe(BitVector.get_family())()
 
     inst = asm.umult1()
     res, res_p, irq = pe(inst, Data(0x200),Data(3))
@@ -91,7 +97,7 @@ def test_mult1():
     assert irq==0
 
 def test_mult2():
-    pe = gen_pe()()
+    pe = gen_pe(BitVector.get_family())()
 
     inst = asm.umult2()
     res, res_p, irq = pe(inst, Data(0x200),Data(0x300))
@@ -106,7 +112,7 @@ def test_mult2():
     assert irq==0
 
 def test_fp_add():
-    pe = gen_pe()()
+    pe = gen_pe(BitVector.get_family())()
     inst = asm.fp_add()
     # [sign, exponent (decimal), mantissa (binary)]:
     # a   = [0, -111, 1.0000001]
@@ -118,7 +124,7 @@ def test_fp_add():
     assert irq==0
 
 def test_fp_mult():
-    pe = gen_pe()()
+    pe = gen_pe(BitVector.get_family())()
     inst = asm.fp_mult()
     # [sign, exponent (decimal), mantissa (binary)]:
     # a   = [0, 2, 1.0000000]
@@ -132,7 +138,7 @@ def test_fp_mult():
     assert irq==0
 
 def test_lsl():
-    pe = gen_pe()()
+    pe = gen_pe(BitVector.get_family())()
     inst = asm.lsl()
     res, res_p, irq = pe(inst, Data(2),Data(1))
     assert res==4
@@ -140,7 +146,7 @@ def test_lsl():
     assert irq==0
 
 def test_lsr():
-    pe = gen_pe()()
+    pe = gen_pe(BitVector.get_family())()
     inst = asm.lsr()
     res, res_p, irq = pe(inst, Data(2),Data(1))
     assert res==1
@@ -148,7 +154,7 @@ def test_lsr():
     assert irq==0
 
 def test_asr():
-    pe = gen_pe()()
+    pe = gen_pe(BitVector.get_family())()
     inst = asm.asr()
     res, res_p, irq = pe(inst, Data(-2),Data(1))
     assert res==65535
@@ -156,7 +162,7 @@ def test_asr():
     assert irq==0
 
 def test_sel():
-    pe = gen_pe()()
+    pe = gen_pe(BitVector.get_family())()
     inst = asm.sel()
     res, res_p, irq = pe(inst, Data(1),Data(2),Bit(0))
     assert res==2
@@ -164,7 +170,7 @@ def test_sel():
     assert irq==0
 
 def test_umin():
-    pe = gen_pe()()
+    pe = gen_pe(BitVector.get_family())()
     inst = asm.umin()
     res, res_p, irq = pe(inst, Data(1),Data(2))
     assert res==1
@@ -172,7 +178,7 @@ def test_umin():
     assert irq==0
 
 def test_umax():
-    pe = gen_pe()()
+    pe = gen_pe(BitVector.get_family())()
     inst = asm.umax()
     res, res_p, irq = pe(inst, Data(1),Data(2))
     assert res==2
@@ -180,7 +186,7 @@ def test_umax():
     assert irq==0
 
 def test_smin():
-    pe = gen_pe()()
+    pe = gen_pe(BitVector.get_family())()
     inst = asm.smin()
     res, res_p, irq = pe(inst, Data(1),Data(2))
     assert res==1
@@ -188,7 +194,7 @@ def test_smin():
     assert irq==0
 
 def test_smax():
-    pe = gen_pe()()
+    pe = gen_pe(BitVector.get_family())()
     inst = asm.smax()
     res, res_p, irq = pe(inst, Data(1),Data(2))
     assert res==2
@@ -196,7 +202,7 @@ def test_smax():
     assert irq==0
 
 def test_abs():
-    pe = gen_pe()()
+    pe = gen_pe(BitVector.get_family())()
     inst = asm.abs()
     res, res_p, irq = pe(inst,Data(-1))
     assert res==1
@@ -204,68 +210,68 @@ def test_abs():
     assert irq==0
 
 def test_eq():
-    pe = gen_pe()()
+    pe = gen_pe(BitVector.get_family())()
     inst = asm.eq()
     res, res_p, irq = pe(inst,Data(1),Data(1))
     assert res_p==1
 
 def test_ne():
-    pe = gen_pe()()
+    pe = gen_pe(BitVector.get_family())()
     inst = asm.ne()
     res, res_p, irq = pe(inst,Data(1),Data(1))
     assert res_p==0
 
 def test_uge():
-    pe = gen_pe()()
+    pe = gen_pe(BitVector.get_family())()
     inst = asm.uge()
     res, res_p, irq = pe(inst,Data(1),Data(1))
     assert res_p==1
 
 def test_ule():
-    pe = gen_pe()()
+    pe = gen_pe(BitVector.get_family())()
     inst = asm.ule()
     res, res_p, irq = pe(inst,Data(1),Data(1))
     assert res_p==1
 
 def test_ugt():
-    pe = gen_pe()()
+    pe = gen_pe(BitVector.get_family())()
     inst = asm.ugt()
     res, res_p, irq = pe(inst,Data(1),Data(1))
     assert res_p==0
 
 def test_ult():
-    pe = gen_pe()()
+    pe = gen_pe(BitVector.get_family())()
     inst = asm.ult()
     res, res_p, irq = pe(inst,Data(1),Data(1))
     assert res_p==0
 
 def test_sge():
-    pe = gen_pe()()
+    pe = gen_pe(BitVector.get_family())()
     inst = asm.sge()
     res, res_p, irq = pe(inst,Data(1),Data(1))
     assert res_p==1
 
 def test_sle():
-    pe = gen_pe()()
+    pe = gen_pe(BitVector.get_family())()
     inst = asm.sle()
     res, res_p, irq = pe(inst,Data(1),Data(1))
     assert res_p==1
 
 def test_sgt():
-    pe = gen_pe()()
+    pe = gen_pe(BitVector.get_family())()
     inst = asm.sgt()
     res, res_p, irq = pe(inst,Data(1),Data(1))
     assert res_p==0
 
 def test_slt():
-    pe = gen_pe()()
+    pe = gen_pe(BitVector.get_family())()
     inst = asm.slt()
     res, res_p, irq = pe(inst,Data(1),Data(1))
     assert res_p==0
 
 def test_get_mant():
     # instantiate an PE - calls PE.__init__
-    pe = gen_pe()()
+    pe = gen_pe(BitVector.get_family())()
     # format an 'and' instruction
     inst = asm.fgetmant() 
     # execute PE instruction with the arguments as inputs -  call PE.__call__
@@ -276,7 +282,7 @@ def test_get_mant():
 
 def test_add_exp_imm():
     # instantiate an PE - calls PE.__init__
-    pe = gen_pe()()
+    pe = gen_pe(BitVector.get_family())()
     # format an 'and' instruction
     inst = asm.faddiexp() 
     # execute PE instruction with the arguments as inputs -  call PE.__call__
@@ -289,7 +295,7 @@ def test_add_exp_imm():
 
 def test_sub_exp():
     # instantiate an PE - calls PE.__init__
-    pe = gen_pe()()
+    pe = gen_pe(BitVector.get_family())()
     # format an 'and' instruction
     inst = asm.fsubexp() 
     # execute PE instruction with the arguments as inputs -  call PE.__call__
@@ -303,7 +309,7 @@ def test_sub_exp():
 
 def test_cnvt_exp_to_float():
     # instantiate an PE - calls PE.__init__
-    pe = gen_pe()()
+    pe = gen_pe(BitVector.get_family())()
     # format an 'and' instruction
     inst = asm.fcnvexp2f() 
     # execute PE instruction with the arguments as inputs -  call PE.__call__
@@ -316,7 +322,7 @@ def test_cnvt_exp_to_float():
 
 def test_get_float_int():
     # instantiate an PE - calls PE.__init__
-    pe = gen_pe()()
+    pe = gen_pe(BitVector.get_family())()
     # format an 'and' instruction
     inst = asm.fgetfint() 
     # execute PE instruction with the arguments as inputs -  call PE.__call__
@@ -330,7 +336,7 @@ def test_get_float_int():
 
 def test_get_float_frac():
     # instantiate an PE - calls PE.__init__
-    pe = gen_pe()()
+    pe = gen_pe(BitVector.get_family())()
     # format an 'and' instruction
     inst = asm.fgetffrac() 
     # execute PE instruction with the arguments as inputs -  call PE.__call__

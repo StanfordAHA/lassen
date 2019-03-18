@@ -4,8 +4,10 @@ from .cond import gen_cond_type
 from .mode import gen_mode_type
 from .lut import gen_lut_type
 import magma as m
+from functools import lru_cache
 
 
+@lru_cache()
 def gen_alu_type(family):
     class ALU(family.Enum):
         Add = 0
@@ -33,6 +35,7 @@ def gen_alu_type(family):
     return ALU
 
 
+@lru_cache()
 def gen_signed_type(family):
     """
     Whether the operation is unsigned (0) or signed (1)
@@ -47,6 +50,7 @@ def gen_signed_type(family):
 DATAWIDTH = 16
 
 
+@lru_cache()
 def gen_inst_type(family):
     """
     https://github.com/StanfordAHA/CGRAGenerator/wiki/PE-Spec

@@ -1,7 +1,9 @@
 from peak.adt import Enum
 import magma as m
+from functools import lru_cache
 
 
+@lru_cache()
 def gen_cond_type(family):
     """
     Condition code field - selects which 1-bit result is retuned
