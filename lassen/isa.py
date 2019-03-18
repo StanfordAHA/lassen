@@ -2,7 +2,7 @@ from hwtypes import BitVector, Bit
 from peak.adt import Enum, Product
 from .cond import gen_cond_type
 from .mode import gen_mode_type
-from .lut import Bit, gen_lut_type
+from .lut import gen_lut_type
 import magma as m
 
 

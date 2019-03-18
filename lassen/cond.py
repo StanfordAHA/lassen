@@ -1,5 +1,4 @@
 from peak.adt import Enum
-from .lut import Bit
 import magma as m
 
 
@@ -31,16 +30,19 @@ def gen_cond_type(family):
     return Cond
 
 
-def gen_cond(mode="sim"):
+def gen_cond(family):
     #
     # Implement condition code logic
     #
     # Inputs are the condition code field, the alu result, the lut result,
     # and the flags Z, N, C, V
     #
-    Cond = gen_cond_type(mode)
-    def cond(code:Cond, alu:Bit, lut:Bit, Z:Bit, N:Bit, C:Bit, V:Bit) -> Bit:
-        if   code == Cond.Z:
+    Cond = gen_cond_type(family)
+    Bit = family.Bit
+
+    def cond(code: Cond, alu: Bit, lut: Bit, Z: Bit, N: Bit, C: Bit, V: Bit) \
+            -> Bit:
+        if code == Cond.Z:
             return Z
         elif code == Cond.Z_n:
             return not Z
@@ -72,9 +74,6 @@ def gen_cond(mode="sim"):
             return alu
         elif code == Cond.LUT:
             return lut
-        raise NotImplementedError(code)
-    if mode == "sim":
-        return cond
-    elif mode == "rtl":
-        return m.circuit.combinational(cond)
-
+    if family.Bit is m.Bit:
+        cond = m.circuit.combinational(cond)
+    return cond

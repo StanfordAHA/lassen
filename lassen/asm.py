@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from .cond import gen_cond_type
 from .mode import gen_mode_type
-from .lut import Bit, gen_lut_type
+from .lut import gen_lut_type
 from .isa import *
 from .sim import gen_pe_type_family
 from hwtypes import BitVector
