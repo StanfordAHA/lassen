@@ -17,13 +17,13 @@ ExtendedTypeFamily = namedtuple('ExtendedTypeFamily', ['Bit', 'BitVector',
 
 
 def gen_pe_type_family(family):
-    if family == BitVector.get_family():
+    if family is BitVector.get_family():
         from hwtypes import overflow
         family = ExtendedTypeFamily(*family, peak.adt.Product, peak.adt.Enum, overflow)
         # family = PETypeFamily(*family, gen_inst_type(family),
         #                       gen_alu_type(family), gen_cond_type(family),
         #                       gen_signed_type(family))
-    elif family == m.get_family():
+    elif family is m.get_family():
         from mantle.common.operator import overflow
         family = ExtendedTypeFamily(*family, m.Product, m.Enum, overflow)
         # family = PETypeFamily(*family, gen_inst_type(family),
