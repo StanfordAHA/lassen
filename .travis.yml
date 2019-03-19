@@ -1,4 +1,8 @@
 language: python
+addons:
+  apt:
+    packages:
+    - verilator    
 before_install:
 - mkdir deps
 - mkdir deps/bin
