@@ -38,7 +38,7 @@ def gen_alu(family: TypeFamily, datawidth):
     Inst = gen_inst_type(family)
     ALU = gen_alu_type(family)
 
-    # @name_outputs(res=Data, res_p=Bit, Z=Bit, N=Bit, C=Bit, V=Bit)
+    @name_outputs(res=Data, res_p=Bit, Z=Bit, N=Bit, C=Bit, V=Bit)
     def alu(inst:Inst, a:Data, b:Data, d:Bit) -> (Data, Bit, Bit, Bit, Bit,
                                                   Bit):
         signed = inst.signed_
