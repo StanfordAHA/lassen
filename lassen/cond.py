@@ -76,4 +76,6 @@ def gen_cond(family):
             return alu
         elif code == Cond.LUT:
             return lut
+    if family.Bit is m.Bit:
+        cond = m.circuit.combinational(cond)
     return cond

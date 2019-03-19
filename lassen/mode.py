@@ -40,4 +40,6 @@ def gen_register_mode(T, init=0):
             elif mode == Mode.VALID:
                 return self.register(value, clk_en)
 
+    if family.Bit is m.Bit:
+        RegisterMode = m.circuit.sequential(RegisterMode)
     return RegisterMode
