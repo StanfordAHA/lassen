@@ -1,21 +1,22 @@
 from lassen.asm import add, sub, and_, or_, xor
 from lassen.sim import gen_pe, gen_pe_type_family
 from lassen.mode import gen_mode_type
+from lassen.isa import DATAWIDTH
 import magma as m
 import pytest
 from hwtypes import BitVector
+import fault
 
 
 Mode = gen_mode_type(gen_pe_type_family(BitVector.get_family()))
 
 
-@pytest.mark.skip("WIP")
 @pytest.mark.parametrize('op', [add, and_, or_, xor])
 @pytest.mark.parametrize('mode', [Mode.BYPASS, Mode.DELAY])
 def test_rtl(op, mode):
-    pe_functional_model = gen_pe(BitVector.get_family())()
     pe_magma = gen_pe(m.get_family())
-    tester = fault.Tester(pe_magma, clock=PE.CLK)
+    pe_functional_model = gen_pe(BitVector.get_family())()
+    tester = fault.Tester(pe_magma, clock=pe_magma.CLK)
 
     inst = op(ra_mode=mode, rb_mode=mode)
     tester.circuit.inst = inst.value
@@ -36,9 +37,9 @@ def test_rtl(op, mode):
         for i, value in enumerate(expected):
             getattr(tester.circuit, f"O{i}").expect(value)
 
-    m.compile(f"build/pe_magma", pe_magma, output="coreir-verilog")
+    m.compile(f"tests/build/PE", pe_magma, output="coreir-verilog")
     tester.compile_and_run(target="verilator",
-                           directory="tests/test_syntax/build/",
+                           directory="tests/build/",
                            flags=['-Wno-UNUSED', '--trace'],
                            skip_compile=True)
 
