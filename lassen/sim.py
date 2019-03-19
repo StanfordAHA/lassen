@@ -178,8 +178,6 @@ def gen_alu(family: TypeFamily, datawidth):
         N = Bit(res[-1])
     
         return res, res_p, Z, N, C, V
-    if family.Bit is m.Bit:
-        alu = m.circuit.combinational(alu)
 
     return alu
 
@@ -239,6 +237,4 @@ def gen_pe(family):
 
             # return 16-bit result, 1-bit result, irq
             return alu_res, res_p, irq 
-    if family.Bit is m.Bit:
-        PE = m.circuit.sequential(PE)
     return PE
