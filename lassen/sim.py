@@ -30,6 +30,8 @@ import magma as m
 #   C (carry generated)
 #   V (overflow generated)
 #
+
+@lru_cache()
 def gen_alu(family: TypeFamily, datawidth=16):
     Bit = family.Bit
     Data = family.Unsigned[datawidth]
@@ -182,6 +184,7 @@ def gen_alu(family: TypeFamily, datawidth=16):
 
     return alu
 
+@lru_cache()
 def gen_pe(family):
     family = gen_pe_type_family(family)
     alu = gen_alu(family, DATAWIDTH)
@@ -215,7 +218,7 @@ def gen_pe(family):
             data0: Data, data1: Data = Data(0), \
             bit0: Bit = Bit(0), bit1: Bit = Bit(0), bit2: Bit = Bit(0), \
             clk_en: Bit = Bit(1)) -> (Data, Bit, Bit):
-
+            print(data0)
             # Simulate one clock cycle
 
             ra = self.rega(inst.rega, inst.data0, data0, clk_en)
@@ -224,7 +227,8 @@ def gen_pe(family):
             rd = self.regd(inst.regd, inst.bit0, bit0, clk_en)
             re = self.rege(inst.rege, inst.bit1, bit1, clk_en)
             rf = self.regf(inst.regf, inst.bit2, bit2, clk_en)
-
+            
+            print("ra",ra)
             # calculate alu results
             alu_res, alu_res_p, Z, N, C, V = alu(inst, ra, rb, rd)
 
