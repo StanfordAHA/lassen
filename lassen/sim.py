@@ -30,7 +30,7 @@ import magma as m
 #   C (carry generated)
 #   V (overflow generated)
 #
-def gen_alu(family: TypeFamily, datawidth):
+def gen_alu(family: TypeFamily, datawidth=16):
     Bit = family.Bit
     Data = family.Unsigned[datawidth]
     SInt = family.Signed[datawidth]
@@ -209,7 +209,8 @@ def gen_pe(family):
             self.regd: BitReg = BitReg()
             self.rege: BitReg = BitReg()
             self.regf: BitReg = BitReg()
-
+        
+        @name_outputs(alu_res=Data,res_p=Bit,irq=Bit)
         def __call__(self, inst: Inst, \
             data0: Data, data1: Data = Data(0), \
             bit0: Bit = Bit(0), bit1: Bit = Bit(0), bit2: Bit = Bit(0), \
