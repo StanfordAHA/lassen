@@ -32,7 +32,7 @@ def gen_cond_type(family):
     return Cond
 
 
-def gen_cond(family):
+def gen_cond(family, assembler):
     #
     # Implement condition code logic
     #
@@ -44,37 +44,37 @@ def gen_cond(family):
 
     def cond(code: Cond, alu: Bit, lut: Bit, Z: Bit, N: Bit, C: Bit, V: Bit) \
             -> Bit:
-        if code == Cond.Z:
+        if code == assembler(Cond.Z):
             return Z
-        elif code == Cond.Z_n:
+        elif code == assembler(Cond.Z_n):
             return not Z
-        elif code == Cond.C or code == Cond.UGE:
+        elif code == assembler(Cond.C) or code == assembler(Cond.UGE):
             return C
-        elif code == Cond.C_n or code == Cond.ULT:
+        elif code == assembler(Cond.C_n) or code == assembler(Cond.ULT):
             return not C
-        elif code == Cond.N:
+        elif code == assembler(Cond.N):
             return N
-        elif code == Cond.N_n:
+        elif code == assembler(Cond.N_n):
             return not N
-        elif code == Cond.V:
+        elif code == assembler(Cond.V):
             return V
-        elif code == Cond.V_n:
+        elif code == assembler(Cond.V_n):
             return not V
-        elif code == Cond.UGT:
+        elif code == assembler(Cond.UGT):
             return C and not Z
-        elif code == Cond.ULE:
+        elif code == assembler(Cond.ULE):
             return not C or Z
-        elif code == Cond.SGE:
+        elif code == assembler(Cond.SGE):
             return N == V
-        elif code == Cond.SLT:
+        elif code == assembler(Cond.SLT):
             return N != V
-        elif code == Cond.SGT:
+        elif code == assembler(Cond.SGT):
             return not Z and (N == V)
-        elif code == Cond.SLE:
+        elif code == assembler(Cond.SLE):
             return Z or (N != V)
-        elif code == Cond.ALU:
+        elif code == assembler(Cond.ALU):
             return alu
-        elif code == Cond.LUT:
+        elif code == assembler(Cond.LUT):
             return lut
     if family.Bit is m.Bit:
         cond = m.circuit.combinational(cond)

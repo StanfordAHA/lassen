@@ -8,7 +8,7 @@ from functools import lru_cache
 
 
 @lru_cache()
-def gen_alu_type(family):
+def gen_alu_type(family, assembler):
     class ALU(family.Enum):
         Add = 0
         Sub = 1
