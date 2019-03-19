@@ -47,31 +47,31 @@ def gen_cond(family):
         if code == Cond.Z:
             return Z
         elif code == Cond.Z_n:
-            return not Z
+            return ~Z
         elif code == Cond.C or code == Cond.UGE:
             return C
         elif code == Cond.C_n or code == Cond.ULT:
-            return not C
+            return ~C
         elif code == Cond.N:
             return N
         elif code == Cond.N_n:
-            return not N
+            return ~N
         elif code == Cond.V:
             return V
         elif code == Cond.V_n:
-            return not V
+            return ~V
         elif code == Cond.UGT:
             return C and not Z
         elif code == Cond.ULE:
-            return not C or Z
+            return (~C) | Z
         elif code == Cond.SGE:
             return N == V
         elif code == Cond.SLT:
             return N != V
         elif code == Cond.SGT:
-            return not Z and (N == V)
+            return (~Z) and (N == V)
         elif code == Cond.SLE:
-            return Z or (N != V)
+            return Z | (N != V)
         elif code == Cond.ALU:
             return alu
         elif code == Cond.LUT:
