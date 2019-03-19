@@ -198,7 +198,7 @@ def gen_pe(family):
     BitReg = gen_register_mode(Bit)
 
     Inst = gen_inst_type(family)
-
+    
     class PE(Peak):
 
         def __init__(self):
