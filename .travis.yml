@@ -1,7 +1,10 @@
 language: python
 addons:
   apt:
+    sources:
+    - ubuntu-toolchain-r-test
     packages:
+    - g++-4.9
     - verilator    
 before_install:
 - mkdir deps
