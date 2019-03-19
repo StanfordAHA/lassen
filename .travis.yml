@@ -28,6 +28,8 @@ install:
 - pip install pytest-cov
 - git clone https://github.com/phanrahan/peak.git
 - pip install git+git://github.com/leonardt/Pyverilog.git#egg=pyverilog
+- pip install git+git://github.com/phanrahan/magma@lassen#egg=magma
+- pip install git+git://github.com/phanrahan/mantle@lassen#egg=mantle
 - pip install -e ./peak
 - pip install -e .
 - pip install hwtypes
