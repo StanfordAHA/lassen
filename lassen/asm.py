@@ -1,33 +1,42 @@
 from dataclasses import dataclass
-from .cond import Cond
-from .mode import Mode
-from .lut import Bit, LUT
+from .cond import gen_cond_type
+from .mode import gen_mode_type
+from .lut import gen_lut_type
 from .isa import *
+from .sim import gen_pe_type_family
+from hwtypes import BitVector
 
-# https://github.com/StanfordAHA/CGRAGenerator/wiki/PE-Spec
+sim_family = gen_pe_type_family(BitVector.get_family())
+Mode = gen_mode_type(sim_family)
+ALU = gen_alu_type(sim_family)
+Inst = gen_inst_type(sim_family)
+LUT = gen_lut_type(sim_family)
+Signed = gen_signed_type(sim_family)
+DataConst = sim_family.BitVector[DATAWIDTH]
+BitConst = sim_family.Bit
+Cond = gen_cond_type(sim_family)
 
-#
-# Format a configuration of the PE - sets all fields
-#
+
 def inst(alu, signed=0, lut=0, cond=Cond.Z,
-    ra_mode=Mode.BYPASS, ra_const=0,
-    rb_mode=Mode.BYPASS, rb_const=0,
-    rd_mode=Mode.BYPASS, rd_const=0,
-    re_mode=Mode.BYPASS, re_const=0,
-    rf_mode=Mode.BYPASS, rf_const=0
-    ):
-
+         ra_mode=Mode.BYPASS, ra_const=0,
+         rb_mode=Mode.BYPASS, rb_const=0,
+         rd_mode=Mode.BYPASS, rd_const=0,
+         re_mode=Mode.BYPASS, re_const=0,
+         rf_mode=Mode.BYPASS, rf_const=0):
+    """
+    https://github.com/StanfordAHA/CGRAGenerator/wiki/PE-Spec
+    Format a configuration of the PE - sets all fields
+    """
     return Inst(alu, Signed(signed), LUT(lut), cond,
-        RegA_Mode(ra_mode), RegA_Const(ra_const),
-        RegB_Mode(rb_mode), RegB_Const(rb_const),
-        RegD_Mode(rd_mode), RegD_Const(rd_const),
-        RegE_Mode(re_mode), RegE_Const(re_const),
-        RegF_Mode(rf_mode), RegF_Const(rf_const) )
+                Mode(ra_mode), DataConst(ra_const), Mode(rb_mode),
+                DataConst(rb_const), Mode(rd_mode), BitConst(rd_const),
+                Mode(re_mode), BitConst(re_const), Mode(rf_mode),
+                BitConst(rf_const))
 
 # helper functions to format configurations
 
-def add():
-    return inst(ALU.Add)
+def add(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
+    return inst(ALU.Add, ra_mode=ra_mode, rb_mode=rb_mode)
 
 def sub ():
     return inst(ALU.Sub)
@@ -77,14 +86,14 @@ def fgetfint ():
 def fgetffrac ():
     return inst(ALU.FGetFFrac)
 
-def and_():
-    return inst(ALU.And)
+def and_(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
+    return inst(ALU.And, ra_mode=ra_mode, rb_mode=rb_mode)
 
-def or_():
-    return inst(ALU.Or)
+def or_(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
+    return inst(ALU.Or, ra_mode=ra_mode, rb_mode=rb_mode)
 
-def xor():
-    return inst(ALU.XOr)
+def xor(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
+    return inst(ALU.XOr, ra_mode=ra_mode, rb_mode=rb_mode)
 
 def lsl():
     return inst(ALU.SHL)
