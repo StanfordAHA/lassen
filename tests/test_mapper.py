@@ -1,15 +1,28 @@
 from lassen.sim import gen_pe
-#from lassen.isa import gen_inst_type
 from hwtypes import BitVector
 import coreir
 import metamapper as mm
+import pytest
 
 
 
-def ttest_discover():
+@pytest.mark.skip("This takes a long time")
+def test_discover():
     c = coreir.Context()
     mapper = mm.PeakMapper(c,"pe_ns")
     Alu = mapper.add_peak_primitive("PE",gen_pe)
+    
+    def bypass_mode(inst):
+        return (
+            inst.rega == type(inst.rega).BYPASS and
+            inst.regb == type(inst.regb).BYPASS and
+            inst.regd == type(inst.regd).BYPASS and
+            inst.rege == type(inst.rege).BYPASS and 
+            inst.regf == type(inst.regf).BYPASS and
+            (inst.cond == type(inst.cond).Z or inst.cond == type(inst.cond).Z_n)
+        )
+    mapper.add_discover_constraint(bypass_mode)
+    
     mapper.discover_peak_rewrite_rules(width=16)
     #test the mapper on simple add4 app
     app = c.load_from_file("tests/add4.json")
@@ -44,11 +57,10 @@ def test_io():
         )
     mapper.add_discover_constraint(bypass_mode)
     mapper.discover_peak_rewrite_rules(width=16,coreir_primitives=["add"])
-    return
     app = c.load_from_file("tests/add4.json")
     print("instance map",mapper.map_app(app))
     app.save_to_file("tests/_mapped_add4.json")
     app.print_()
 
 #test_discover()
-test_io()
+#test_io()

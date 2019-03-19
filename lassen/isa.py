@@ -24,14 +24,14 @@ def gen_alu_type(family):
         Or = 0x12
         And = 0x13
         XOr = 0x14
-        FP_add = 0x15
-        FP_mult = 0x16
-        FGetMant = 0x92
-        FAddIExp = 0x93
-        FSubExp = 0x94
-        FCnvExp2F = 0x95
-        FGetFInt = 0x96
-        FGetFFrac = 0x97
+        #FP_add = 0x15
+        #FP_mult = 0x16
+        #FGetMant = 0x92
+        #FAddIExp = 0x93
+        #FSubExp = 0x94
+        #FCnvExp2F = 0x95
+        #FGetFInt = 0x96
+        #FGetFFrac = 0x97
     return ALU
 
 

@@ -39,20 +39,23 @@ def gen_alu(family: TypeFamily, datawidth=16):
     overflow = family.overflow
     Inst = gen_inst_type(family)
     ALU = gen_alu_type(family)
+    Signed = gen_signed_type(family)
 
     def alu(inst:Inst, a:Data, b:Data, d:Bit) -> (Data, Bit, Bit, Bit, Bit,
                                                   Bit):
         signed = inst.signed_
         alu = inst.alu
     
-        if signed:
+        if signed == Signed.signed:
             a = SInt(a)
             b = SInt(b)
             mula, mulb = a.sext(16), b.sext(16)
             mul = mula * mulb
-        else:
+        elif signed == Signed.unsigned:
             mula, mulb = a.zext(16), b.zext(16)
             mul = mula * mulb
+        else:
+            raise NotImplementedError("Only two possible values of signed!")
 
     
         C = Bit(0)
@@ -95,9 +98,11 @@ def gen_alu(family: TypeFamily, datawidth=16):
         elif alu == ALU.XOr:
             res, res_p = a ^ b, Bit(0)
         elif alu == ALU.SHR:
-            res, res_p = a >> Data(b[:4]), Bit(0)
+            #res, res_p = a >> Data(b[:4]), Bit(0)
+            res, res_p = a >> b, Bit(0)
         elif alu == ALU.SHL:
-            res, res_p = a << Data(b[:4]), Bit(0)
+            #res, res_p = a << Data(b[:4]), Bit(0)
+            res, res_p = a << b, Bit(0)
         #elif alu == ALU.FP_add:
         #    a = BFloat16(a)
         #    b = BFloat16(b)
@@ -172,8 +177,8 @@ def gen_alu(family: TypeFamily, datawidth=16):
         #      manta_shift = BitVector(manta,16) << BitVector[16](unbiased_exp)
         #    #We are not checking for overflow when converting to int
         #    res, res_p = ((manta_shift & 0x07F)<<1), Bit(0)
-        #else:
-        #    raise NotImplementedError(alu)
+        else:
+            raise NotImplementedError(alu)
     
         Z = res == 0
         N = Bit(res[-1])
@@ -218,7 +223,6 @@ def gen_pe(family):
             data0: Data, data1: Data = Data(0), \
             bit0: Bit = Bit(0), bit1: Bit = Bit(0), bit2: Bit = Bit(0), \
             clk_en: Bit = Bit(1)) -> (Data, Bit, Bit):
-            print(data0)
             # Simulate one clock cycle
 
             ra = self.rega(inst.rega, inst.data0, data0, clk_en)
@@ -228,7 +232,6 @@ def gen_pe(family):
             re = self.rege(inst.rege, inst.bit1, bit1, clk_en)
             rf = self.regf(inst.regf, inst.bit2, bit2, clk_en)
             
-            print("ra",ra)
             # calculate alu results
             alu_res, alu_res_p, Z, N, C, V = alu(inst, ra, rb, rd)
 
