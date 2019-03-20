@@ -32,6 +32,10 @@ before_install:
 - source activate test-env
 - conda install pip
 install:
+- pysmt-install --msat --confirm-agreement
+- export PYTHONPATH="/home/travis/.smt_solvers/python-bindings-3.6:${PYTHONPATH}"
+- export LD_LIBRARY_PATH="/home/travis/.smt_solvers/python-bindings-3.6:${LD_LIBRARY_PATH}"
+- pysmt-install --check
 - pip install pytest-cov
 - git clone https://github.com/phanrahan/peak.git
 - git clone https://github.com/rdaly525/MetaMapper.git
