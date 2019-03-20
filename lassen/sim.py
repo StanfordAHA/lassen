@@ -6,7 +6,6 @@ from .mode import gen_register_mode
 from .lut import gen_lut_type, gen_lut
 from .cond import gen_cond
 from .isa import *
-from .bfloat import BFloat16
 from .family import gen_pe_type_family
 import struct
 import numpy as np
@@ -39,6 +38,7 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
     Inst = gen_inst_type(family)
     ALU = gen_alu_type(family)
     Signed = gen_signed_type(family)
+    BFloat16 = family.BFloat16
 
     def alu(inst:Inst, a:Data, b:Data, d:Bit) -> (Data, Bit, Bit, Bit, Bit,
                                                   Bit):
@@ -98,18 +98,18 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
             res, res_p = a >> Data(b[:4]), Bit(0)
         elif alu == ALU.SHL:
             res, res_p = a << Data(b[:4]), Bit(0)
-        #elif alu == ALU.FP_add:
-        #    a = BFloat16(a)
-        #    b = BFloat16(b)
-        #    res = a + b
-        #    res_p = Bit(0)
-        #elif alu == ALU.FP_mult:
-        #    a = BFloat16(a)
-        #    b = BFloat16(b)
-        #    res = a * b
-        #    res_p = Bit(0)
-        #elif alu == ALU.FGetMant:
-        #    res, res_p = (a & 0x7F), Bit(0)
+        elif alu == ALU.FP_add:
+            a = BFloat16(a)
+            b = BFloat16(b)
+            res = a + b
+            res_p = Bit(0)
+        elif alu == ALU.FP_mult:
+            a = BFloat16(a)
+            b = BFloat16(b)
+            res = a * b
+            res_p = Bit(0)
+        elif alu == ALU.FGetMant:
+            res, res_p = (a & 0x7F), Bit(0)
         #elif alu == ALU.FAddIExp:
         #    sign = BitVector((a & 0x8000),16)
         #    exp = BitVector(((a & 0x7F80)>>7),8)
