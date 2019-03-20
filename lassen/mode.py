@@ -20,7 +20,7 @@ def gen_mode_type(family):
 @lru_cache()
 def gen_register_mode(T, init=0):
     family = gen_pe_type_family(T.get_family())
-    Reg = gen_register(family, T, init=init)
+    Reg = gen_register(family, T, init=T(init))
     Mode = gen_mode_type(family)
 
     class RegisterMode(Peak):
@@ -29,8 +29,6 @@ def gen_register_mode(T, init=0):
 
         def __call__(self, mode: Mode, const_: T, value: T,
                      clk_en: family.Bit) -> T:
-            if not isinstance(mode, Mode):
-                assert 0
             if mode == Mode.CONST:
                 self.register(value, False)
                 return const_

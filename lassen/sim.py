@@ -40,12 +40,11 @@ def gen_alu(family: TypeFamily, datawidth=16):
     Inst = gen_inst_type(family)
     ALU = gen_alu_type(family)
     Signed = gen_signed_type(family)
-
     def alu(inst:Inst, a:Data, b:Data, d:Bit) -> (Data, Bit, Bit, Bit, Bit,
                                                   Bit):
         signed = inst.signed_
         alu = inst.alu
-    
+        
         if signed == Signed.signed:
             a = SInt(a)
             b = SInt(b)
@@ -54,13 +53,11 @@ def gen_alu(family: TypeFamily, datawidth=16):
         elif signed == Signed.unsigned:
             mula, mulb = a.zext(16), b.zext(16)
             mul = mula * mulb
-        else:
-            raise NotImplementedError("Only two possible values of signed!")
 
     
         C = Bit(0)
         V = Bit(0)
-        if   alu == ALU.Add:
+        if alu == ALU.Add:
             res, C = a.adc(b, Bit(0))
             V = overflow(a, b, res)
             res_p = C
@@ -177,8 +174,8 @@ def gen_alu(family: TypeFamily, datawidth=16):
         #      manta_shift = BitVector(manta,16) << BitVector[16](unbiased_exp)
         #    #We are not checking for overflow when converting to int
         #    res, res_p = ((manta_shift & 0x07F)<<1), Bit(0)
-        else:
-            raise NotImplementedError(alu)
+        #else:
+        #    raise NotImplementedError(alu)
     
         Z = res == 0
         N = Bit(res[-1])
@@ -203,7 +200,6 @@ def gen_pe(family):
     BitReg = gen_register_mode(Bit)
 
     Inst = gen_inst_type(family)
-    
     class PE(Peak):
 
         def __init__(self):
@@ -218,7 +214,6 @@ def gen_pe(family):
             self.rege: BitReg = BitReg()
             self.regf: BitReg = BitReg()
         
-        @name_outputs(alu_res=Data,res_p=Bit,irq=Bit)
         def __call__(self, inst: Inst, \
             data0: Data, data1: Data = Data(0), \
             bit0: Bit = Bit(0), bit1: Bit = Bit(0), bit2: Bit = Bit(0), \
@@ -248,4 +243,6 @@ def gen_pe(family):
             return alu_res, res_p, irq 
     if family.Bit is m.Bit:
         PE = m.circuit.sequential(PE)
+    else:
+        PE.__call__ = name_outputs(alu_res=Data,res_p=Bit,irq=Bit)(PE.__call__)
     return PE

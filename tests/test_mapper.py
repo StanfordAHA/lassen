@@ -62,4 +62,4 @@ def test_io():
     app.print_()
 
 #test_discover()
-#test_io()
+test_io()

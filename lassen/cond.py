@@ -2,7 +2,6 @@ from peak.adt import Enum
 import magma as m
 from functools import lru_cache
 
-
 @lru_cache()
 def gen_cond_type(family):
     """
@@ -30,7 +29,6 @@ def gen_cond_type(family):
         LUT = 14
         ALU = 15
     return Cond
-
 
 def gen_cond(family):
     #
