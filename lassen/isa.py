@@ -8,7 +8,7 @@ from functools import lru_cache
 
 
 @lru_cache()
-def gen_alu_type(family, assembler):
+def gen_alu_type(family):
     class ALU(family.Enum):
         Add = 0
         Sub = 1
@@ -57,7 +57,6 @@ def gen_inst_type(family):
     """
     ALU = gen_alu_type(family)
     Signed = gen_signed_type(family)
-
 
     Data = family.BitVector[DATAWIDTH]
     # Constant values for registers

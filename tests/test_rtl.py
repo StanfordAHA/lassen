@@ -6,7 +6,7 @@ import magma as m
 import pytest
 from hwtypes import BitVector
 import fault
-from peak.encoder import generate_encoder_decoder
+from peak.auto_assembler import generate_assembler
 
 
 Mode = gen_mode_type(gen_pe_type_family(BitVector.get_family()))
@@ -35,7 +35,6 @@ def wrap_with_disassembler(PE, disassembler, width, layout, inst_type):
                 end = value[1]
                 region = wrapper_inst[begin:end]
                 field = getattr(pe_inst, key)
-                print(type(field), type(region))
                 if isinstance(type(field), m._BitKind):
                     region = m.bit(region)
                 m.wire(region, field)
@@ -64,7 +63,7 @@ def test_rtl(op, mode, use_assembler):
     inst = op(ra_mode=mode, rb_mode=mode)
     if use_assembler:
         assembler, disassembler, width, layout = \
-            generate_encoder_decoder(inst_type)
+            generate_assembler(inst_type)
     else:
         assembler = lambda x: x
     PE = gen_pe(m.get_family(), assembler=assembler)
@@ -99,7 +98,7 @@ def test_rtl(op, mode, use_assembler):
     if not use_assembler:
         m.compile(f"tests/build/PE", PE, output="coreir-verilog")
     else:
-        m.compile(f"tests/build/PEWrapper", PE, output="coreir-verilog")
+        m.compile(f"tests/build/WrappedPE", PE, output="coreir-verilog")
     tester.compile_and_run(target="verilator",
                            directory="tests/build/",
                            flags=['-Wno-UNUSED', '--trace'],

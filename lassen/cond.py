@@ -1,6 +1,7 @@
 from peak.adt import Enum
 import magma as m
 from functools import lru_cache
+from peak.auto_assembler import assemble_values_in_func
 
 
 @lru_cache()
@@ -32,7 +33,7 @@ def gen_cond_type(family):
     return Cond
 
 
-def gen_cond(family, assembler):
+def gen_cond(family, assembler=None):
     #
     # Implement condition code logic
     #
@@ -44,38 +45,39 @@ def gen_cond(family, assembler):
 
     def cond(code: Cond, alu: Bit, lut: Bit, Z: Bit, N: Bit, C: Bit, V: Bit) \
             -> Bit:
-        if code == assembler(Cond.Z):
+        if code == Cond.Z:
             return Z
-        elif code == assembler(Cond.Z_n):
+        elif code == Cond.Z_n:
             return not Z
-        elif code == assembler(Cond.C) or code == assembler(Cond.UGE):
+        elif code == Cond.C or code == Cond.UGE:
             return C
-        elif code == assembler(Cond.C_n) or code == assembler(Cond.ULT):
+        elif code == Cond.C_n or code == Cond.ULT:
             return not C
-        elif code == assembler(Cond.N):
+        elif code == Cond.N:
             return N
-        elif code == assembler(Cond.N_n):
+        elif code == Cond.N_n:
             return not N
-        elif code == assembler(Cond.V):
+        elif code == Cond.V:
             return V
-        elif code == assembler(Cond.V_n):
+        elif code == Cond.V_n:
             return not V
-        elif code == assembler(Cond.UGT):
+        elif code == Cond.UGT:
             return C and not Z
-        elif code == assembler(Cond.ULE):
+        elif code == Cond.ULE:
             return not C or Z
-        elif code == assembler(Cond.SGE):
+        elif code == Cond.SGE:
             return N == V
-        elif code == assembler(Cond.SLT):
+        elif code == Cond.SLT:
             return N != V
-        elif code == assembler(Cond.SGT):
+        elif code == Cond.SGT:
             return not Z and (N == V)
-        elif code == assembler(Cond.SLE):
+        elif code == Cond.SLE:
             return Z or (N != V)
-        elif code == assembler(Cond.ALU):
+        elif code == Cond.ALU:
             return alu
-        elif code == assembler(Cond.LUT):
+        elif code == Cond.LUT:
             return lut
     if family.Bit is m.Bit:
+        cond = assemble_values_in_func(assembler, cond, locals(), globals())
         cond = m.circuit.combinational(cond)
     return cond

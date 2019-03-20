@@ -1,5 +1,6 @@
 from hwtypes import BitVector, SIntVector, TypeFamily
 from peak import Peak, name_outputs
+from peak.auto_assembler import assemble_values_in_func
 import peak.adt
 from .mode import gen_register_mode
 from .lut import gen_lut_type, gen_lut
@@ -30,20 +31,21 @@ import magma as m
 #   C (carry generated)
 #   V (overflow generated)
 #
-def gen_alu(family: TypeFamily, datawidth):
+def gen_alu(family: TypeFamily, datawidth, assembler=None):
     Bit = family.Bit
     Data = family.Unsigned[datawidth]
     SInt = family.Signed[datawidth]
     overflow = family.overflow
     Inst = gen_inst_type(family)
     ALU = gen_alu_type(family)
+    Signed = gen_signed_type(family)
 
     def alu(inst:Inst, a:Data, b:Data, d:Bit) -> (Data, Bit, Bit, Bit, Bit,
                                                   Bit):
         signed = inst.signed_
         alu = inst.alu
     
-        if signed:
+        if signed == Signed.signed:
             a = SInt(a)
             b = SInt(b)
             mula, mulb = a.sext(16), b.sext(16)
@@ -178,15 +180,16 @@ def gen_alu(family: TypeFamily, datawidth):
     
         return res, res_p, Z, N, C, V
     if family.Bit is m.Bit:
+        alu = assemble_values_in_func(assembler, alu, locals(), globals())
         alu = m.circuit.combinational(alu)
 
     return alu
 
-def gen_pe(family):
+def gen_pe(family, assembler=None):
     family = gen_pe_type_family(family)
-    alu = gen_alu(family, DATAWIDTH)
+    alu = gen_alu(family, DATAWIDTH, assembler)
     lut = gen_lut(family)
-    cond = gen_cond(family)
+    cond = gen_cond(family, assembler)
 
     Bit = family.Bit
     Data = family.BitVector[DATAWIDTH]
