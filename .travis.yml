@@ -33,7 +33,7 @@ before_install:
 - conda install pip
 install:
 - pip install pysmt
-- pysmt-install --msat --confirm-agreement
+- pysmt-install --z3 --confirm-agreement
 - export PYTHONPATH="/home/travis/.smt_solvers/python-bindings-3.6:${PYTHONPATH}"
 - export LD_LIBRARY_PATH="/home/travis/.smt_solvers/python-bindings-3.6:${LD_LIBRARY_PATH}"
 - pysmt-install --check
