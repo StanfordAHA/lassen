@@ -29,7 +29,6 @@ import magma as m
 #   N (result is negative)
 #   C (carry generated)
 #   V (overflow generated)
-#
 
 @lru_cache()
 def gen_alu(family: TypeFamily, datawidth=16):
