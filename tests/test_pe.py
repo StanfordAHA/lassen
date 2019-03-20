@@ -281,7 +281,6 @@ def test_get_mant():
     assert res_p==0
     assert irq==0
 
-@pytest.mark.skip("Broken by latest hwtypes")
 def test_add_exp_imm():
     # instantiate an PE - calls PE.__init__
     pe = gen_pe(BitVector.get_family())()
@@ -295,7 +294,6 @@ def test_add_exp_imm():
     assert res_p==0
     assert irq==0
 
-@pytest.mark.skip("Broken by latest hwtypes")
 def test_sub_exp():
     # instantiate an PE - calls PE.__init__
     pe = gen_pe(BitVector.get_family())()
@@ -310,7 +308,6 @@ def test_sub_exp():
     assert res_p==0
     assert irq==0
 
-@pytest.mark.skip("Broken by latest hwtypes")
 def test_cnvt_exp_to_float():
     # instantiate an PE - calls PE.__init__
     pe = gen_pe(BitVector.get_family())()
@@ -324,7 +321,6 @@ def test_cnvt_exp_to_float():
     assert res_p==0
     assert irq==0
 
-@pytest.mark.skip("Broken by latest hwtypes")
 def test_get_float_int():
     # instantiate an PE - calls PE.__init__
     pe = gen_pe(BitVector.get_family())()
@@ -339,7 +335,6 @@ def test_get_float_int():
     assert res_p==0
     assert irq==0
 
-@pytest.mark.skip("Broken by latest hwtypes")
 def test_get_float_frac():
     # instantiate an PE - calls PE.__init__
     pe = gen_pe(BitVector.get_family())()
