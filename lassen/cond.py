@@ -59,7 +59,7 @@ def gen_cond(family):
         elif code == Cond.V_n:
             return ~V
         elif code == Cond.UGT:
-            return C and not Z
+            return C & (~Z)
         elif code == Cond.ULE:
             return (~C) | Z
         elif code == Cond.SGE:
@@ -67,7 +67,7 @@ def gen_cond(family):
         elif code == Cond.SLT:
             return N != V
         elif code == Cond.SGT:
-            return (~Z) and (N == V)
+            return (~Z) & (N == V)
         elif code == Cond.SLE:
             return Z | (N != V)
         elif code == Cond.ALU:

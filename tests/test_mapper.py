@@ -5,7 +5,7 @@ import metamapper as mm
 import pytest
 
 
-#@pytest.mark.skip("This takes a long time")
+@pytest.mark.skip("This takes a long time")
 def test_discover():
     c = coreir.Context()
     mapper = mm.PeakMapper(c,"pe_ns")
