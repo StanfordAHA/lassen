@@ -52,7 +52,6 @@ def wrap_with_disassembler(PE, disassembler, width, layout, inst_type):
                     getattr(io, key) <= getattr(pe, key)
     return WrappedPE
 
-
 @pytest.mark.parametrize('op', [add, and_, or_, xor])
 @pytest.mark.parametrize('mode', [Mode.BYPASS, Mode.DELAY])
 @pytest.mark.parametrize('use_assembler', [False, True])
