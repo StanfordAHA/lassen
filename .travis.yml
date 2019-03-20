@@ -36,8 +36,8 @@ install:
 - git clone https://github.com/phanrahan/peak.git
 - git clone https://github.com/rdaly525/MetaMapper.git
 - pip install git+git://github.com/leonardt/Pyverilog.git#egg=pyverilog
-- pip install git+git://github.com/phanrahan/magma@lassen#egg=magma
-- pip install git+git://github.com/phanrahan/mantle@lassen#egg=mantle
+- pip install git+git://github.com/phanrahan/magma#egg=magma
+- pip install git+git://github.com/phanrahan/mantle#egg=mantle
 - pip install -e ./peak
 - pip install -e ./MetaMapper
 - pip install -e .
