@@ -17,8 +17,15 @@ def gen_mode_type(family):
         DELAY = 3   # Register written with input value, previous value returned
     return Mode
 
+<<<<<<< HEAD
 @lru_cache()
 def gen_register_mode(T, init=0):
+=======
+
+def gen_register_mode(T, init=None):
+    if init is None:
+        init = T(0)
+>>>>>>> master
     family = gen_pe_type_family(T.get_family())
     Reg = gen_register(family, T, init=T(init))
     Mode = gen_mode_type(family)
