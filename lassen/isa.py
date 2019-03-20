@@ -58,7 +58,6 @@ def gen_inst_type(family):
     ALU = gen_alu_type(family)
     Signed = gen_signed_type(family)
 
-
     Data = family.BitVector[DATAWIDTH]
     # Constant values for registers
     RegA_Const = family.BitVector[DATAWIDTH]

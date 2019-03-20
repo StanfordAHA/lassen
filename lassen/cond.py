@@ -1,6 +1,7 @@
 from peak.adt import Enum
 import magma as m
 from functools import lru_cache
+from peak.auto_assembler import assemble_values_in_func
 
 
 @lru_cache()
@@ -32,7 +33,7 @@ def gen_cond_type(family):
     return Cond
 
 
-def gen_cond(family):
+def gen_cond(family, assembler=None):
     #
     # Implement condition code logic
     #
@@ -77,5 +78,6 @@ def gen_cond(family):
         elif code == Cond.LUT:
             return lut
     if family.Bit is m.Bit:
+        cond = assemble_values_in_func(assembler, cond, locals(), globals())
         cond = m.circuit.combinational(cond)
     return cond
