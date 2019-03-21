@@ -65,26 +65,26 @@ def smult2 ():
 def fgetmant ():
     return inst(ALU.FGetMant)
 
-def fp_add():
-    return inst(ALU.FP_add)
+def fp_add(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
+    return inst(ALU.FP_add, ra_mode=ra_mode, rb_mode=rb_mode)
 
-def fp_mult():
-    return inst(ALU.FP_mult)
+def fp_mult(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
+    return inst(ALU.FP_mult, ra_mode=ra_mode, rb_mode=rb_mode)
 
-def faddiexp ():
-    return inst(ALU.FAddIExp)
+def faddiexp (ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
+    return inst(ALU.FAddIExp, ra_mode=ra_mode, rb_mode=rb_mode)
 
-def fsubexp ():
-    return inst(ALU.FSubExp)
+def fsubexp (ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
+    return inst(ALU.FSubExp, ra_mode=ra_mode, rb_mode=rb_mode)
 
-def fcnvexp2f ():
-    return inst(ALU.FCnvExp2F)
+def fcnvexp2f (ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
+    return inst(ALU.FCnvExp2F, ra_mode=ra_mode, rb_mode=rb_mode)
 
-def fgetfint ():
-    return inst(ALU.FGetFInt)
+def fgetfint (ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
+    return inst(ALU.FGetFInt, ra_mode=ra_mode, rb_mode=rb_mode)
 
-def fgetffrac ():
-    return inst(ALU.FGetFFrac)
+def fgetffrac (ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
+    return inst(ALU.FGetFFrac, ra_mode=ra_mode, rb_mode=rb_mode)
 
 def and_(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
     return inst(ALU.And, ra_mode=ra_mode, rb_mode=rb_mode)
