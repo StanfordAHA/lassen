@@ -37,7 +37,6 @@ install:
 - pip install git+git://github.com/phanrahan/magma@lassen-bfloat#egg=magma
 - pip install git+git://github.com/phanrahan/mantle@lassen-bfloat#egg=mantle
 - git clone https://github.com/phanrahan/peak.git
-- git -C peak checkout magma-encoder
 - pip install -e ./peak
 - pip install -e .
 - pip install hwtypes
