@@ -135,5 +135,5 @@ def test_rtl(op, mode, use_assembler):
     else:
         tester.compile_and_run(target="verilator",
                                directory="tests/build/",
-                               flags=['-Wno-UNUSED', '--trace'],
+                               flags=['-Wno-UNUSED',  '-Wno-PINNOCONNECT'],
                                skip_compile=True)
