@@ -62,6 +62,14 @@ def wrap_with_disassembler(PE, disassembler, width, layout, inst_type):
 @pytest.mark.parametrize('mode', [Mode.BYPASS, Mode.DELAY])
 @pytest.mark.parametrize('use_assembler', [False, True])
 def test_rtl(op, mode, use_assembler):
+    libs = [
+        "/cad/cadence/GENUS17.21.000.lnx86/share/synth/lib/chipware/sim/verilog/CW/CW_fp_mult.v",
+        "/cad/cadence/GENUS17.21.000.lnx86/share/synth/lib/chipware/sim/verilog/CW/CW_fp_add.v"
+    ]
+    CW_avail = all(os.path.isfile(file) for file in libs)
+    if not CW_avail and op in {fp_add, fp_mult}:
+        pytest.skip("Skipping fp op tests because CW primitives are not available")
+
     inst_type = gen_inst_type(gen_pe_type_family(BitVector.get_family()))
     inst = op(ra_mode=mode, rb_mode=mode)
     if use_assembler:
@@ -78,7 +86,6 @@ def test_rtl(op, mode, use_assembler):
     tester = fault.Tester(PE, clock=PE.CLK)
 
     if not use_assembler:
-        print(inst.value)
         tester.circuit.inst = inst.value
     else:
         tester.circuit.inst = assembler(inst)
@@ -120,11 +127,6 @@ def test_rtl(op, mode, use_assembler):
         m.compile(f"tests/build/PE", PE, output="coreir-verilog")
     else:
         m.compile(f"tests/build/WrappedPE", PE, output="coreir-verilog")
-    libs = [
-        "/cad/cadence/GENUS17.21.000.lnx86/share/synth/lib/chipware/sim/verilog/CW/CW_fp_mult.v",
-        "/cad/cadence/GENUS17.21.000.lnx86/share/synth/lib/chipware/sim/verilog/CW/CW_fp_add.v"
-    ]
-    CW_avail = all(os.path.isfile(file) for file in libs)
     if CW_avail:
         tester.compile_and_run(target="system-verilog", simulator="ncsim",
                                directory="tests/build/",
