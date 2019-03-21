@@ -113,7 +113,7 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
             res, res_p = (a & 0x7F), Bit(0)
         elif alu == ALU.FAddIExp:
             sign = BitVector[16]((a & 0x8000))
-            exp = BitVector[8](((a & 0x7F80)>>7)[0:8])
+            exp = a[7:15]
             exp_check = exp.zext(1)
             exp = exp + b[0:8]
             exp_check = exp_check + b[0:9]
@@ -126,15 +126,15 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
             res, res_p = (sign | exp_shift | mant), (exp_check > 255)
         elif alu == ALU.FSubExp:
             signa = BitVector[16]((a & 0x8000))
-            expa = BitVector[8](((a & 0x7F80)>>7)[0:8])
-            expb = BitVector[8](((b & 0x7F80)>>7)[0:8])
+            expa = a[7:15] 
+            expb = b[7:15] 
             expa = (expa - expb + 127)
             exp_shift = BitVector[16](expa)
             exp_shift = exp_shift << 7
             manta = BitVector[16]((a & 0x7F));
             res, res_p = (signa | exp_shift | manta), Bit(0)
         elif alu == ALU.FCnvExp2F:
-            biased_exp = SInt[8](((a & 0x7F80)>>7)[0:8])
+            biased_exp = a[7:15]
             unbiased_exp = biased_exp - SInt[8](127)
             if (unbiased_exp<0):
               sign=BitVector[16](0x8000)
@@ -170,7 +170,7 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
             res, res_p = (sign | ((BitVector[16](biased_scale)<<7) & (0xFF<<7)) | normmant), Bit(0)
         elif alu == ALU.FGetFInt:
             signa = BitVector[16]((a & 0x8000))
-            expa = BitVector[8](((a & 0x7F80)>>7)[0:8])
+            expa = a[7:15]
             manta = BitVector[16]((a & 0x7F)) | 0x80;
 
             unbiased_exp = SInt[8](expa) - SInt[8](127)
@@ -182,7 +182,7 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
             res, res_p = (manta_shift>>7), Bit(0)
         elif alu == ALU.FGetFFrac:
             signa = BitVector[16]((a & 0x8000))
-            expa = BitVector[8](((a & 0x7F80)>>7)[0:8])
+            expa = a[7:15]
             manta = BitVector[16]((a & 0x7F)) | 0x80;
     
             unbiased_exp = SInt[8](expa) - SInt[8](127)
