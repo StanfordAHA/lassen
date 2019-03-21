@@ -21,7 +21,7 @@ def gen_register_mode(T, init=None):
     if init is None:
         init = T(0)
     family = gen_pe_type_family(T.get_family())
-    Reg = gen_register(family, T, init=T(init))
+    Reg = gen_register(family, T, init=init)
     Mode = gen_mode_type(family)
 
     class RegisterMode(Peak):
