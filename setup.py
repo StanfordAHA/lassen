@@ -13,7 +13,8 @@ setup(
         "lassen",
     ],
     install_requires=[
-        "peak"
+        "peak",
+        "coreir = 2.0.2",
     ],
     python_requires='>=3.6'
 )
