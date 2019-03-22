@@ -113,7 +113,7 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
             res, res_p = (a & 0x7F), Bit(0)
         elif alu == ALU.FAddIExp:
             sign = BitVector[16]((a & 0x8000))
-            exp = BitVector[8](((a & 0x7F80)>>7)[0:8])
+            exp = a[7:15]
             exp_check = exp.zext(1)
             exp = exp + b[0:8]
             exp_check = exp_check + b[0:9]
@@ -126,8 +126,8 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
             res, res_p = (sign | exp_shift | mant), (exp_check > 255)
         elif alu == ALU.FSubExp:
             signa = BitVector[16]((a & 0x8000))
-            expa = BitVector[8](((a & 0x7F80)>>7)[0:8])
-            expb = BitVector[8](((b & 0x7F80)>>7)[0:8])
+            expa = a[7:15]
+            expb = b[7:15]
             expa = (expa - expb + 127)
             exp_shift = BitVector[16](expa)
             exp_shift = exp_shift << 7
