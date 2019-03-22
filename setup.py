@@ -13,7 +13,7 @@ setup(
         "lassen",
     ],
     install_requires=[
-        "peak",
+        "peak"
     ],
     python_requires='>=3.6'
 )
