@@ -213,6 +213,7 @@ def gen_pe(family, assembler=None):
             self.rege: BitReg = BitReg()
             self.regf: BitReg = BitReg()
 
+        @name_outputs(res=Data, res_p=Bit, res_pp=Bit)
         def __call__(self, inst: Inst, \
             data0: Data, data1: Data = Data(0), \
             bit0: Bit = Bit(0), bit1: Bit = Bit(0), bit2: Bit = Bit(0), \
