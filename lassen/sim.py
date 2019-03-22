@@ -241,6 +241,6 @@ def gen_pe(family, assembler=None):
             return alu_res, res_p, irq 
     if family.Bit is m.Bit:
         PE = m.circuit.sequential(PE)
-    #else:
-    #    PE.__call__ = name_outputs(alu_res=Data,res_p=Bit,irq=Bit)(PE.__call__)
+    else:
+        PE.__call__ = name_outputs(alu_res=Data,res_p=Bit,irq=Bit)(PE.__call__)
     return PE
