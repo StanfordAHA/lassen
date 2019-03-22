@@ -14,7 +14,7 @@ setup(
     ],
     install_requires=[
         "peak",
-        "coreir = 2.0.2",
+        "coreir = 2.0.1",
     ],
     python_requires='>=3.6'
 )
