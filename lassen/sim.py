@@ -134,7 +134,7 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
             manta = BitVector[16]((a & 0x7F));
             res, res_p = (signa | exp_shift | manta), Bit(0)
         elif alu == ALU.FCnvExp2F:
-            biased_exp = SInt(a[7:15])
+            biased_exp = SInt[8](a[7:15])
             unbiased_exp = biased_exp - SInt[8](127)
             if (unbiased_exp<0):
               sign=BitVector[16](0x8000)
