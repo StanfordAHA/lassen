@@ -55,7 +55,7 @@ def test_io():
             inst.cond == type(inst.cond).Z
         )
     mapper.add_discover_constraint(bypass_mode)
-    mapper.discover_peak_rewrite_rules(width=16,coreir_primitives=["add"])
+    mapper.discover_peak_rewrite_rules(width=16,coreir_primitives=["add","mul"])
     app = c.load_from_file("tests/add4.json")
     print("instance map",mapper.map_app(app))
     app.save_to_file("tests/_mapped_add4.json")
