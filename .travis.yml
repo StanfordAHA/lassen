@@ -32,12 +32,19 @@ before_install:
 - source activate test-env
 - conda install pip
 install:
+- pip install pysmt
+- pysmt-install --z3 --confirm-agreement
+- export PYTHONPATH="/home/travis/.smt_solvers/python-bindings-3.6:${PYTHONPATH}"
+- export LD_LIBRARY_PATH="/home/travis/.smt_solvers/python-bindings-3.6:${LD_LIBRARY_PATH}"
+- pysmt-install --check
 - pip install pytest-cov
+- git clone https://github.com/phanrahan/peak.git
+- git clone https://github.com/rdaly525/MetaMapper.git
 - pip install git+git://github.com/leonardt/Pyverilog.git#egg=pyverilog
 - pip install git+git://github.com/phanrahan/magma#egg=magma
 - pip install git+git://github.com/phanrahan/mantle#egg=mantle
-- git clone https://github.com/phanrahan/peak.git
 - pip install -e ./peak
+- pip install -e ./MetaMapper
 - pip install -e .
 - pip install hwtypes
 script:
