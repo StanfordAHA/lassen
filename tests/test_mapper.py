@@ -25,7 +25,7 @@ def test_discover():
     
     mapper.discover_peak_rewrite_rules(width=16)
     #test the mapper on simple add4 app
-    app = c.load_from_file("tests/add4.json")
+    app = c.load_from_file("tests/examples/add4.json")
     print(app)
     print("instance map",mapper.map_app(app))
     c.run_passes(['printer'])
@@ -57,7 +57,7 @@ def test_io():
         )
     mapper.add_discover_constraint(bypass_mode)
     mapper.discover_peak_rewrite_rules(width=16,coreir_primitives=["add","mul"])
-    app = c.load_from_file("tests/add4.json")
+    app = c.load_from_file("tests/examples/add4.json")
     print("instance map",mapper.map_app(app))
     app.save_to_file("tests/_mapped_add4.json")
     app.print_()
@@ -80,7 +80,7 @@ def test_float():
 
     
     #test the mapper on simple add4 app
-    app = c.load_from_file("tests/fpadd4.json")
+    app = c.load_from_file("tests/examples/fpadd4.json")
     imap = mapper.map_app(app)
     c.run_passes(['printer'])
 
