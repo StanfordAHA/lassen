@@ -1,4 +1,5 @@
 from lassen.sim import gen_pe
+import lassen.asm as asm
 from hwtypes import BitVector
 import coreir
 import metamapper as mm
@@ -61,5 +62,29 @@ def test_io():
     app.save_to_file("tests/_mapped_add4.json")
     app.print_()
 
+def test_float():
+    c = coreir.Context()
+    c.load_library("float")
+    mapper = mm.PeakMapper(c,"alu_ns")
+    
+    pe = mapper.add_peak_primitive("PE",gen_pe)
+    bfloat_add = c.get_namespace("float").generators['add'](exp_bits=8,frac_bits=7)
+    
+    #Adds a simple "1 to 1" rewrite rule
+    mapper.add_rewrite_rule(mm.Peak1to1(
+        bfloat_add, #Coreir module
+        pe, #coreir pe
+        asm.fp_add(), #Instruction for PE
+        dict(in0='data0',in1='data1',out="alu_res") #Port Mapping
+    ))
+
+    
+    #test the mapper on simple add4 app
+    app = c.load_from_file("tests/fpadd4.json")
+    imap = mapper.map_app(app)
+    c.run_passes(['printer'])
+
+test_float()
 #test_discover()
-test_io()
+#test_io()
+
