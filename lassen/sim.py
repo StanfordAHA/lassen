@@ -211,7 +211,8 @@ def gen_pe(family, assembler=None):
             self.regd: BitReg = BitReg()
             self.rege: BitReg = BitReg()
             self.regf: BitReg = BitReg()
-        
+            
+        @name_outputs(alu_res=Data,res_p=Bit,irq=Bit)
         def __call__(self, inst: Inst, \
             data0: Data, data1: Data = Data(0), \
             bit0: Bit = Bit(0), bit1: Bit = Bit(0), bit2: Bit = Bit(0), \
@@ -241,6 +242,4 @@ def gen_pe(family, assembler=None):
             return alu_res, res_p, irq 
     if family.Bit is m.Bit:
         PE = m.circuit.sequential(PE)
-    else:
-        PE.__call__ = name_outputs(alu_res=Data,res_p=Bit,irq=Bit)(PE.__call__)
     return PE
