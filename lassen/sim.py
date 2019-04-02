@@ -45,20 +45,19 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
                                                   Bit):
         signed = inst.signed_
         alu = inst.alu
-    
         if signed == Signed.signed:
             a = SInt[datawidth](a)
             b = SInt[datawidth](b)
             mula, mulb = a.sext(16), b.sext(16)
             mul = mula * mulb
-        else:
+        elif signed == Signed.unsigned:
             mula, mulb = a.zext(16), b.zext(16)
             mul = mula * mulb
 
     
         C = Bit(0)
         V = Bit(0)
-        if   alu == ALU.Add:
+        if alu == ALU.Add:
             res, C = a.adc(b, Bit(0))
             V = overflow(a, b, res)
             res_p = C
@@ -96,9 +95,11 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
         elif alu == ALU.XOr:
             res, res_p = a ^ b, Bit(0)
         elif alu == ALU.SHR:
-            res, res_p = a >> Data(b[:4]), Bit(0)
+            #res, res_p = a >> Data(b[:4]), Bit(0)
+            res, res_p = a >> b, Bit(0)
         elif alu == ALU.SHL:
-            res, res_p = a << Data(b[:4]), Bit(0)
+            #res, res_p = a << Data(b[:4]), Bit(0)
+            res, res_p = a << b, Bit(0)
         elif alu == ALU.FP_add:
             a = BFloat16(a)
             b = BFloat16(b)
@@ -218,7 +219,6 @@ def gen_pe(family, assembler=None):
     BitReg = gen_register_mode(Bit)
 
     Inst = gen_inst_type(family)
-
     class PE(Peak):
 
         def __init__(self):
@@ -232,12 +232,11 @@ def gen_pe(family, assembler=None):
             self.regd: BitReg = BitReg()
             self.rege: BitReg = BitReg()
             self.regf: BitReg = BitReg()
-
+        
         def __call__(self, inst: Inst, \
             data0: Data, data1: Data = Data(0), \
             bit0: Bit = Bit(0), bit1: Bit = Bit(0), bit2: Bit = Bit(0), \
             clk_en: Bit = Bit(1)) -> (Data, Bit, Bit):
-
             # Simulate one clock cycle
 
             ra = self.rega(inst.rega, inst.data0, data0, clk_en)
@@ -246,7 +245,7 @@ def gen_pe(family, assembler=None):
             rd = self.regd(inst.regd, inst.bit0, bit0, clk_en)
             re = self.rege(inst.rege, inst.bit1, bit1, clk_en)
             rf = self.regf(inst.regf, inst.bit2, bit2, clk_en)
-
+            
             # calculate alu results
             alu_res, alu_res_p, Z, N, C, V = alu(inst, ra, rb, rd)
 
@@ -263,4 +262,6 @@ def gen_pe(family, assembler=None):
             return alu_res, res_p, irq 
     if family.Bit is m.Bit:
         PE = m.circuit.sequential(PE)
+    else:
+        PE.__call__ = name_outputs(alu_res=Data,res_p=Bit,irq=Bit)(PE.__call__)
     return PE
