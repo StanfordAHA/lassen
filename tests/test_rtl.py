@@ -1,4 +1,5 @@
-from lassen.asm import add, sub, and_, or_, xor
+from lassen.asm import add, sub, and_, or_, xor, fp_mult, fp_add, faddiexp, \
+    fsubexp, fcnvexp2f, fgetfint, fgetffrac
 from lassen.sim import gen_pe, gen_pe_type_family
 from lassen.mode import gen_mode_type
 from lassen.isa import DATAWIDTH, gen_inst_type
@@ -7,6 +8,7 @@ import pytest
 from hwtypes import BitVector
 import fault
 from peak.auto_assembler import generate_assembler
+import os
 
 
 Mode = gen_mode_type(gen_pe_type_family(BitVector.get_family()))
@@ -55,10 +57,19 @@ def wrap_with_disassembler(PE, disassembler, width, layout, inst_type):
     return WrappedPE
 
 
-@pytest.mark.parametrize('op', [add, and_, or_, xor])
+@pytest.mark.parametrize('op', [add, and_, or_, xor, fp_add, fp_mult, faddiexp,
+                                fsubexp, fcnvexp2f, fgetfint, fgetffrac])
 @pytest.mark.parametrize('mode', [Mode.BYPASS, Mode.DELAY])
 @pytest.mark.parametrize('use_assembler', [False, True])
 def test_rtl(op, mode, use_assembler):
+    libs = [
+        "/cad/cadence/GENUS17.21.000.lnx86/share/synth/lib/chipware/sim/verilog/CW/CW_fp_mult.v",
+        "/cad/cadence/GENUS17.21.000.lnx86/share/synth/lib/chipware/sim/verilog/CW/CW_fp_add.v"
+    ]
+    CW_avail = all(os.path.isfile(file) for file in libs)
+    if not CW_avail and op in {fp_add, fp_mult}:
+        pytest.skip("Skipping fp op tests because CW primitives are not available")
+
     inst_type = gen_inst_type(gen_pe_type_family(BitVector.get_family()))
     inst = op(ra_mode=mode, rb_mode=mode)
     if use_assembler:
@@ -78,8 +89,25 @@ def test_rtl(op, mode, use_assembler):
         tester.circuit.inst = inst.value
     else:
         tester.circuit.inst = assembler(inst)
-    data0 = fault.random.random_bv(DATAWIDTH // 2)
-    data1 = fault.random.random_bv(DATAWIDTH // 2)
+    tester.circuit.CLK = 0
+    # Special case these inputs because they are known to work from test_pe
+    if op == fp_add:
+        data0, data1 = 0x801, 0x782
+    elif op == fp_mult:
+        data0, data1 = 0x4080, 0x4001
+    elif op == faddiexp:
+        data0, data1 = 0x7F8A, 0x0000
+    elif op == fsubexp:
+        data0, data1 = 0x7F8A, 0x0000
+    elif op == fcnvexp2f:
+        data0, data1 = 0x4005, 0x0000
+    elif op == fgetfint:
+        data0, data1 = 0x4020, 0x0000
+    elif op == fgetffrac:
+        data0, data1 = 0x4020, 0x0000
+    else:
+        data0 = fault.random.random_bv(DATAWIDTH // 2)
+        data1 = fault.random.random_bv(DATAWIDTH // 2)
     data0 = BitVector[16](data0)
     data1 = BitVector[16](data1)
     tester.circuit.data0 = data0
@@ -99,7 +127,13 @@ def test_rtl(op, mode, use_assembler):
         m.compile(f"tests/build/PE", PE, output="coreir-verilog")
     else:
         m.compile(f"tests/build/WrappedPE", PE, output="coreir-verilog")
-    tester.compile_and_run(target="verilator",
-                           directory="tests/build/",
-                           flags=['-Wno-UNUSED', '--trace'],
-                           skip_compile=True)
+    if CW_avail:
+        tester.compile_and_run(target="system-verilog", simulator="ncsim",
+                               directory="tests/build/",
+                               include_verilog_libraries=libs,
+                               skip_compile=True)
+    else:
+        tester.compile_and_run(target="verilator",
+                               directory="tests/build/",
+                               flags=['-Wno-UNUSED',  '-Wno-PINNOCONNECT'],
+                               skip_compile=True)
