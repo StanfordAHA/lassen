@@ -10,7 +10,7 @@ import pytest
 def test_discover():
     c = coreir.Context()
     mapper = mm.PeakMapper(c,"pe_ns")
-    Alu = mapper.add_peak_primitive("PE",gen_pe)
+    mapper.add_peak_primitive("PE",gen_pe)
     
     def bypass_mode(inst):
         return (
@@ -26,9 +26,9 @@ def test_discover():
     mapper.discover_peak_rewrite_rules(width=16)
     #test the mapper on simple add4 app
     app = c.load_from_file("tests/examples/add4.json")
-    print(app)
-    print("instance map",mapper.map_app(app))
-    c.run_passes(['printer'])
+    mapper.map_app(app)
+    imap = mapper.extract_instr_map(app)
+    assert len(imap) == 3
 
 def test_io():
     c = coreir.Context()
@@ -45,7 +45,7 @@ def test_io():
         is_input=False,
         io_prim=io16
     ))
-    Alu = mapper.add_peak_primitive("PE",gen_pe)
+    mapper.add_peak_primitive("PE",gen_pe)
     def bypass_mode(inst):
         return (
             inst.rega == type(inst.rega).BYPASS and
@@ -58,7 +58,10 @@ def test_io():
     mapper.add_discover_constraint(bypass_mode)
     mapper.discover_peak_rewrite_rules(width=16,coreir_primitives=["add","mul"])
     app = c.load_from_file("tests/examples/add4.json")
-    print("instance map",mapper.map_app(app))
+    mapper.map_app(app)
+    imap = mapper.extract_instr_map(app)
+    assert len(imap) == 3
+    print("instance map",imap)
     app.save_to_file("tests/_mapped_add4.json")
     app.print_()
 
@@ -81,10 +84,11 @@ def test_float():
     
     #test the mapper on simple add4 app
     app = c.load_from_file("tests/examples/fpadd4.json")
-    imap = mapper.map_app(app)
-    c.run_passes(['printer'])
+    mapper.map_app(app)
+    imap = mapper.extract_instr_map(app)
+    assert len(imap) == 3
+    print("instance map",imap)
 
-test_float()
+#test_float()
 #test_discover()
 #test_io()
-
