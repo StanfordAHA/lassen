@@ -1,4 +1,5 @@
 from lassen.sim import gen_pe
+import lassen.asm as asm
 from hwtypes import BitVector
 import coreir
 import metamapper as mm
@@ -9,7 +10,7 @@ import pytest
 def test_discover():
     c = coreir.Context()
     mapper = mm.PeakMapper(c,"pe_ns")
-    Alu = mapper.add_peak_primitive("PE",gen_pe)
+    mapper.add_peak_primitive("PE",gen_pe)
     
     def bypass_mode(inst):
         return (
@@ -24,12 +25,55 @@ def test_discover():
     
     mapper.discover_peak_rewrite_rules(width=16)
     #test the mapper on simple add4 app
-    app = c.load_from_file("tests/add4.json")
+    app = c.load_from_file("tests/examples/add4.json")
     mapper.map_app(app)
     imap = mapper.extract_instr_map(app)
     assert len(imap) == 3
-    c.run_passes(['printer'])
 
+def test_const():
+    c = coreir.Context()
+    mapper = mm.PeakMapper(c,"pe_ns")
+    
+    PE = mapper.add_peak_primitive("PE",gen_pe)
+    
+    const16 = c.get_namespace("coreir").generators['const'](width=16)
+
+    def instr_lambda(inst):
+        cval = inst.config["value"].value
+        return asm.const(cval)
+        
+    #Adds a simple "1 to 1" rewrite rule
+    mapper.add_rewrite_rule(mm.Peak1to1(
+        const16,
+        PE,
+        instr_lambda,
+        dict(out="alu_res")
+    ))
+ 
+    
+    def bypass_mode(inst):
+        return (
+            inst.rega == type(inst.rega).BYPASS and
+            inst.regb == type(inst.regb).BYPASS and
+            inst.regd == type(inst.regd).BYPASS and
+            inst.rege == type(inst.rege).BYPASS and 
+            inst.regf == type(inst.regf).BYPASS and
+            inst.cond == type(inst.cond).Z
+        )
+    mapper.add_discover_constraint(bypass_mode)
+    mapper.discover_peak_rewrite_rules(width=16,coreir_primitives=["add"])
+ 
+    
+   
+    #test the mapper on simple const app
+    app = c.load_from_file("tests/examples/const.json")
+    mapper.map_app(app)
+    imap = mapper.extract_instr_map(app)
+    assert len(imap) == 4
+    assert imap["c1$inst"] == asm.const(1)
+    c.run_passes(['printer'])
+    #This should have the c1$inst op attached with the ALUOP metadata
+ 
 def test_io():
     c = coreir.Context()
     mapper = mm.PeakMapper(c,"alu_ns")
@@ -45,7 +89,7 @@ def test_io():
         is_input=False,
         io_prim=io16
     ))
-    Alu = mapper.add_peak_primitive("PE",gen_pe)
+    mapper.add_peak_primitive("PE",gen_pe)
     def bypass_mode(inst):
         return (
             inst.rega == type(inst.rega).BYPASS and
@@ -57,7 +101,7 @@ def test_io():
         )
     mapper.add_discover_constraint(bypass_mode)
     mapper.discover_peak_rewrite_rules(width=16,coreir_primitives=["add","mul"])
-    app = c.load_from_file("tests/add4.json")
+    app = c.load_from_file("tests/examples/add4.json")
     mapper.map_app(app)
     imap = mapper.extract_instr_map(app)
     assert len(imap) == 3
@@ -65,6 +109,30 @@ def test_io():
     app.save_to_file("tests/_mapped_add4.json")
     app.print_()
 
+def test_float():
+    c = coreir.Context()
+    c.load_library("float")
+    mapper = mm.PeakMapper(c,"alu_ns")
+    
+    pe = mapper.add_peak_primitive("PE",gen_pe)
+    bfloat_add = c.get_namespace("float").generators['add'](exp_bits=8,frac_bits=7)
+    
+    #Adds a simple "1 to 1" rewrite rule
+    mapper.add_rewrite_rule(mm.Peak1to1(
+        bfloat_add, #Coreir module
+        pe, #coreir pe
+        asm.fp_add(), #Instruction for PE
+        dict(in0='data0',in1='data1',out="alu_res") #Port Mapping
+    ))
 
+    
+    #test the mapper on simple add4 app
+    app = c.load_from_file("tests/examples/fpadd4.json")
+    mapper.map_app(app)
+    imap = mapper.extract_instr_map(app)
+    assert len(imap) == 3
+    print("instance map",imap)
+
+#test_float()
 #test_discover()
 #test_io()
