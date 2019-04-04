@@ -79,3 +79,4 @@ Compared to the first generation PE (Diablo), Lassen shall have two new features
 5. pow
 * a^x = e^(ln(a^x)) = e^(x * ln(a))
 * We already have BFloat multiply, ln, and exponential, so we can implement power.
+
