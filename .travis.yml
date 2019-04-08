@@ -38,4 +38,4 @@ install:
 - pip install -e .
 - pip install hwtypes
 script:
-- pytest tests/
+- pytest -s tests/
