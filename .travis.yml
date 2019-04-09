@@ -7,19 +7,6 @@ addons:
     - g++-4.9
     - verilator    
 before_install:
-- mkdir deps
-- mkdir deps/bin
-- mkdir deps/lib
-- mkdir deps/include
-# install coreir
-- export PATH=$TRAVIS_BUILD_DIR/deps/bin:$PATH
-- export LD_LIBRARY_PATH=$TRAVIS_BUILD_DIR/deps/lib:$LD_LIBRARY_PATH
-- curl -s -L https://github.com/rdaly525/coreir/releases/latest | grep "href.*coreir.tar.gz" | cut -d \" -f 2 | xargs -I {} wget https://github.com"{}"
-- mkdir coreir_release;
-- tar -xf coreir.tar.gz -C coreir_release --strip-components 1;
-- cd coreir_release;
-- make install prefix=$TRAVIS_BUILD_DIR/deps;
-- cd ..
 # install conda
 - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
 - chmod +x miniconda.sh
@@ -40,9 +27,12 @@ install:
 - pip install pytest-cov
 - git clone https://github.com/phanrahan/peak.git
 - git clone https://github.com/rdaly525/MetaMapper.git
+- export CXX="g++-4.9";  # For coreir install
+- git clone https://github.com/leonardt/pycoreir.git
 - pip install git+git://github.com/leonardt/Pyverilog.git#egg=pyverilog
 - pip install git+git://github.com/phanrahan/magma#egg=magma
 - pip install git+git://github.com/phanrahan/mantle#egg=mantle
+- pip install -e ./pycoreir
 - pip install -e ./peak
 - pip install -e ./MetaMapper
 - pip install -e .
