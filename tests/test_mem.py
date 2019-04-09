@@ -10,7 +10,7 @@ import pytest
       {"ren", c->BitIn()},
 
 
-def test_mem_rr():
+def test_rom():
     c = coreir.Context()
     mapper = mm.PeakMapper(c,"pe_ns")
     
