@@ -14,8 +14,8 @@ def gen_mem_init(family,width=16,depth=1024):
 def gen_mem_mode(family):
     class MemMode(family.Enum):
         Ram = 0
-        Fifo = 0
-        Linebuffer = 0
+        Fifo = 1
+        Linebuffer = 2
     return MemMode
 
 def gen_mem_instr(family,width=16,depth=1024):
@@ -25,5 +25,7 @@ def gen_mem_instr(family,width=16,depth=1024):
     class MemInstr(family.Product):
         mode : MemMode
         init : MemInit
+        need_init : family.Bit
     return MemInstr
-   
+
+
