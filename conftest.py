@@ -1,3 +1,4 @@
+import pytest
 import magma.backend.coreir_
 
 
