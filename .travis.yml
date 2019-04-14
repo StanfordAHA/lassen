@@ -33,7 +33,6 @@ install:
 - pip install git+git://github.com/leonardt/Pyverilog.git#egg=pyverilog
 - pip install git+git://github.com/phanrahan/magma#egg=magma
 - pip install git+git://github.com/phanrahan/mantle#egg=mantle
-- pip install -e ./pycoreir
 - pip install -e ./peak
 - pip install -e ./MetaMapper
 - pip install -e .
