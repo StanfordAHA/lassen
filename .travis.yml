@@ -33,6 +33,7 @@ install:
 - pip install git+git://github.com/leonardt/Pyverilog.git#egg=pyverilog
 - pip install -b new-adt git+git://github.com/phanrahan/magma#egg=magma
 - pip install git+git://github.com/phanrahan/mantle#egg=mantle
+- pip install -b new-adt git+git://github.com/leonardt/fault#egg=fault
 - pip install -e ./peak
 - pip install -e ./MetaMapper
 - pip install -e .
