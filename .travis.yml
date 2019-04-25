@@ -31,7 +31,7 @@ install:
 - git clone https://github.com/leonardt/pycoreir.git
 - pip install -e ./pycoreir
 - pip install git+git://github.com/leonardt/Pyverilog.git#egg=pyverilog
-- pip install git+git://github.com/phanrahan/magma#egg=magma
+- pip install -b new-adt git+git://github.com/phanrahan/magma#egg=magma
 - pip install git+git://github.com/phanrahan/mantle#egg=mantle
 - pip install -e ./peak
 - pip install -e ./MetaMapper
