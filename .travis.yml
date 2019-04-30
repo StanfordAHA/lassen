@@ -26,7 +26,7 @@ install:
 - pysmt-install --check
 - pip install pytest-cov
 - git clone -b adt https://github.com/phanrahan/peak.git
-- git clone https://github.com/rdaly525/MetaMapper.git
+- git clone -b adt https://github.com/rdaly525/MetaMapper.git
 - export CXX="g++-4.9";  # For coreir install
 - git clone https://github.com/leonardt/pycoreir.git
 - pip install -e ./pycoreir
