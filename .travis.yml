@@ -40,4 +40,4 @@ install:
 - pip install -e ./MetaMapper
 - pip install -e .
 script:
-- pytest tests/
+- pytest -x tests/
