@@ -27,6 +27,7 @@ install:
 - pip install pytest-cov
 - git clone -b adt https://github.com/phanrahan/peak.git
 - git clone -b adt https://github.com/rdaly525/MetaMapper.git
+- git clone https://github.com/leonardt/pycoreir.git
 - export CXX="g++-4.9";  # For coreir install
 - cd pycoreir && python setup.py bdist_wheel && pip install dist/* && cd ..
 - pip install git+git://github.com/leonardt/Pyverilog.git#egg=pyverilog
