@@ -31,9 +31,9 @@ install:
 - export CXX="g++-4.9";  # For coreir install
 - cd pycoreir && python setup.py bdist_wheel && pip install dist/* && cd ..
 - pip install git+git://github.com/leonardt/Pyverilog.git#egg=pyverilog
-- pip install -b new-adt git+git://github.com/phanrahan/magma#egg=magma
+- pip install git+git://github.com/phanrahan/magma@new-adt#egg=magma-lang
 - pip install git+git://github.com/phanrahan/mantle#egg=mantle
-- pip install -b new-adt git+git://github.com/leonardt/fault#egg=fault
+- pip install git+git://github.com/leonardt/fault@new-adt#egg=fault
 - pip install -e ./peak
 - pip install -e ./MetaMapper
 - pip install -e .
