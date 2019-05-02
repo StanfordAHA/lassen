@@ -1,5 +1,5 @@
 from peak import Peak, gen_register
-from peak.adt import Enum
+from hwtypes.adt import Enum
 from .family import gen_pe_type_family
 import magma as m
 from functools import lru_cache
