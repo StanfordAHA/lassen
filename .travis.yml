@@ -33,7 +33,7 @@ install:
 - pip install git+git://github.com/leonardt/Pyverilog.git#egg=pyverilog
 - pip install git+git://github.com/phanrahan/magma#egg=magma-lang
 - pip install git+git://github.com/phanrahan/mantle#egg=mantle
-- pip install --ignore-installed git+git://github.com/leonardt/fault#egg=fault
+- pip install git+git://github.com/leonardt/fault#egg=fault
 - pip install -e ./peak
 - pip install -e ./MetaMapper
 - pip install -e .
