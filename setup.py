@@ -13,7 +13,8 @@ setup(
         "lassen",
     ],
     install_requires=[
-        "peak"
+        "peak",
+        "mantle"
     ],
     python_requires='>=3.6'
 )
