@@ -36,6 +36,5 @@ install:
 - pip install -e ./peak
 - pip install -e ./MetaMapper
 - pip install -e .
-- pip install hwtypes
 script:
 - pytest -x tests/
