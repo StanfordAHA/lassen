@@ -12,7 +12,7 @@ def test_and():
     # instantiate an PE - calls PE.__init__
     pe = gen_pe(BitVector.get_family())()
     # format an 'and' instruction
-    inst = asm.and_() 
+    inst = asm.and_()
     # execute PE instruction with the arguments as inputs -  call PE.__call__
     res, res_p, irq = pe(inst, Data(1), Data(3))
     assert res==1
@@ -274,7 +274,7 @@ def test_get_mant():
     # instantiate an PE - calls PE.__init__
     pe = gen_pe(BitVector.get_family())()
     # format an 'and' instruction
-    inst = asm.fgetmant() 
+    inst = asm.fgetmant()
     # execute PE instruction with the arguments as inputs -  call PE.__call__
     res, res_p, irq = pe(inst, Data(0x7F8A), Data(0x0000))
     assert res==0xA
@@ -285,7 +285,7 @@ def test_add_exp_imm():
     # instantiate an PE - calls PE.__init__
     pe = gen_pe(BitVector.get_family())()
     # format an 'and' instruction
-    inst = asm.faddiexp() 
+    inst = asm.faddiexp()
     # execute PE instruction with the arguments as inputs -  call PE.__call__
     res, res_p, irq = pe(inst, Data(0x7F8A), Data(0x0005))
     # 7F8A => Sign=0; Exp=0xFF; Mant=0x0A
@@ -298,7 +298,7 @@ def test_sub_exp():
     # instantiate an PE - calls PE.__init__
     pe = gen_pe(BitVector.get_family())()
     # format an 'and' instruction
-    inst = asm.fsubexp() 
+    inst = asm.fsubexp()
     # execute PE instruction with the arguments as inputs -  call PE.__call__
     res, res_p, irq = pe(inst, Data(0x7F8A), Data(0x4005))
     # 7F8A => Sign=0; Exp=0xFF; Mant=0x0A
@@ -312,7 +312,7 @@ def test_cnvt_exp_to_float():
     # instantiate an PE - calls PE.__init__
     pe = gen_pe(BitVector.get_family())()
     # format an 'and' instruction
-    inst = asm.fcnvexp2f() 
+    inst = asm.fcnvexp2f()
     # execute PE instruction with the arguments as inputs -  call PE.__call__
     res, res_p, irq = pe(inst, Data(0x4005), Data(0x0000))
     # 4005 => Sign=0; Exp=0x80; Mant=0x05 (0100 0000 0000 0101) i.e. unbiased exp = 1
@@ -325,7 +325,7 @@ def test_get_float_int():
     # instantiate an PE - calls PE.__init__
     pe = gen_pe(BitVector.get_family())()
     # format an 'and' instruction
-    inst = asm.fgetfint() 
+    inst = asm.fgetfint()
     # execute PE instruction with the arguments as inputs -  call PE.__call__
     res, res_p, irq = pe(inst, Data(0x4020), Data(0x0000))
     #2.5 = 10.1 i.e. exp = 1 with 1.01 # biased exp = 128 i.e 80
@@ -339,7 +339,7 @@ def test_get_float_frac():
     # instantiate an PE - calls PE.__init__
     pe = gen_pe(BitVector.get_family())()
     # format an 'and' instruction
-    inst = asm.fgetffrac() 
+    inst = asm.fgetffrac()
     # execute PE instruction with the arguments as inputs -  call PE.__call__
     res, res_p, irq = pe(inst, Data(0x4020), Data(0x0000))
     #2.5 = 10.1 i.e. exp = 1 with 1.01 # biased exp = 128 i.e 80

@@ -1,4 +1,4 @@
-from peak.adt import Enum
+from hwtypes.adt import Enum
 import magma as m
 from functools import lru_cache
 from peak.auto_assembler import assemble_values_in_func
