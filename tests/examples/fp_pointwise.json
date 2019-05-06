@@ -1,0 +1,32 @@
+{"top":"global.DesignTop",
+"namespaces":{
+  "global":{
+    "modules":{
+      "DesignTop":{
+        "type":["Record",[
+          ["in",["Record",[["arg_0",["Array",1,["Array",1,["Array",16,"BitIn"]]]]]]],
+          ["reset","BitIn"],
+          ["out",["Array",1,["Array",1,["Array",16,"Bit"]]]],
+          ["valid","Bit"]
+        ]],
+        "instances":{
+          "fconst3__279":{
+            "genref":"coreir.const",
+            "genargs":{"width":["Int",16]},
+            "modargs":{"value":[["BitVector",16],"16'h0003"]}
+          },
+          "fmul_278_279_280":{
+            "genref":"float.mul",
+            "genargs":{"exp_bits":["Int",8], "frac_bits":["Int",7]}
+          }
+        },
+        "connections":[
+          ["fmul_278_279_280.in1","fconst3__279.out"],
+          ["self.in.arg_0.0.0","fmul_278_279_280.in0"],
+          ["self.out.0.0","fmul_278_279_280.out"]
+        ]
+      }
+    }
+  }
+}
+}
