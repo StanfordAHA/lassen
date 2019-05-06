@@ -89,6 +89,52 @@ def test_float():
     assert len(imap) == 3
     print("instance map",imap)
 
+def test_fp_pointwise():
+    c = coreir.Context()
+    c.load_library("float")
+    mapper = mm.PeakMapper(c,"alu_ns")
+    
+    pe = mapper.add_peak_primitive("PE",gen_pe)
+
+    # FADD: Adds a simple "1 to 1" rewrite rule for fadd
+    bfloat_add = c.get_namespace("float").generators['add'](exp_bits=8,frac_bits=7)
+    mapper.add_rewrite_rule(mm.Peak1to1(
+        bfloat_add, #Coreir module
+        pe, #coreir pe
+        asm.fp_add(), #Instruction for PE
+        dict(in0='data0',in1='data1',out="alu_res") #Port Mapping
+    ))
+
+    # FMUL: Adds a simple "1 to 1" rewrite rule for fmul
+    bfloat_mul = c.get_namespace("float").generators['mul'](exp_bits=8,frac_bits=7)
+    mapper.add_rewrite_rule(mm.Peak1to1(
+        bfloat_mul, #Coreir module
+        pe, #coreir pe
+        asm.fp_mult(), #Instruction for PE
+        dict(in0='data0',in1='data1',out="alu_res") #Port Mapping
+    ))
+
+    # CONST: Adds a simple "1 to 1" rewrite rule for const
+    const16 = c.get_namespace("coreir").generators['const'](width=16)
+    def instr_const(inst):
+        return asm.const(inst.config["value"].value)
+
+    mapper.add_rewrite_rule(mm.Peak1to1(
+        const16,
+        pe,
+        instr_const,
+        dict(out="alu_res")
+    ))
+                    
+    #test the mapper on simple add4 app
+    app = c.load_from_file("tests/examples/fp_pointwise.json")
+    mapper.map_app(app)
+    imap = mapper.extract_instr_map(app)
+    assert len(imap) == 2 # expect to see a multiplier and const
+    print("instance map",imap)
+    app.save_to_file("tests/examples/fp_pointwise.mapped.json")
+
+    
 #test_float()
 #test_discover()
 #test_io()
