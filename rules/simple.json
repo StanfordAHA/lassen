@@ -1,0 +1,68 @@
+[
+  {
+    "kind": "1to1",
+    "coreir_prim": [
+      "coreir",
+      "add"
+    ],
+    "genargs": {
+      "width": 16
+    },
+    "peak_prim": "PE",
+    "binding": {
+      "in0": "data0",
+      "in1": "data1",
+      "0": "clk_en",
+      "out": "alu_res"
+    },
+    "instr": [
+      66,
+      21040818558590779392
+    ],
+    "instr_debug": "Inst(ALU.Add,Signed.unsigned,BitVector[8](0),Cond.Z,Mode.BYPASS,BitVector[16](0),Mode.BYPASS,BitVector[16](0),Mode.BYPASS,Bit(False),Mode.BYPASS,Bit(False),Mode.BYPASS,Bit(False))"
+  },
+  {
+    "kind": "1to1",
+    "coreir_prim": [
+      "coreir",
+      "sub"
+    ],
+    "genargs": {
+      "width": 16
+    },
+    "peak_prim": "PE",
+    "binding": {
+      "in0": "data0",
+      "in1": "data1",
+      "0": "clk_en",
+      "out": "alu_res"
+    },
+    "instr": [
+      66,
+      21040818558590779393
+    ],
+    "instr_debug": "Inst(ALU.Sub,Signed.unsigned,BitVector[8](0),Cond.Z,Mode.BYPASS,BitVector[16](0),Mode.BYPASS,BitVector[16](0),Mode.BYPASS,Bit(False),Mode.BYPASS,Bit(False),Mode.BYPASS,Bit(False))"
+  },
+  {
+    "kind": "1to1",
+    "coreir_prim": [
+      "coreir",
+      "or"
+    ],
+    "genargs": {
+      "width": 16
+    },
+    "peak_prim": "PE",
+    "binding": {
+      "in0": "data0",
+      "in1": "data1",
+      "0": "clk_en",
+      "out": "alu_res"
+    },
+    "instr": [
+      66,
+      21040818558590779410
+    ],
+    "instr_debug": "Inst(ALU.Or,Signed.unsigned,BitVector[8](0),Cond.Z,Mode.BYPASS,BitVector[16](0),Mode.BYPASS,BitVector[16](0),Mode.BYPASS,Bit(False),Mode.BYPASS,Bit(False),Mode.BYPASS,Bit(False))"
+  }
+]
