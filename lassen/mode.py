@@ -37,8 +37,8 @@ def gen_register_mode(T, init=None):
                 return value
             elif mode == Mode.DELAY:
                 return self.register(value, True)
-            else:
-                raise PeakNotImplementedError(mode)
+            #else:
+            #    raise PeakNotImplementedError(mode)
 
     if family.Bit is m.Bit:
         RegisterMode = m.circuit.sequential(RegisterMode)
