@@ -234,16 +234,16 @@ def gen_pe(family, assembler=None):
 
         def __call__(self, inst: Inst, \
             data0: Data, data1: Data = Data(0), \
-            bit0: Bit = Bit(0), bit1: Bit = Bit(0), bit2: Bit = Bit(0), \
-            clk_en: Bit = Bit(1)) -> (Data, Bit, Bit):
+            bit0: Bit = Bit(0), bit1: Bit = Bit(0), bit2: Bit = Bit(0)
+        ) -> (Data, Bit, Bit):
             # Simulate one clock cycle
 
-            ra = self.rega(inst.rega, inst.data0, data0, clk_en)
-            rb = self.regb(inst.regb, inst.data1, data1, clk_en)
+            ra = self.rega(inst.rega, inst.data0, data0)
+            rb = self.regb(inst.regb, inst.data1, data1)
 
-            rd = self.regd(inst.regd, inst.bit0, bit0, clk_en)
-            re = self.rege(inst.rege, inst.bit1, bit1, clk_en)
-            rf = self.regf(inst.regf, inst.bit2, bit2, clk_en)
+            rd = self.regd(inst.regd, inst.bit0, bit0)
+            re = self.rege(inst.rege, inst.bit1, bit1)
+            rf = self.regf(inst.regf, inst.bit2, bit2)
 
             # calculate alu results
             alu_res, alu_res_p, Z, N, C, V = alu(inst, ra, rb, rd)
