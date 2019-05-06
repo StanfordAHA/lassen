@@ -25,18 +25,12 @@ install:
 - export LD_LIBRARY_PATH="/home/travis/.smt_solvers/python-bindings-3.6:${LD_LIBRARY_PATH}"
 - pysmt-install --check
 - pip install pytest-cov
-- git clone -b adt https://github.com/phanrahan/peak.git
-- git clone -b adt https://github.com/rdaly525/MetaMapper.git
-- export CXX="g++-4.9";  # For coreir install
-- git clone https://github.com/leonardt/pycoreir.git
-- pip install -e ./pycoreir
-- pip install git+git://github.com/leonardt/Pyverilog.git#egg=pyverilog
-- pip install -b new-adt git+git://github.com/phanrahan/magma#egg=magma
-- pip install git+git://github.com/phanrahan/mantle#egg=mantle
-- pip install -b new-adt git+git://github.com/leonardt/fault#egg=fault
+- git clone https://github.com/phanrahan/peak.git
+- git clone https://github.com/rdaly525/MetaMapper.git
+- pip install --ignore-installed git+git://github.com/leonardt/fault#egg=fault
+- pip install --ignore-installed git+git://github.com/phanrahan/magma#egg=magma-lang
 - pip install -e ./peak
 - pip install -e ./MetaMapper
 - pip install -e .
-- pip install hwtypes
 script:
-- pytest tests/
+- pytest -x tests/

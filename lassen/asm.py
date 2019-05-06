@@ -152,3 +152,8 @@ def sgt():
 def sge():
     return inst(ALU.Sub, cond=Cond.SGE)
 
+# implements a constant using a register and add by zero
+def const(val):
+    return inst(ALU.Add,
+                ra_mode=Mode.CONST, ra_const=val,
+                rb_mode=Mode.CONST, rb_const=0)
