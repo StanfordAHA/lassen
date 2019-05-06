@@ -28,8 +28,7 @@ def gen_register_mode(T, init=None):
         def __init__(self):
             self.register: Reg = Reg()
 
-        def __call__(self, mode: Mode, const_: T, value: T,
-                     clk_en: family.Bit) -> T:
+        def __call__(self, mode: Mode, const_: T, value: T) -> T:
             if mode == Mode.CONST:
                 self.register(value, False)
                 return const_
