@@ -53,17 +53,17 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
             mula, mulb = a.zext(16), b.zext(16)
             mul = mula * mulb
 
+        #Negate B and add cin if subtract
+        Cin = Bit(0)
+        if alu == ALU.Sub:
+            b = ~b
+            Cin = Bit(1)
 
         C = Bit(0)
         V = Bit(0)
-        if alu == ALU.Add:
-            res, C = a.adc(b, Bit(0))
+        if alu == ALU.Add or alu == ALU.Sub:
+            res, C = a.adc(b, Cin)
             V = overflow(a, b, res)
-            res_p = C
-        elif alu == ALU.Sub:
-            b_not = ~b
-            res, C = a.adc(b_not, Bit(1))
-            V = overflow(a, b_not, res)
             res_p = C
         elif alu == ALU.Mult0:
             res, C, V = mul[:16], Bit(0), Bit(0) # wrong C, V
