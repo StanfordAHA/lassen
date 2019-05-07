@@ -23,6 +23,7 @@ def gen_register_mode(T, init=None):
     family = gen_pe_type_family(T.get_family())
     Reg = gen_register(family, T, init=init)
     Mode = gen_mode_type(family)
+    Bit = family.Bit
 
     class RegisterMode(Peak):
         def __init__(self):
@@ -30,13 +31,13 @@ def gen_register_mode(T, init=None):
 
         def __call__(self, mode: Mode, const_: T, value: T) -> T:
             if mode == Mode.CONST:
-                self.register(value, False)
+                self.register(value, Bit(False))
                 return const_
             elif mode == Mode.BYPASS:
-                self.register(value, False)
+                self.register(value, Bit(False))
                 return value
             elif mode == Mode.DELAY:
-                return self.register(value, True)
+                return self.register(value, Bit(True))
             #else:
             #    raise PeakNotImplementedError(mode)
 
