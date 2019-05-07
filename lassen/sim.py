@@ -53,7 +53,6 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
             mula, mulb = a.zext(16), b.zext(16)
             mul = mula * mulb
 
-
         C = Bit(0)
         V = Bit(0)
         if alu == ALU.Add:
