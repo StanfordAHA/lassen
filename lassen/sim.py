@@ -1,7 +1,6 @@
 from hwtypes import TypeFamily
 from peak import Peak, name_outputs
 from peak.auto_assembler import assemble_values_in_func
-import peak.adt
 from .mode import gen_register_mode
 from .lut import gen_lut_type, gen_lut
 from .cond import gen_cond
@@ -54,7 +53,7 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
             mula, mulb = a.zext(16), b.zext(16)
             mul = mula * mulb
 
-    
+
         C = Bit(0)
         V = Bit(0)
         if alu == ALU.Add:
@@ -63,7 +62,7 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
             res_p = C
         elif alu == ALU.Sub:
             b_not = ~b
-            res, C = a.adc(b_not, Bit(1)) 
+            res, C = a.adc(b_not, Bit(1))
             V = overflow(a, b_not, res)
             res_p = C
         elif alu == ALU.Mult0:
@@ -127,8 +126,8 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
             res, res_p = (sign | exp_shift | mant), (exp_check > 255)
         elif alu == ALU.FSubExp:
             signa = BitVector[16]((a & 0x8000))
-            expa = a[7:15] 
-            expb = b[7:15] 
+            expa = a[7:15]
+            expb = b[7:15]
             expa = (expa - expb + 127)
             exp_shift = BitVector[16](expa)
             exp_shift = exp_shift << 7
@@ -185,7 +184,7 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
             signa = BitVector[16]((a & 0x8000))
             expa = a[7:15]
             manta = BitVector[16]((a & 0x7F)) | 0x80;
-    
+
             unbiased_exp = SInt[8](expa) - SInt[8](127)
             if (unbiased_exp<0):
               manta_shift = BitVector[16](manta) >> BitVector[16](-unbiased_exp)
@@ -195,10 +194,10 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
             res, res_p = ((manta_shift & 0x07F)<<1), Bit(0)
         #else:
         #    raise NotImplementedError(alu)
-    
+
         Z = res == 0
         N = Bit(res[-1])
-    
+
         return res, res_p, Z, N, C, V
     if family.Bit is m.Bit:
         alu = assemble_values_in_func(assembler, alu, locals(), globals())
@@ -232,20 +231,20 @@ def gen_pe(family, assembler=None):
             self.regd: BitReg = BitReg()
             self.rege: BitReg = BitReg()
             self.regf: BitReg = BitReg()
-        
+
         def __call__(self, inst: Inst, \
             data0: Data, data1: Data = Data(0), \
-            bit0: Bit = Bit(0), bit1: Bit = Bit(0), bit2: Bit = Bit(0), \
-            clk_en: Bit = Bit(1)) -> (Data, Bit, Bit):
+            bit0: Bit = Bit(0), bit1: Bit = Bit(0), bit2: Bit = Bit(0)
+        ) -> (Data, Bit, Bit):
             # Simulate one clock cycle
 
-            ra = self.rega(inst.rega, inst.data0, data0, clk_en)
-            rb = self.regb(inst.regb, inst.data1, data1, clk_en)
+            ra = self.rega(inst.rega, inst.data0, data0)
+            rb = self.regb(inst.regb, inst.data1, data1)
 
-            rd = self.regd(inst.regd, inst.bit0, bit0, clk_en)
-            re = self.rege(inst.rege, inst.bit1, bit1, clk_en)
-            rf = self.regf(inst.regf, inst.bit2, bit2, clk_en)
-            
+            rd = self.regd(inst.regd, inst.bit0, bit0)
+            re = self.rege(inst.rege, inst.bit1, bit1)
+            rf = self.regf(inst.regf, inst.bit2, bit2)
+
             # calculate alu results
             alu_res, alu_res_p, Z, N, C, V = alu(inst, ra, rb, rd)
 
@@ -255,11 +254,11 @@ def gen_pe(family, assembler=None):
             # calculate 1-bit result
             res_p = cond(inst.cond, alu_res_p, lut_res, Z, N, C, V)
 
-            # calculate interrupt request 
+            # calculate interrupt request
             irq = Bit(0) # NYI
 
             # return 16-bit result, 1-bit result, irq
-            return alu_res, res_p, irq 
+            return alu_res, res_p, irq
     if family.Bit is m.Bit:
         PE = m.circuit.sequential(PE)
     else:
