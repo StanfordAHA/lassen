@@ -51,7 +51,7 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
             mula, mulb = a.sext(16), b.sext(16)
             mul = mula * mulb
         elif signed == Signed.unsigned:
-            mula, mulb = a.zext(16), b.zext(16)
+            mula, mulb = Data(a).zext(16), Data(b).zext(16)
             mul = mula * mulb
 
     
@@ -105,6 +105,11 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
             b = BFloat16(b)
             res = a + b
             res_p = Bit(0)
+        elif alu == ALU.FP_sub:
+            a = BFloat16(a)
+            b = BFloat16(b)
+            res = a - b
+            res_p = Bit(0)
         elif alu == ALU.FP_mult:
             a = BFloat16(a)
             b = BFloat16(b)
@@ -127,13 +132,14 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
             res, res_p = (sign | exp_shift | mant), (exp_check > 255)
         elif alu == ALU.FSubExp:
             signa = BitVector[16]((a & 0x8000))
-            expa = a[7:15] 
-            expb = b[7:15] 
+            expa = BitVector[16](a)[7:15] 
+            signb = BitVector[16]((b & 0x8000))
+            expb = BitVector[16](b)[7:15] 
             expa = (expa - expb + 127)
             exp_shift = BitVector[16](expa)
             exp_shift = exp_shift << 7
             manta = BitVector[16]((a & 0x7F));
-            res, res_p = (signa | exp_shift | manta), Bit(0)
+            res, res_p = ((signa | signb) | exp_shift | manta), Bit(0)
         elif alu == ALU.FCnvExp2F:
             biased_exp = SInt[8](a[7:15])
             unbiased_exp = biased_exp - SInt[8](127)
@@ -193,10 +199,64 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
               manta_shift = BitVector[16](manta) << BitVector[16](unbiased_exp)
             #We are not checking for overflow when converting to int
             res, res_p = ((manta_shift & 0x07F)<<1), Bit(0)
+        elif alu == ALU.FCnvUInt2F:
+          if signed == Signed.signed:
+            sign = BitVector[16] ((a) & 0x8000)
+          else:
+            sign = BitVector[16] (0)
+          if (sign[15]==Bit(1)):
+            abs_input = BitVector[16] (-a)
+          else:
+            abs_input = BitVector[16] (a)
+            scale=SInt[16](-127)
+            # for bit_pos in range(8):
+            #   if (abs_exp[bit_pos]==Bit(1)):
+            #     scale = bit_pos
+            if (abs_input[0]==Bit(1)):
+              scale = SInt[16](0)
+            if (abs_input[1]==Bit(1)):
+              scale = SInt[16](1)
+            if (abs_input[2]==Bit(1)):
+              scale = SInt[16](2)
+            if (abs_input[3]==Bit(1)):
+              scale = SInt[16](3)
+            if (abs_input[4]==Bit(1)):
+              scale = SInt[16](4)
+            if (abs_input[5]==Bit(1)):
+              scale = SInt[16](5)
+            if (abs_input[6]==Bit(1)):
+              scale = SInt[16](6)
+            if (abs_input[7]==Bit(1)):
+              scale = SInt[16](7)
+            if (abs_input[8]==Bit(1)):
+              scale = SInt[16](8)
+            if (abs_input[9]==Bit(1)):
+              scale = SInt[16](9)
+            if (abs_input[10]==Bit(1)):
+              scale = SInt[16](10)
+            if (abs_input[11]==Bit(1)):
+              scale = SInt[16](11)
+            if (abs_input[12]==Bit(1)):
+              scale = SInt[16](12)
+            if (abs_input[13]==Bit(1)):
+              scale = SInt[16](13)
+            if (abs_input[14]==Bit(1)):
+              scale = SInt[16](14)
+            if (abs_input[15]==Bit(1)):
+              scale = SInt[16](15)
+            if (scale>=0):
+              normmant = BitVector[16]((SInt[16](abs_input) * (SInt[16](1) << (SInt[16](15)-scale))) & 0x7F00)
+            else:
+              normmant = BitVector[16](0)
+            biased_scale = scale + 127
+            res, res_p = (sign | ((BitVector[16](biased_scale)<<7) & (0xFF<<7)) | (BitVector[16](normmant)>>8), Bit(0))
         #else:
         #    raise NotImplementedError(alu)
-    
-        Z = res == 0
+   
+        if alu in [ALU.FP_add, ALU.FP_mult, ALU.FP_sub]:
+          Z = (res==0x0000) | (res==0x8000)
+        else:
+          Z = (res == 0)
         N = Bit(res[-1])
     
         return res, res_p, Z, N, C, V

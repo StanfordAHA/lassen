@@ -2,7 +2,10 @@ import lassen.asm as asm
 from lassen.sim import gen_pe
 from lassen.isa import DATAWIDTH
 from hwtypes import BitVector, Bit
+from lassen.tlut import tlut
+from lassen.utils import float2bfbin, bfbin2float
 import pytest
+import random
 
 Bit = Bit
 Data = BitVector[DATAWIDTH]
@@ -348,3 +351,50 @@ def test_get_float_frac():
     assert res==0x80
     assert res_p==0
     assert irq==0
+
+def get_random_float():
+    sign = -1 if (random.random() < 0.5) else 1
+    mant = float(random.random()+1.0)
+    power = -50 + int(random.random()*100)
+    res = sign * mant * float((2**power))
+    return res 
+
+def test_div():
+    test_vectors = []
+    for vector_count in range(2000):
+      divident_sp = get_random_float()
+      divisor_sp  = get_random_float()
+      divident_bfloat_str = float2bfbin(divident_sp)
+      divisor_bfloat_str = float2bfbin(divisor_sp)
+      divident_bfp = bfbin2float(divident_bfloat_str)
+      divisor_bfp  = bfbin2float(divisor_bfloat_str)
+      quotient_bfp = bfbin2float(float2bfbin(divident_bfp / divisor_bfp))
+      quotient_bfloat_str = float2bfbin(quotient_bfp)
+      min_accuracy = 2
+      test_vectors.append([divident_bfloat_str, divisor_bfloat_str, quotient_bfloat_str, min_accuracy])
+
+    # START_TEST result = op_a / op_b
+    for test_vector in test_vectors:
+      op_a    = Data(int(test_vector[0],2))
+      op_b    = Data(int(test_vector[1],2))
+      exp_res =      int(test_vector[2],2)
+      acc     =          test_vector[3]
+      
+      pe_get_mant  = gen_pe(BitVector.get_family())()
+      mem_lut      = tlut()
+      pe_scale_res = gen_pe(BitVector.get_family())()
+      pe_mult      = gen_pe(BitVector.get_family())()
+
+      inst1 = asm.fgetmant()
+      inst2 = asm.fsubexp()
+      inst3 = asm.fp_mult()
+
+      mant           ,d1 ,d2   = pe_get_mant(inst1,op_b,Data(0))
+      lookup_result            = mem_lut.div_lut(mant)
+      scaled_result  ,d3 ,d4   = pe_scale_res(inst2, lookup_result, op_b)
+      result         ,d5 ,d6   = pe_mult(inst3, scaled_result, op_a)
+    
+      assert abs(exp_res-int(result)) <= acc
+
+
+
