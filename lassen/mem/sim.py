@@ -1,19 +1,25 @@
 from hwtypes import TypeFamily
-from peak import Peak, name_outputs
-import peak.adt
-from .isa import*
+from peak import Peak, name_outputs, PeakNotImplementedError
+from .isa import *
 
-def gen_mem(family, width=16,depth=1024):
-    MemInstr = gen_mem_instr(family,width,depth)
-    
+width = 16
+depth = 1024
+
+def gen_mem(family, width=width,depth=depth):
+    MemInstr, Rom = gen_mem_instr(family,width,depth)
     Bit = family.Bit
-    Data = family.BitVector[DATAWIDTH]
+    Data = family.BitVector[width]
 
     class Mem(Peak):
         def __init__(self):
             pass
 
-        @name_outputs(rdata=Data,valid=Bit,almost_full=Bit)
-        def __call__(self,instr : MemInstr, ain : Data, ren : Bit, din : Data, wen : Bit):
-            return Data(0),Bit(0),Bit(0)
-
+        #For now only define the ports relevant for the ROM
+        @name_outputs(rdata=Data)
+        def __call__(self,instr : MemInstr, ain : Data, din : Data):
+            instr_kind, instr = instr.match()
+            if instr_kind == Rom:
+                return instr.init[ain]
+            else:
+                raise PeakNotImplementedError("NYI")
+    return Mem
