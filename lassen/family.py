@@ -2,7 +2,7 @@ import magma as m
 from collections import namedtuple
 from hwtypes import BitVector, SIntVector, TypeFamily
 import hwtypes.adt
-from peak import SMTBitVector
+from hwtypes import SMTBitVector
 
 
 ExtendedTypeFamily = namedtuple('ExtendedTypeFamily', ['Bit', 'BitVector',
