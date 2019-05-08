@@ -14,7 +14,7 @@ def test_rom():
     #Load addr 0 with Data(0), addr 1 with Data(1), etc...
     instr = MemInstr(Rom(init=Rom.init(*(Data(i) for i in range(depth)))))
     mem = Mem()
-    for i in range depth:
+    for i in range(depth):
         #                addr    din         
         assert mem(instr,Data(i),Data(0)) == Data(i)
 
