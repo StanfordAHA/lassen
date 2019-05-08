@@ -9,6 +9,7 @@ class Fifo(Product):
 class LineBuffer(Product):
     pass
 
+@lru_cache()
 def gen_mem_instr(family,width,depth):
     class Rom(Product):
         init=Tuple[(family.BitVector[width] for _ in range(depth))]
