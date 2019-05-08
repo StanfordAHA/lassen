@@ -5,6 +5,8 @@ import coreir
 import metamapper as mm
 import pytest
 import json
+from lassen import rules as Rules
+
 
 @pytest.mark.skip("This takes a long time")
 def test_discover():
@@ -194,7 +196,23 @@ def test_serialize():
     imap = mapper.extract_instr_map(app)
     assert len(imap) == 3
 
+def test_rules():
+    c = coreir.Context()
+    mapper = mm.PeakMapper(c,"alu_ns")
+    pe = mapper.add_peak_primitive("PE",gen_pe)
+    for rr in Rules:
+        mapper.add_rr_from_description(rr)
+
+    #test the mapper on simple add4 app
+    app = c.load_from_file("tests/examples/add4.json")
+    mapper.map_app(app)
+    imap = mapper.extract_instr_map(app)
+    assert len(imap) == 3
+
+
+
+
 #test_float()
 #test_discover()
 #test_io()
-test_serialize()
+test_rules()
