@@ -119,7 +119,7 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
             res, res_p = (a & 0x7F), Bit(0)
         elif alu == ALU.FAddIExp:
             sign = BitVector[16]((a & 0x8000))
-            exp = a[7:15]
+            exp = BitVector[16](a)[7:15]
             exp_check = exp.zext(1)
             exp = exp + b[0:8]
             exp_check = exp_check + b[0:9]
@@ -185,8 +185,13 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
               manta_shift = BitVector[16](0)
             else:
               manta_shift = BitVector[16](manta) << BitVector[16](unbiased_exp)
+            unsigned_res = SInt[16](manta_shift>>7)
+            if (signa==0x8000):
+              signed_res = SInt[16](-unsigned_res)
+            else:
+              signed_res = SInt[16](unsigned_res)
             #We are not checking for overflow when converting to int
-            res, res_p = (manta_shift>>7), Bit(0)
+            res, res_p = signed_res, Bit(0)
         elif alu == ALU.FGetFFrac:
             signa = BitVector[16]((a & 0x8000))
             expa = a[7:15]
@@ -197,9 +202,15 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
               manta_shift = BitVector[16](manta) >> BitVector[16](-unbiased_exp)
             else:
               manta_shift = BitVector[16](manta) << BitVector[16](unbiased_exp)
+            unsigned_res = SInt[16]((manta_shift & 0x07F))
+            if (signa==0x8000):
+              signed_res = SInt[16](-unsigned_res)
+            else:
+              signed_res = SInt[16](unsigned_res)
+
             #We are not checking for overflow when converting to int
-            res, res_p = ((manta_shift & 0x07F)<<1), Bit(0)
-        elif alu == ALU.FCnvUInt2F:
+            res, res_p = signed_res, Bit(0)
+        elif alu == ALU.FCnvInt2F:
           if signed == Signed.signed:
             sign = BitVector[16] ((a) & 0x8000)
           else:
@@ -208,48 +219,48 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
             abs_input = BitVector[16] (-a)
           else:
             abs_input = BitVector[16] (a)
-            scale=SInt[16](-127)
-            # for bit_pos in range(8):
-            #   if (abs_exp[bit_pos]==Bit(1)):
-            #     scale = bit_pos
-            if (abs_input[0]==Bit(1)):
-              scale = SInt[16](0)
-            if (abs_input[1]==Bit(1)):
-              scale = SInt[16](1)
-            if (abs_input[2]==Bit(1)):
-              scale = SInt[16](2)
-            if (abs_input[3]==Bit(1)):
-              scale = SInt[16](3)
-            if (abs_input[4]==Bit(1)):
-              scale = SInt[16](4)
-            if (abs_input[5]==Bit(1)):
-              scale = SInt[16](5)
-            if (abs_input[6]==Bit(1)):
-              scale = SInt[16](6)
-            if (abs_input[7]==Bit(1)):
-              scale = SInt[16](7)
-            if (abs_input[8]==Bit(1)):
-              scale = SInt[16](8)
-            if (abs_input[9]==Bit(1)):
-              scale = SInt[16](9)
-            if (abs_input[10]==Bit(1)):
-              scale = SInt[16](10)
-            if (abs_input[11]==Bit(1)):
-              scale = SInt[16](11)
-            if (abs_input[12]==Bit(1)):
-              scale = SInt[16](12)
-            if (abs_input[13]==Bit(1)):
-              scale = SInt[16](13)
-            if (abs_input[14]==Bit(1)):
-              scale = SInt[16](14)
-            if (abs_input[15]==Bit(1)):
-              scale = SInt[16](15)
-            if (scale>=0):
-              normmant = BitVector[16]((SInt[16](abs_input) * (SInt[16](1) << (SInt[16](15)-scale))) & 0x7F00)
-            else:
-              normmant = BitVector[16](0)
-            biased_scale = scale + 127
-            res, res_p = (sign | ((BitVector[16](biased_scale)<<7) & (0xFF<<7)) | (BitVector[16](normmant)>>8), Bit(0))
+          scale=SInt[16](-127)
+          # for bit_pos in range(8):
+          #   if (abs_exp[bit_pos]==Bit(1)):
+          #     scale = bit_pos
+          if (abs_input[0]==Bit(1)):
+            scale = SInt[16](0)
+          if (abs_input[1]==Bit(1)):
+            scale = SInt[16](1)
+          if (abs_input[2]==Bit(1)):
+            scale = SInt[16](2)
+          if (abs_input[3]==Bit(1)):
+            scale = SInt[16](3)
+          if (abs_input[4]==Bit(1)):
+            scale = SInt[16](4)
+          if (abs_input[5]==Bit(1)):
+            scale = SInt[16](5)
+          if (abs_input[6]==Bit(1)):
+            scale = SInt[16](6)
+          if (abs_input[7]==Bit(1)):
+            scale = SInt[16](7)
+          if (abs_input[8]==Bit(1)):
+            scale = SInt[16](8)
+          if (abs_input[9]==Bit(1)):
+            scale = SInt[16](9)
+          if (abs_input[10]==Bit(1)):
+            scale = SInt[16](10)
+          if (abs_input[11]==Bit(1)):
+            scale = SInt[16](11)
+          if (abs_input[12]==Bit(1)):
+            scale = SInt[16](12)
+          if (abs_input[13]==Bit(1)):
+            scale = SInt[16](13)
+          if (abs_input[14]==Bit(1)):
+            scale = SInt[16](14)
+          if (abs_input[15]==Bit(1)):
+            scale = SInt[16](15)
+          if (scale>=0):
+            normmant = BitVector[16]((SInt[16](abs_input) * (SInt[16](1) << (SInt[16](15)-scale))) & 0x7F00)
+          else:
+            normmant = BitVector[16](0)
+          biased_scale = scale + 127
+          res, res_p = (sign | ((BitVector[16](biased_scale)<<7) & (0xFF<<7)) | (BitVector[16](normmant)>>8), Bit(0))
         #else:
         #    raise NotImplementedError(alu)
    

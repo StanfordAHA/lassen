@@ -71,6 +71,9 @@ def fp_add(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
 def fp_mult(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
     return inst(ALU.FP_mult, ra_mode=ra_mode, rb_mode=rb_mode)
 
+def fp_sub(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
+    return inst(ALU.FP_sub, ra_mode=ra_mode, rb_mode=rb_mode)
+
 def faddiexp (ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
     return inst(ALU.FAddIExp, ra_mode=ra_mode, rb_mode=rb_mode)
 
@@ -85,6 +88,12 @@ def fgetfint (ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
 
 def fgetffrac (ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
     return inst(ALU.FGetFFrac, ra_mode=ra_mode, rb_mode=rb_mode)
+
+def fcnvui2f (ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
+    return inst(ALU.FCnvInt2F, ra_mode=ra_mode, rb_mode=rb_mode, signed=0)
+
+def fcnvsi2f (ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
+    return inst(ALU.FCnvInt2F, ra_mode=ra_mode, rb_mode=rb_mode, signed=1)
 
 def and_(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
     return inst(ALU.And, ra_mode=ra_mode, rb_mode=rb_mode)
