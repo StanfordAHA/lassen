@@ -71,7 +71,8 @@ def test_rtl(op, mode, use_assembler):
         pytest.skip("Skipping fp op tests because CW primitives are not available")
 
     inst_type = gen_inst_type(gen_pe_type_family(BitVector.get_family()))
-    inst = op(ra_mode=mode, rb_mode=mode)
+    # inst = op(ra_mode=mode, rb_mode=mode)
+    inst = op(rb_mode=mode)
     if use_assembler:
         assembler, disassembler, width, layout = \
             generate_assembler(inst_type)
@@ -90,38 +91,46 @@ def test_rtl(op, mode, use_assembler):
     else:
         tester.circuit.inst = assembler(inst)
     tester.circuit.CLK = 0
-    # Special case these inputs because they are known to work from test_pe
-    if op == fp_add:
-        data0, data1 = 0x801, 0x782
-    elif op == fp_mult:
-        data0, data1 = 0x4080, 0x4001
-    elif op == faddiexp:
-        data0, data1 = 0x7F8A, 0x0000
-    elif op == fsubexp:
-        data0, data1 = 0x7F8A, 0x0000
-    elif op == fcnvexp2f:
-        data0, data1 = 0x4005, 0x0000
-    elif op == fgetfint:
-        data0, data1 = 0x4020, 0x0000
-    elif op == fgetffrac:
-        data0, data1 = 0x4020, 0x0000
-    else:
-        data0 = fault.random.random_bv(DATAWIDTH // 2)
-        data1 = fault.random.random_bv(DATAWIDTH // 2)
-    data0 = BitVector[16](data0)
-    data1 = BitVector[16](data1)
-    tester.circuit.data0 = data0
-    tester.circuit.data1 = data1
-    tester.eval()
-    expected = pe_functional_model(inst, data0, data1)
-    # TODO: Weird thing with conversions going on for fault signed values
-    for i, value in enumerate(expected):
-        getattr(tester.circuit, f"O{i}").expect(value)
-    if mode == Mode.DELAY:
-        tester.step(2)
+    for _ in range(2):
+        # Special case these inputs because they are known to work from
+        # test_pe
+        if op == fp_add:
+            data0, data1 = 0x801, 0x782
+        elif op == fp_mult:
+            data0, data1 = 0x4080, 0x4001
+        elif op == faddiexp:
+            data0, data1 = 0x7F8A, 0x0000
+        elif op == fsubexp:
+            data0, data1 = 0x7F8A, 0x0000
+        elif op == fcnvexp2f:
+            data0, data1 = 0x4005, 0x0000
+        elif op == fgetfint:
+            data0, data1 = 0x4020, 0x0000
+        elif op == fgetffrac:
+            data0, data1 = 0x4020, 0x0000
+        else:
+            data0 = fault.random.random_bv(DATAWIDTH // 2)
+            data1 = fault.random.random_bv(DATAWIDTH // 2)
+        data0 = BitVector[16](data0)
+        data1 = BitVector[16](data1)
+        if mode == Mode.DELAY:
+            # Bring clock high
+            tester.step(1)
+        tester.circuit.data0 = data0
+        tester.circuit.data1 = data1
+        tester.eval()
         expected = pe_functional_model(inst, data0, data1)
+        # TODO: Weird thing with conversions going on for fault signed values
         for i, value in enumerate(expected):
             getattr(tester.circuit, f"O{i}").expect(value)
+        if mode == Mode.DELAY:
+            # step clock low, then high, delayed input should now have propogated
+            tester.step(2)
+            expected = pe_functional_model(inst, data0, data1)
+            for i, value in enumerate(expected):
+                getattr(tester.circuit, f"O{i}").expect(value)
+            # reset clock to low
+            tester.step(1)
 
     if not use_assembler:
         m.compile(f"tests/build/PE", PE, output="coreir-verilog")
@@ -135,5 +144,5 @@ def test_rtl(op, mode, use_assembler):
     else:
         tester.compile_and_run(target="verilator",
                                directory="tests/build/",
-                               flags=['-Wno-UNUSED',  '-Wno-PINNOCONNECT'],
+                               flags=['-Wno-UNUSED',  '-Wno-PINNOCONNECT', '--trace'],
                                skip_compile=True)
