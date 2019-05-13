@@ -61,7 +61,7 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
 
         C = Bit(0)
         V = Bit(0)
-        if alu == ALU.Add or alu == ALU.Sub:
+        if (alu == ALU.Add) | (alu == ALU.Sub):
             res, C = a.adc(b, Cin)
             V = overflow(a, b, res)
             res_p = C
