@@ -111,7 +111,7 @@ def abs():
     return inst(ALU.Abs, signed=Signed.signed)
 
 def umin():
-    return inst(ALU.LTE_Min)
+    return inst(ALU.LTE_Min, cond=Cond.ALU)
 
 def umax():
     return inst(ALU.GTE_Max)
