@@ -1,5 +1,5 @@
 from hwtypes import BitVector
-from lassen import gen_pe, asm, mem
+from lassen import gen_pe, asm
 from peak import Peak
 
 #This is a complex operation that implements a Fused multiply add
