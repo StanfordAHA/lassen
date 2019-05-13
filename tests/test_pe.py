@@ -6,9 +6,12 @@ from lassen.tlut import tlut
 from lassen.utils import float2bfbin, bfbin2float, get_random_float
 import pytest
 import math
+import random
 
 Bit = Bit
 Data = BitVector[DATAWIDTH]
+
+random.seed(10)
 
 def test_and():
     # instantiate an PE - calls PE.__init__
@@ -453,7 +456,7 @@ def test_ln():
       print("ln",bfbin2float(test_vector[0]),bfbin2float(test_vector[1]),bfbin2float(test_vector[2]),bfbin2float("{:016b}".format(int(result))))
       assert abs(exp_res-int(result)) <= acc
 
-
+#@pytest.mark.skip()
 def test_exp():
     test_vectors = []
     for vector_count in range(50):
@@ -462,7 +465,7 @@ def test_exp():
       num_bfp        = bfbin2float(num_bfloat_str)
       res_bfp        = bfbin2float(float2bfbin(math.exp(num_bfp)))
       res_bfloat_str = float2bfbin(res_bfp)
-      min_accuracy = 2
+      min_accuracy = 3
       test_vectors.append([num_bfloat_str, float2bfbin(0),res_bfloat_str, min_accuracy])
 
     test_vectors.append([float2bfbin(2.0), float2bfbin(0), float2bfbin(math.exp(2)), min_accuracy])
