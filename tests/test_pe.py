@@ -232,7 +232,11 @@ def test_ule():
     pe = gen_pe(BitVector.get_family())()
     inst = asm.ule()
     res, res_p, irq = pe(inst,Data(1),Data(1))
-    assert res_p==1
+    assert res_p == 1
+    res, res_p, _ = pe(inst, Data(1), Data(2))
+    assert res_p == 1
+    res, res_p, _ = pe(inst, Data(2), Data(1))
+    assert res_p == 0
 
 def test_ugt():
     pe = gen_pe(BitVector.get_family())()
