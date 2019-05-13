@@ -99,7 +99,7 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
         elif alu == ALU.SHL:
             #res, res_p = a << Data(b[:4]), Bit(0)
             res, res_p = a << b, Bit(0)
-        elif alu == ALU.FP_add or alu == ALU.FP_sub:
+        elif (alu == ALU.FP_add) | (alu == ALU.FP_sub):
             a = BFloat16(a)
             b = BFloat16(b)
             if alu == ALU.FP_sub:
