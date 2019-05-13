@@ -183,26 +183,38 @@ def test_umin():
 def test_umax():
     pe = gen_pe(BitVector.get_family())()
     inst = asm.umax()
-    res, res_p, irq = pe(inst, Data(1),Data(2))
-    assert res==2
-    assert res_p==0
-    assert irq==0
+    res, res_p, irq = pe(inst, Data(1), Data(2))
+    assert res == 2
+    assert res_p == 0
+    res, res_p, irq = pe(inst, Data(2), Data(1))
+    assert res == 2
+    assert res_p == 1
 
 def test_smin():
     pe = gen_pe(BitVector.get_family())()
     inst = asm.smin()
-    res, res_p, irq = pe(inst, Data(1),Data(2))
-    assert res==1
-    assert res_p==0
-    assert irq==0
+    res, res_p, irq = pe(inst, Data(-1), Data(2))
+    assert res == Data(-1)
+    assert res_p == 1
+    res, res_p, irq = pe(inst, Data(2), Data(-1))
+    assert res == Data(-1)
+    assert res_p == 0
+    res, res_p, irq = pe(inst, Data(-1), Data(-1))
+    assert res == Data(-1)
+    assert res_p == 1
 
 def test_smax():
     pe = gen_pe(BitVector.get_family())()
     inst = asm.smax()
-    res, res_p, irq = pe(inst, Data(1),Data(2))
-    assert res==2
-    assert res_p==0
-    assert irq==0
+    res, res_p, irq = pe(inst, Data(-1), Data(2))
+    assert res == 2
+    assert res_p == 0
+    res, res_p, irq = pe(inst, Data(2), Data(-1))
+    assert res == 2
+    assert res_p == 1
+    res, res_p, irq = pe(inst, Data(-1), Data(-1))
+    assert res == Data(-1)
+    assert res_p == 1
 
 def test_abs():
     pe = gen_pe(BitVector.get_family())()
