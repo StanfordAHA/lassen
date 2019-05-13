@@ -104,7 +104,7 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
             b = BFloat16(b)
             if alu == ALU.FP_sub:
                 #Flip the sign bit
-                b[0] = ~b[0]
+                b[-1] = ~b[-1]
             res = a + b
             res_p = Bit(0)
         elif alu == ALU.FP_mult:
