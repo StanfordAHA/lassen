@@ -1,8 +1,8 @@
 import magma as m
 from collections import namedtuple
 from hwtypes import BitVector, SIntVector, TypeFamily
-import peak.adt
-from peak import SMTBitVector
+import hwtypes.adt
+from hwtypes import SMTBitVector
 
 
 ExtendedTypeFamily = namedtuple('ExtendedTypeFamily', ['Bit', 'BitVector',
@@ -15,7 +15,7 @@ def gen_pe_type_family(family):
     if family is BitVector.get_family() or family is SMTBitVector.get_family():
         from hwtypes import overflow
         from .bfloat import BFloat16
-        family = ExtendedTypeFamily(*family, peak.adt.Product, peak.adt.Enum,
+        family = ExtendedTypeFamily(*family, hwtypes.adt.Product, hwtypes.adt.Enum,
                                     overflow, BFloat16)
     elif family is m.get_family():
         from mantle.common.operator import overflow

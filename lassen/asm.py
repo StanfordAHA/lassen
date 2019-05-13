@@ -17,7 +17,7 @@ BitConst = sim_family.Bit
 Cond = gen_cond_type(sim_family)
 
 
-def inst(alu, signed=0, lut=0, cond=Cond.Z,
+def inst(alu, signed=Signed.unsigned, lut=0, cond=Cond.Z,
          ra_mode=Mode.BYPASS, ra_const=0,
          rb_mode=Mode.BYPASS, rb_const=0,
          rd_mode=Mode.BYPASS, rd_const=0,
@@ -54,13 +54,13 @@ def umult2 ():
     return inst(ALU.Mult2)
 
 def smult0 ():
-    return inst(ALU.Mult0, signed=1)
+    return inst(ALU.Mult0, signed=Signed.signed)
 
 def smult1 ():
-    return inst(ALU.Mult1, signed=1)
+    return inst(ALU.Mult1, signed=Signed.signed)
 
 def smult2 ():
-    return inst(ALU.Mult2, signed=1)
+    return inst(ALU.Mult2, signed=Signed.signed)
 
 def fgetmant ():
     return inst(ALU.FGetMant)
@@ -90,10 +90,10 @@ def fgetffrac (ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
     return inst(ALU.FGetFFrac, ra_mode=ra_mode, rb_mode=rb_mode)
 
 def fcnvui2f (ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
-    return inst(ALU.FCnvInt2F, ra_mode=ra_mode, rb_mode=rb_mode, signed=0)
+    return inst(ALU.FCnvInt2F, ra_mode=ra_mode, rb_mode=rb_mode, signed=Signed.unsigned)
 
 def fcnvsi2f (ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
-    return inst(ALU.FCnvInt2F, ra_mode=ra_mode, rb_mode=rb_mode, signed=1)
+    return inst(ALU.FCnvInt2F, ra_mode=ra_mode, rb_mode=rb_mode, signed=Signed.signed)
 
 def and_(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
     return inst(ALU.And, ra_mode=ra_mode, rb_mode=rb_mode)
@@ -111,13 +111,13 @@ def lsr():
     return inst(ALU.SHR)
 
 def asr():
-    return inst(ALU.SHR, signed=1)
+    return inst(ALU.SHR, signed=Signed.signed)
 
 def sel():
     return inst(ALU.Sel)
 
 def abs():
-    return inst(ALU.Abs, signed=1)
+    return inst(ALU.Abs, signed=Signed.signed)
 
 def umin():
     return inst(ALU.LTE_Min)
@@ -126,10 +126,10 @@ def umax():
     return inst(ALU.GTE_Max)
 
 def smin():
-    return inst(ALU.LTE_Min, signed=1)
+    return inst(ALU.LTE_Min, signed=Signed.signed)
 
 def smax():
-    return inst(ALU.GTE_Max, signed=1)
+    return inst(ALU.GTE_Max, signed=Signed.signed)
 
 def eq():
     return inst(ALU.Sub, cond=Cond.Z)
@@ -161,3 +161,8 @@ def sgt():
 def sge():
     return inst(ALU.Sub, cond=Cond.SGE)
 
+# implements a constant using a register and add by zero
+def const(val):
+    return inst(ALU.Add,
+                ra_mode=Mode.CONST, ra_const=val,
+                rb_mode=Mode.CONST, rb_const=0)

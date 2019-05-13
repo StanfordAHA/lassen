@@ -3,21 +3,18 @@ from lassen.sim import gen_pe
 from lassen.isa import DATAWIDTH
 from hwtypes import BitVector, Bit
 from lassen.tlut import tlut
-from lassen.utils import float2bfbin, bfbin2float
+from lassen.utils import float2bfbin, bfbin2float, get_random_float
 import pytest
-import random
 import math
 
 Bit = Bit
 Data = BitVector[DATAWIDTH]
 
-random.seed(1719983)
-
 def test_and():
     # instantiate an PE - calls PE.__init__
     pe = gen_pe(BitVector.get_family())()
     # format an 'and' instruction
-    inst = asm.and_() 
+    inst = asm.and_()
     # execute PE instruction with the arguments as inputs -  call PE.__call__
     res, res_p, irq = pe(inst, Data(1), Data(3))
     assert res==1
@@ -373,12 +370,6 @@ def test_int_to_float():
       result         ,d1, d2   = pe_signed(inst1, op_a, op_b)
       assert abs(exp_res-int(result)) <= acc
 
-def get_random_float(power_range = 50):
-    sign = -1 if (random.random() < 0.5) else 1
-    mant = float(random.random()+1.0)
-    power = (-1 * power_range) + int(random.random()*(power_range * 2))
-    res = sign * mant * float((2**power))
-    return res 
 
 def test_div():
     test_vectors = []

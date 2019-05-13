@@ -1,5 +1,6 @@
 from codecs import decode
 import struct
+import random
 
 def float2bfbin(fnum):
    if (fnum=='NaN'):
@@ -49,3 +50,11 @@ def bfbin2float(bfstr):
        lfrac = '0' + lfrac
      nfrac = int(lfrac,2)
      return mult * nfrac * (2 ** (nexp - 7))
+
+def get_random_float(power_range = 50):
+    sign = -1 if (random.random() < 0.5) else 1
+    mant = float(random.random()+1.0)
+    power = (-1 * power_range) + int(random.random()*(power_range * 2))
+    res = sign * mant * float((2**power))
+    return res 
+

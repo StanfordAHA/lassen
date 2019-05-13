@@ -1,5 +1,5 @@
 from hwtypes import BitVector, Bit
-from peak.adt import Enum, Product
+from hwtypes.adt import Enum, Product
 from .cond import gen_cond_type
 from .mode import gen_mode_type
 from .lut import gen_lut_type
@@ -83,19 +83,19 @@ def gen_inst_type(family):
         """
         Each configuration is given by the following fields
         """
-        alu: ALU           # ALU operation
-        signed_: Signed    # unsigned or signed
-        lut: LUT           # LUT operation as a 3-bit LUT
-        cond: Cond         # Condition code (see cond.py)
-        rega: RegA_Mode    # RegA mode (see mode.py)
-        data0: RegA_Const  # RegA constant (16-bits)
-        regb: RegB_Mode    # RegB mode
-        data1: RegB_Const  # RegB constant (16-bits)
-        regd: RegD_Mode    # RegD mode
-        bit0: RegD_Const   # RegD constant (1-bit)
-        rege: RegE_Mode    # RegE mode
-        bit1: RegE_Const   # RegE constant (1-bit)
-        regf: RegF_Mode    # RegF mode
-        bit2: RegF_Const   # RegF constant (1-bit)
+        alu= ALU           # ALU operation
+        signed_= Signed    # unsigned or signed
+        lut= LUT           # LUT operation as a 3-bit LUT
+        cond= Cond         # Condition code (see cond.py)
+        rega= RegA_Mode    # RegA mode (see mode.py)
+        data0= RegA_Const  # RegA constant (16-bits)
+        regb= RegB_Mode    # RegB mode
+        data1= RegB_Const  # RegB constant (16-bits)
+        regd= RegD_Mode    # RegD mode
+        bit0= RegD_Const   # RegD constant (1-bit)
+        rege= RegE_Mode    # RegE mode
+        bit1= RegE_Const   # RegE constant (1-bit)
+        regf= RegF_Mode    # RegF mode
+        bit2= RegF_Const   # RegF constant (1-bit)
     return Inst
 
