@@ -165,6 +165,8 @@ def test_fp_mult():
     assert res_p==0
     assert irq==0
 
+
+#TODO these tests are likely captured by the tests above. Keep them for now
 def test_lsl():
     pe = gen_pe(BitVector.get_family())()
     inst = asm.lsl()
