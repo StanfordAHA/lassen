@@ -3,11 +3,16 @@ import operator
 import lassen.asm as asm
 from lassen.sim import gen_pe
 from lassen.isa import DATAWIDTH
+from lassen.utils import float2bfbin, bfbin2float, get_random_float
 from hwtypes import SIntVector, UIntVector, BitVector, Bit
 import pytest
+import math
+import random
 
 Bit = Bit
 Data = BitVector[DATAWIDTH]
+
+random.seed(10)
 
 op = namedtuple("op", ["name", "func"])
 NTESTS = 16
@@ -138,7 +143,6 @@ def test_umult():
         res, _, _ = pe(umult2, Data(x), Data(y))
         assert res == xy[DATAWIDTH:]
 
-
 def test_fp_add():
     pe = gen_pe(BitVector.get_family())()
     inst = asm.fp_add()
@@ -168,8 +172,7 @@ def test_fp_mult():
 def test_get_mant():
     # instantiate an PE - calls PE.__init__
     pe = gen_pe(BitVector.get_family())()
-    # format an 'and' instruction
-    inst = asm.fgetmant()
+    inst = asm.fgetmant() 
     # execute PE instruction with the arguments as inputs -  call PE.__call__
     res, res_p, irq = pe(inst, Data(0x7F8A), Data(0x0000))
     assert res==0xA
@@ -179,8 +182,7 @@ def test_get_mant():
 def test_add_exp_imm():
     # instantiate an PE - calls PE.__init__
     pe = gen_pe(BitVector.get_family())()
-    # format an 'and' instruction
-    inst = asm.faddiexp()
+    inst = asm.faddiexp() 
     # execute PE instruction with the arguments as inputs -  call PE.__call__
     res, res_p, irq = pe(inst, Data(0x7F8A), Data(0x0005))
     # 7F8A => Sign=0; Exp=0xFF; Mant=0x0A
@@ -192,8 +194,7 @@ def test_add_exp_imm():
 def test_sub_exp():
     # instantiate an PE - calls PE.__init__
     pe = gen_pe(BitVector.get_family())()
-    # format an 'and' instruction
-    inst = asm.fsubexp()
+    inst = asm.fsubexp() 
     # execute PE instruction with the arguments as inputs -  call PE.__call__
     res, res_p, irq = pe(inst, Data(0x7F8A), Data(0x4005))
     # 7F8A => Sign=0; Exp=0xFF; Mant=0x0A
@@ -206,8 +207,7 @@ def test_sub_exp():
 def test_cnvt_exp_to_float():
     # instantiate an PE - calls PE.__init__
     pe = gen_pe(BitVector.get_family())()
-    # format an 'and' instruction
-    inst = asm.fcnvexp2f()
+    inst = asm.fcnvexp2f() 
     # execute PE instruction with the arguments as inputs -  call PE.__call__
     res, res_p, irq = pe(inst, Data(0x4005), Data(0x0000))
     # 4005 => Sign=0; Exp=0x80; Mant=0x05 (0100 0000 0000 0101) i.e. unbiased exp = 1
@@ -219,8 +219,7 @@ def test_cnvt_exp_to_float():
 def test_get_float_int():
     # instantiate an PE - calls PE.__init__
     pe = gen_pe(BitVector.get_family())()
-    # format an 'and' instruction
-    inst = asm.fgetfint()
+    inst = asm.fgetfint() 
     # execute PE instruction with the arguments as inputs -  call PE.__call__
     res, res_p, irq = pe(inst, Data(0x4020), Data(0x0000))
     #2.5 = 10.1 i.e. exp = 1 with 1.01 # biased exp = 128 i.e 80
@@ -233,13 +232,39 @@ def test_get_float_int():
 def test_get_float_frac():
     # instantiate an PE - calls PE.__init__
     pe = gen_pe(BitVector.get_family())()
-    # format an 'and' instruction
-    inst = asm.fgetffrac()
+    inst = asm.fgetffrac() 
     # execute PE instruction with the arguments as inputs -  call PE.__call__
     res, res_p, irq = pe(inst, Data(0x4020), Data(0x0000))
     #2.5 = 10.1 i.e. exp = 1 with 1.01 # biased exp = 128 i.e 80
     #float is 0100 0000 0010 0000 i.e. 4020
     # res: frac(2.5) = 0.5D = 0.1B i.e. 1000 0000
-    assert res==0x80
+    assert res==0x40
     assert res_p==0
     assert irq==0
+
+def test_int_to_float():
+    test_vectors = []
+    for vector_count in range(50):
+      num            = int(math.floor(get_random_float(3)))
+      num_bfloat_str = float2bfbin(float(num))
+      min_accuracy = 2
+      test_vectors.append([num, float2bfbin(0),num_bfloat_str, min_accuracy])
+
+    test_vectors.append([2, float2bfbin(0), float2bfbin(2.0), min_accuracy])
+    test_vectors.append([1, float2bfbin(0), float2bfbin(1.0), min_accuracy])
+    test_vectors.append([0, float2bfbin(0), float2bfbin(0.0), min_accuracy])
+    test_vectors.append([-9, float2bfbin(0), float2bfbin(-9.0), min_accuracy])
+    # START_TEST result = i2f(op_a)
+    pe_signed  = gen_pe(BitVector.get_family())()
+    inst1 = asm.fcnvsi2f()
+
+    for test_vector in test_vectors:
+      op_a    = Data(test_vector[0])
+      op_b    = Data(int(test_vector[1],2))
+      exp_res =      int(test_vector[2],2)
+      acc     =          test_vector[3]
+
+      result         ,d1, d2   = pe_signed(inst1, op_a, op_b)
+      assert abs(exp_res-int(result)) <= acc
+
+
