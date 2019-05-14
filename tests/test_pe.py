@@ -155,6 +155,35 @@ def test_fp_add():
     assert res_p==0
     assert irq==0
 
+def test_fp_add2():
+    pe = gen_pe(BitVector.get_family())()
+    inst = asm.fp_add()
+    in0 = Data(int(float2bfbin(2.0)))
+    in1 = Data(int(float2bfbin(3.0)))
+    out = Data(int(float2bfbin(5.0)))
+    print(in0.as_binary_string())
+    print(in1.as_binary_string())
+    print(out.as_binary_string())
+    res, res_p, irq = pe(inst, in0,in1)
+    assert res==out
+    assert res_p==0
+    assert irq==0
+
+def test_fp_sub():
+    pe = gen_pe(BitVector.get_family())()
+    inst = asm.fp_add()
+    in0 = Data(int(float2bfbin(2.0)))
+    in1 = Data(int(float2bfbin(3.0)))
+    out = Data(int(float2bfbin(-1.0)))
+    print(in0.as_binary_string())
+    print(in1.as_binary_string())
+    print(out.as_binary_string())
+    res, res_p, irq = pe(inst, in0,in1)
+    assert res==out
+    assert res_p==0
+    assert irq==0
+
+
 def test_fp_mult():
     pe = gen_pe(BitVector.get_family())()
     inst = asm.fp_mult()
