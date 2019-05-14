@@ -120,16 +120,16 @@ def abs():
     return inst(ALU.Abs, signed=Signed.signed)
 
 def umin():
-    return inst(ALU.LTE_Min)
+    return inst(ALU.LTE_Min, cond=Cond.ALU)
 
 def umax():
-    return inst(ALU.GTE_Max)
+    return inst(ALU.GTE_Max, cond=Cond.ALU)
 
 def smin():
-    return inst(ALU.LTE_Min, signed=Signed.signed)
+    return inst(ALU.LTE_Min, signed=Signed.signed, cond=Cond.ALU)
 
 def smax():
-    return inst(ALU.GTE_Max, signed=Signed.signed)
+    return inst(ALU.GTE_Max, signed=Signed.signed, cond=Cond.ALU)
 
 def eq():
     return inst(ALU.Sub, cond=Cond.Z)

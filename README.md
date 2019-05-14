@@ -1,6 +1,5 @@
 [![Build Status](https://travis-ci.com/StanfordAHA/lassen.svg?branch=master)](https://travis-ci.com/StanfordAHA/lassen)
 
-
 # Lassen
 The PE for the second generation CGRA (garnet).
 

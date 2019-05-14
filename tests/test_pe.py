@@ -169,6 +169,158 @@ def test_fp_mult():
     assert res_p==0
     assert irq==0
 
+
+#TODO these tests are likely captured by the tests above. Keep them for now
+def test_lsl():
+    pe = gen_pe(BitVector.get_family())()
+    inst = asm.lsl()
+    res, res_p, irq = pe(inst, Data(2),Data(1))
+    assert res==4
+    assert res_p==0
+    assert irq==0
+
+def test_lsr():
+    pe = gen_pe(BitVector.get_family())()
+    inst = asm.lsr()
+    res, res_p, irq = pe(inst, Data(2),Data(1))
+    assert res==1
+    assert res_p==0
+    assert irq==0
+
+def test_asr():
+    pe = gen_pe(BitVector.get_family())()
+    inst = asm.asr()
+    res, res_p, irq = pe(inst, Data(-2),Data(1))
+    assert res==65535
+    assert res_p==0
+    assert irq==0
+
+def test_sel():
+    pe = gen_pe(BitVector.get_family())()
+    inst = asm.sel()
+    res, res_p, irq = pe(inst, Data(1),Data(2),Bit(0))
+    assert res==2
+    assert res_p==0
+    assert irq==0
+
+def test_umin():
+    pe = gen_pe(BitVector.get_family())()
+    inst = asm.umin()
+    res, res_p, irq = pe(inst,Data(1),Data(1))
+    assert res_p == 1
+    res, res_p, _ = pe(inst, Data(1), Data(2))
+    assert res_p == 1
+    res, res_p, _ = pe(inst, Data(2), Data(1))
+    assert res_p == 0
+
+def test_umax():
+    pe = gen_pe(BitVector.get_family())()
+    inst = asm.umax()
+    res, res_p, irq = pe(inst, Data(1), Data(2))
+    assert res == 2
+    assert res_p == 0
+    res, res_p, irq = pe(inst, Data(2), Data(1))
+    assert res == 2
+    assert res_p == 1
+
+def test_smin():
+    pe = gen_pe(BitVector.get_family())()
+    inst = asm.smin()
+    res, res_p, irq = pe(inst, Data(-1), Data(2))
+    assert res == Data(-1)
+    assert res_p == 1
+    res, res_p, irq = pe(inst, Data(2), Data(-1))
+    assert res == Data(-1)
+    assert res_p == 0
+    res, res_p, irq = pe(inst, Data(-1), Data(-1))
+    assert res == Data(-1)
+    assert res_p == 1
+
+def test_smax():
+    pe = gen_pe(BitVector.get_family())()
+    inst = asm.smax()
+    res, res_p, irq = pe(inst, Data(-1), Data(2))
+    assert res == 2
+    assert res_p == 0
+    res, res_p, irq = pe(inst, Data(2), Data(-1))
+    assert res == 2
+    assert res_p == 1
+    res, res_p, irq = pe(inst, Data(-1), Data(-1))
+    assert res == Data(-1)
+    assert res_p == 1
+
+def test_abs():
+    pe = gen_pe(BitVector.get_family())()
+    inst = asm.abs()
+    res, res_p, irq = pe(inst,Data(-1))
+    assert res==1
+    assert res_p==0
+    assert irq==0
+
+def test_eq():
+    pe = gen_pe(BitVector.get_family())()
+    inst = asm.eq()
+    res, res_p, irq = pe(inst,Data(1),Data(1))
+    assert res_p==1
+
+def test_ne():
+    pe = gen_pe(BitVector.get_family())()
+    inst = asm.ne()
+    res, res_p, irq = pe(inst,Data(1),Data(1))
+    assert res_p==0
+
+def test_uge():
+    pe = gen_pe(BitVector.get_family())()
+    inst = asm.uge()
+    res, res_p, irq = pe(inst,Data(1),Data(1))
+    assert res_p==1
+
+def test_ule():
+    pe = gen_pe(BitVector.get_family())()
+    inst = asm.ule()
+    res, res_p, irq = pe(inst,Data(1),Data(1))
+    assert res_p == 1
+    res, res_p, _ = pe(inst, Data(1), Data(2))
+    assert res_p == 1
+    res, res_p, _ = pe(inst, Data(2), Data(1))
+    assert res_p == 0
+
+def test_ugt():
+    pe = gen_pe(BitVector.get_family())()
+    inst = asm.ugt()
+    res, res_p, irq = pe(inst,Data(1),Data(1))
+    assert res_p==0
+
+def test_ult():
+    pe = gen_pe(BitVector.get_family())()
+    inst = asm.ult()
+    res, res_p, irq = pe(inst,Data(1),Data(1))
+    assert res_p==0
+
+def test_sge():
+    pe = gen_pe(BitVector.get_family())()
+    inst = asm.sge()
+    res, res_p, irq = pe(inst,Data(1),Data(1))
+    assert res_p==1
+
+def test_sle():
+    pe = gen_pe(BitVector.get_family())()
+    inst = asm.sle()
+    res, res_p, irq = pe(inst,Data(1),Data(1))
+    assert res_p==1
+
+def test_sgt():
+    pe = gen_pe(BitVector.get_family())()
+    inst = asm.sgt()
+    res, res_p, irq = pe(inst,Data(1),Data(1))
+    assert res_p==0
+
+def test_slt():
+    pe = gen_pe(BitVector.get_family())()
+    inst = asm.slt()
+    res, res_p, irq = pe(inst,Data(1),Data(1))
+    assert res_p==0
+
 def test_get_mant():
     # instantiate an PE - calls PE.__init__
     pe = gen_pe(BitVector.get_family())()
