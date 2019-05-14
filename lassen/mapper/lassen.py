@@ -11,10 +11,9 @@ class LassenMapper(mm.PeakMapper):
         super(LassenMapper,self).__init__(context,"lassen")
         self.PE = self.add_peak_primitive("PE",gen_pe)
 
-        self.const16_rr()
         #Map constants to Full PE (for now)
         self.const16_rr()
-        #const1_rr(mapper)
+        #self.const1_rr()
 
         #Map float add/mul
         context.load_library("float")
@@ -41,7 +40,7 @@ class LassenMapper(mm.PeakMapper):
         ))
 
     def const1_rr(self):
-        pass
+        raise NotImplemented()
 
     def float_add_rr(self):
         bfloat_add = self.context.get_namespace("float").generators['add'](exp_bits=8,frac_bits=7)
