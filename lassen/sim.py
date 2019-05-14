@@ -81,7 +81,7 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
         elif alu == ALU.LTE_Min:
             # C, V = a-b?
             pred = a <= b
-            res, res_p = pred.ite(a,b), a >= b
+            res, res_p = pred.ite(a,b), a <= b
         elif alu == ALU.Abs:
             pred = a >= 0
             res, res_p = pred.ite(a,-a), Bit(a[-1])
