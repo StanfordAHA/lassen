@@ -1,116 +1,143 @@
+from collections import namedtuple
+import operator
 import lassen.asm as asm
 from lassen.sim import gen_pe
 from lassen.isa import DATAWIDTH
-from hwtypes import BitVector, Bit
+from hwtypes import SIntVector, UIntVector, BitVector, Bit
 import pytest
 
 Bit = Bit
 Data = BitVector[DATAWIDTH]
 
+op = namedtuple("op", ["name", "func"])
+NTESTS = 16
 
-def test_and():
-    # instantiate an PE - calls PE.__init__
+@pytest.mark.parametrize("op", [
+    op('and_', lambda x, y: x&y),
+    op('or_',  lambda x, y: x|y),
+    op('xor',  lambda x, y: x^y),
+    op('add',  lambda x, y: x+y),
+    op('sub',  lambda x, y: x-y),
+    op('lsl',  lambda x, y: x << y),
+    op('lsr',  lambda x, y: x >> y),
+    op('umin',  lambda x, y: (x < y).ite(x, y)),
+    op('umax',  lambda x, y: (x > y).ite(x, y))
+])
+def test_unsigned_binary(op):
     pe = gen_pe(BitVector.get_family())()
-    # format an 'and' instruction
-    inst = asm.and_()
-    # execute PE instruction with the arguments as inputs -  call PE.__call__
-    res, res_p, irq = pe(inst, Data(1), Data(3))
-    assert res==1
-    assert res_p==0
-    assert irq==0
+    inst = getattr(asm, op.name)()
+    for _ in range(NTESTS):
+        x = UIntVector.random(DATAWIDTH)
+        y = UIntVector.random(DATAWIDTH)
+        res, _, _ = pe(inst, Data(x), Data(y))
+        assert res==op.func(x,y)
 
-def test_or():
+@pytest.mark.parametrize("op", [
+    op('asr',  lambda x, y: x >> y),
+    op('smin',  lambda x, y: (x < y).ite(x, y)),
+    op('smax',  lambda x, y: (x > y).ite(x, y)),
+])
+def test_signed_binary(op):
     pe = gen_pe(BitVector.get_family())()
-    inst = asm.or_()
-    res, res_p, irq = pe(inst, Data(1),Data(3))
-    assert res==3
-    assert res_p==0
-    assert irq==0
+    inst = getattr(asm, op.name)()
+    for _ in range(NTESTS):
+        x = SIntVector.random(DATAWIDTH)
+        y = SIntVector.random(DATAWIDTH)
+        res, _, _ = pe(inst, Data(x), Data(y))
+        assert res==op.func(x,y)
 
-def test_xor():
+@pytest.mark.parametrize("op", [
+    op('abs',  lambda x: x if x > 0 else -x),
+])
+def test_signed_unary(op):
     pe = gen_pe(BitVector.get_family())()
-    inst = asm.xor()
-    res, res_p, irq = pe(inst, Data(1),Data(3))
-    assert res==2
-    assert res_p==0
-    assert irq==0
+    inst = getattr(asm, op.name)()
+    for _ in range(NTESTS):
+        x = SIntVector.random(DATAWIDTH)
+        res, _, _ = pe(inst, Data(x))
+        assert res == op.func(x)
 
-def test_inv():
+@pytest.mark.parametrize("op", [
+    op('eq',   lambda x, y: x == y),
+    op('ne',   lambda x, y: x != y),
+    op('ugt',  lambda x, y: x >  y),
+    op('uge',  lambda x, y: x >= y),
+    op('ult',  lambda x, y: x <  y),
+    op('ule',  lambda x, y: x <= y),
+])
+def test_unsigned_relation(op):
     pe = gen_pe(BitVector.get_family())()
-    inst = asm.sub()
-    res, res_p, irq = pe(inst, Data(0xffff),Data(1))
-    assert res==0xfffe
-    assert res_p==0
-    assert irq==0
+    inst = getattr(asm, op.name)()
+    for _ in range(NTESTS):
+        x = UIntVector.random(DATAWIDTH)
+        y = UIntVector.random(DATAWIDTH)
+        _, res_p, _ = pe(inst, Data(x), Data(y))
+        assert res_p==op.func(x,y)
 
-def test_neg():
+@pytest.mark.parametrize("op", [
+    op('sgt',  lambda x, y: x >  y),
+    op('sge',  lambda x, y: x >= y),
+    op('slt',  lambda x, y: x <  y),
+    op('sle',  lambda x, y: x <= y),
+])
+def test_signed_relation(op):
     pe = gen_pe(BitVector.get_family())()
-    inst = asm.neg()
-    res, res_p, irq = pe(inst, Data(0),Data(1))
-    assert res==0xffff
-    assert res_p==0
-    assert irq==0
+    inst = getattr(asm, op.name)()
+    for _ in range(NTESTS):
+        x = SIntVector.random(DATAWIDTH)
+        y = SIntVector.random(DATAWIDTH)
+        _, res_p, _ = pe(inst, Data(x), Data(y))
+        assert res_p==op.func(x,y)
 
-def test_add():
+def test_sel():
     pe = gen_pe(BitVector.get_family())()
-    inst = asm.add()
-    res, res_p, irq = pe(inst, Data(1),Data(3))
-    assert res==4
-    assert res_p==0
-    assert irq==0
+    inst = asm.sel()
+    for _ in range(NTESTS):
+        x = UIntVector.random(DATAWIDTH)
+        y = UIntVector.random(DATAWIDTH)
+        res, _, _ = pe(inst, Data(x), Data(y), Bit(0))
+        assert res==y
+        res, _, _ = pe(inst, Data(x), Data(y), Bit(1))
+        assert res==x
 
-def test_sub():
+def test_smult():
+    def mul(x,y):
+        mulx, muly = x.sext(DATAWIDTH), y.sext(DATAWIDTH)
+        return mulx * muly
     pe = gen_pe(BitVector.get_family())()
-    inst = asm.sub()
-    res, res_p, irq = pe(inst, Data(1),Data(3))
-    assert res==-2
-    assert res_p==0
-    assert irq==0
+    smult0 = asm.smult0()
+    smult1 = asm.smult1()
+    smult2 = asm.smult2()
+    for _ in range(NTESTS):
+        x = SIntVector.random(DATAWIDTH)
+        y = SIntVector.random(DATAWIDTH)
+        xy = mul(x,y)
+        res, _, _ = pe(smult0, Data(x), Data(y))
+        assert res == xy[0:DATAWIDTH]
+        res, _, _ = pe(smult1, Data(x), Data(y))
+        assert res == xy[DATAWIDTH//2:DATAWIDTH//2+DATAWIDTH]
+        res, _, _ = pe(smult2, Data(x), Data(y))
+        assert res == xy[DATAWIDTH:]
 
-def test_mult0():
+def test_umult():
+    def mul(x,y):
+        mulx, muly = x.zext(DATAWIDTH), y.zext(DATAWIDTH)
+        return mulx * muly
     pe = gen_pe(BitVector.get_family())()
+    umult0 = asm.umult0()
+    umult1 = asm.umult1()
+    umult2 = asm.umult2()
+    for _ in range(NTESTS):
+        x = UIntVector.random(DATAWIDTH)
+        y = UIntVector.random(DATAWIDTH)
+        xy = mul(x,y)
+        res, _, _ = pe(umult0, Data(x), Data(y))
+        assert res == xy[0:DATAWIDTH]
+        res, _, _ = pe(umult1, Data(x), Data(y))
+        assert res == xy[DATAWIDTH//2:DATAWIDTH//2+DATAWIDTH]
+        res, _, _ = pe(umult2, Data(x), Data(y))
+        assert res == xy[DATAWIDTH:]
 
-    inst = asm.umult0()
-    res, res_p, irq = pe(inst, Data(2),Data(3))
-    assert res==6
-    assert res_p==0
-    assert irq==0
-
-    inst = asm.smult0()
-    res, res_p, irq = pe(inst, Data(-2),Data(3))
-    assert res==-6
-    assert res_p==0
-    assert irq==0
-
-def test_mult1():
-    pe = gen_pe(BitVector.get_family())()
-
-    inst = asm.umult1()
-    res, res_p, irq = pe(inst, Data(0x200),Data(3))
-    assert res==6
-    assert res_p==0
-    assert irq==0
-
-    inst = asm.smult1()
-    res, res_p, irq = pe(inst, Data(-512),Data(3))
-    assert res==-6
-    assert res_p==0
-    assert irq==0
-
-def test_mult2():
-    pe = gen_pe(BitVector.get_family())()
-
-    inst = asm.umult2()
-    res, res_p, irq = pe(inst, Data(0x200),Data(0x300))
-    assert res==6
-    assert res_p==0
-    assert irq==0
-
-    inst = asm.smult2()
-    res, res_p, irq = pe(inst, Data(-2*256),Data(3*256))
-    assert res==-6
-    assert res_p==0
-    assert irq==0
 
 def test_fp_add():
     pe = gen_pe(BitVector.get_family())()
