@@ -3,6 +3,7 @@ from lassen.asm import add, sub, and_, or_, xor, fp_mult, fp_add, faddiexp, \
 from lassen.sim import gen_pe, gen_pe_type_family
 from lassen.mode import gen_mode_type
 from lassen.isa import DATAWIDTH, gen_inst_type
+from lassen.lut import gen_lut
 import magma as m
 import pytest
 from hwtypes import BitVector
@@ -137,3 +138,22 @@ def test_rtl(op, mode, use_assembler):
                                directory="tests/build/",
                                flags=['-Wno-UNUSED',  '-Wno-PINNOCONNECT'],
                                skip_compile=True)
+
+
+def test_lut():
+    lut_rtl = gen_lut(m.get_family()).circuit_definition
+    lut_code = 0xEE
+    tester = fault.Tester(lut_rtl)
+    tester.circuit.lut = lut_code
+    print("bit0, bit1, bit2,    O")
+    for i in range(0, 8):
+        bit0, bit1, bit2 = m.bitutils.int2seq(i, 3)
+        tester.circuit.bit0 = bit0
+        tester.circuit.bit1 = bit1
+        tester.circuit.bit2 = bit2
+        tester.eval()
+        expected = (lut_code >> i) & 1
+        tester.circuit.O.expect(expected)
+        print(f"   {bit0}     {bit1}     {bit2}     {expected}")
+    tester.compile_and_run(target="verilator", directory="tests/build",
+                           flags=["-Wno-UNUSED"])
