@@ -27,7 +27,7 @@ install:
 - pip install pytest-cov
 - git clone https://github.com/phanrahan/peak.git
 - git clone https://github.com/rdaly525/MetaMapper.git
-- pip install --ignore-installed git+git://github.com/leonardt/fault#egg=fault
+- pip install --ignore-installed git+git://github.com/leonardt/fault@patch-pipefail#egg=fault
 - pip install --ignore-installed git+git://github.com/phanrahan/magma#egg=magma-lang
 - pip install -e ./peak
 - pip install -e ./MetaMapper
