@@ -4,14 +4,16 @@ from hwtypes import BitVector
 import coreir
 import metamapper as mm
 import pytest
-
+import json
+from lassen import rules as Rules
+from lassen import LassenMapper
 
 @pytest.mark.skip("This takes a long time")
 def test_discover():
     c = coreir.Context()
     mapper = mm.PeakMapper(c,"pe_ns")
     mapper.add_peak_primitive("PE",gen_pe)
-    
+
     def bypass_mode(inst):
         return (
             inst.rega == type(inst.rega).BYPASS and
@@ -22,7 +24,7 @@ def test_discover():
             (inst.cond == type(inst.cond).Z or inst.cond == type(inst.cond).Z_n)
         )
     mapper.add_discover_constraint(bypass_mode)
-    
+
     mapper.discover_peak_rewrite_rules(width=16)
     #test the mapper on simple add4 app
     app = c.load_from_file("tests/examples/add4.json")
@@ -33,15 +35,15 @@ def test_discover():
 def test_const():
     c = coreir.Context()
     mapper = mm.PeakMapper(c,"pe_ns")
-    
+
     PE = mapper.add_peak_primitive("PE",gen_pe)
-    
+
     const16 = c.get_namespace("coreir").generators['const'](width=16)
 
     def instr_lambda(inst):
         cval = inst.config["value"].value
         return asm.const(cval)
-        
+
     #Adds a simple "1 to 1" rewrite rule
     mapper.add_rewrite_rule(mm.Peak1to1(
         const16,
@@ -49,8 +51,8 @@ def test_const():
         instr_lambda,
         dict(out="alu_res")
     ))
- 
-    
+
+
     def bypass_mode(inst):
         return (
             inst.rega == type(inst.rega).BYPASS and
@@ -62,9 +64,9 @@ def test_const():
         )
     mapper.add_discover_constraint(bypass_mode)
     mapper.discover_peak_rewrite_rules(width=16,coreir_primitives=["add"])
- 
-    
-   
+
+
+
     #test the mapper on simple const app
     app = c.load_from_file("tests/examples/const.json")
     mapper.map_app(app)
@@ -73,7 +75,7 @@ def test_const():
     assert imap["c1$inst"] == asm.const(1)
     c.run_passes(['printer'])
     #This should have the c1$inst op attached with the ALUOP metadata
- 
+
 def test_io():
     c = coreir.Context()
     mapper = mm.PeakMapper(c,"alu_ns")
@@ -113,10 +115,10 @@ def test_float():
     c = coreir.Context()
     c.load_library("float")
     mapper = mm.PeakMapper(c,"alu_ns")
-    
+
     pe = mapper.add_peak_primitive("PE",gen_pe)
     bfloat_add = c.get_namespace("float").generators['add'](exp_bits=8,frac_bits=7)
-    
+
     #Adds a simple "1 to 1" rewrite rule
     mapper.add_rewrite_rule(mm.Peak1to1(
         bfloat_add, #Coreir module
@@ -125,7 +127,7 @@ def test_float():
         dict(in0='data0',in1='data1',out="alu_res") #Port Mapping
     ))
 
-    
+
     #test the mapper on simple add4 app
     app = c.load_from_file("tests/examples/fpadd4.json")
     mapper.map_app(app)
@@ -137,7 +139,7 @@ def test_fp_pointwise():
     c = coreir.Context()
     c.load_library("float")
     mapper = mm.PeakMapper(c,"alu_ns")
-    
+
     pe = mapper.add_peak_primitive("PE",gen_pe)
 
     # FADD: Adds a simple "1 to 1" rewrite rule for fadd
@@ -169,7 +171,7 @@ def test_fp_pointwise():
         instr_const,
         dict(out="alu_res")
     ))
-                    
+
     #test the mapper on simple add4 app
     app = c.load_from_file("tests/examples/fp_pointwise.json")
     mapper.map_app(app)
@@ -178,7 +180,83 @@ def test_fp_pointwise():
     print("instance map",imap)
     app.save_to_file("tests/examples/fp_pointwise.mapped.json")
 
-    
+def test_serialize():
+    c = coreir.Context()
+    mapper = mm.PeakMapper(c,"alu_ns")
+    pe = mapper.add_peak_primitive("PE",gen_pe)
+    with open('rules/simple.json','r') as jfile:
+        rrs = json.load(jfile)
+
+    for rr in rrs:
+        mapper.add_rr_from_description(rr)
+
+    #test the mapper on simple add4 app
+    app = c.load_from_file("tests/examples/add4.json")
+    mapper.map_app(app)
+    imap = mapper.extract_instr_map(app)
+    assert len(imap) == 3
+
+def test_rules():
+    c = coreir.Context()
+    mapper = mm.PeakMapper(c,"alu_ns")
+    pe = mapper.add_peak_primitive("PE",gen_pe)
+    for rr in Rules:
+        mapper.add_rr_from_description(rr)
+
+    #test the mapper on simple add4 app
+    app = c.load_from_file("tests/examples/add4.json")
+    mapper.map_app(app)
+    imap = mapper.extract_instr_map(app)
+    assert len(imap) == 3
+
+@pytest.mark.parametrize("op", ["and","or","xor"])
+def test_binary_lut(op):
+    c = coreir.Context()
+    #Create app that contains some all the binary and unary ops
+    g = c.global_namespace
+    mod_type = c.Record({
+        "in": c.Array(4,c.BitIn()),
+        "out":c.Bit()
+    })
+    app = g.new_module("app",mod_type)
+    mdef = app.new_definition()
+    bin_op = c.get_namespace("corebit").modules[op]
+    binst00 = mdef.add_module_instance(name="i00",module=bin_op)
+    binst01 = mdef.add_module_instance(name="i01",module=bin_op)
+    binst1 = mdef.add_module_instance(name="i1",module=bin_op)
+    io = mdef.interface
+    mdef.connect(io.select("in").select('0'),binst00.select("in0"))
+    mdef.connect(io.select("in").select('1'),binst00.select("in1"))
+    mdef.connect(io.select("in").select('2'),binst01.select("in0"))
+    mdef.connect(io.select("in").select('3'),binst01.select("in1"))
+    mdef.connect(binst00.select("out"),binst1.select("in0"))
+    mdef.connect(binst01.select("out"),binst1.select("in1"))
+    mdef.connect(binst1.select("out"),io.select("out"))
+    app.definition = mdef
+
+    mapper = LassenMapper(c)
+    mapper.map_app(app)
+    imap = mapper.extract_instr_map(app)
+    assert len(imap) == 3
+
+
+
+def test_init():
+    c = coreir.Context()
+    mapper = LassenMapper(c)
+    for rr in Rules:
+        mapper.add_rr_from_description(rr)
+
+    #test the mapper on simple add4 app
+    app = c.load_from_file("tests/examples/add4.json")
+    mapper.map_app(app)
+    imap = mapper.extract_instr_map(app)
+    assert len(imap) == 3
+
+
+
+
 #test_float()
 #test_discover()
 #test_io()
+test_binary_lut("and")
