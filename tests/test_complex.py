@@ -1,4 +1,4 @@
-from lassen.stdlib.fma import gen_FMA
+from lassen.stdlib import gen_FMA, gen_Add32
 from lassen.isa import DATAWIDTH
 from hwtypes import BitVector, Bit
 from lassen.utils import float2bfbin, bfbin2float, get_random_float
@@ -16,6 +16,14 @@ FMA = gen_FMA(BitVector.get_family())
 def test_fma():
     fma = FMA()
     assert Data(58) == fma(Data(5), Data(10),Data(8))
+
+def test_add32():
+    add32 = gen_Add32(BitVector.get_family())()
+    Data32 = BitVector[32]
+    assert Data32(10) == add32(Data32(2),Data32(8))
+    assert Data32(100000) == add32(Data32(20000),Data32(80000))
+
+test_add32()
 
 def test_div():
     test_vectors = []

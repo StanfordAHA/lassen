@@ -22,7 +22,7 @@ def inst(alu, signed=Signed.unsigned, lut=0, cond=Cond.Z,
          rb_mode=Mode.BYPASS, rb_const=0,
          rd_mode=Mode.BYPASS, rd_const=0,
          re_mode=Mode.BYPASS, re_const=0,
-         rf_mode=Mode.BYPASS, rf_const=0):
+         rf_mode=Mode.CONST, rf_const=0):
     """
     https://github.com/StanfordAHA/CGRAGenerator/wiki/PE-Spec
     Format a configuration of the PE - sets all fields
@@ -35,8 +35,9 @@ def inst(alu, signed=Signed.unsigned, lut=0, cond=Cond.Z,
 
 # helper functions to format configurations
 
-def add(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
-    return inst(ALU.Add, ra_mode=ra_mode, rb_mode=rb_mode)
+def add(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS,enable_cin=False):
+    b2_mode = Mode.BYPASS if enable_cin else Mode.Const
+    return inst(ALU.Add, ra_mode=ra_mode, rb_mode=rb_mode,rf_mode=b2_mode)
 
 def sub ():
     return inst(ALU.Sub)

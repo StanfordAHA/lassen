@@ -54,7 +54,7 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
             mul = mula * mulb
 
         #Negate B and add cin if subtract
-        Cin = Bit(0)
+        Cin = d
         if alu == ALU.Sub:
             b = ~b
             Cin = Bit(1)
