@@ -18,11 +18,11 @@ Cond = gen_cond_type(sim_family)
 
 
 def inst(alu, signed=Signed.unsigned, lut=0, cond=Cond.Z,
-         ra_mode=Mode.BYPASS, ra_const=0,
-         rb_mode=Mode.BYPASS, rb_const=0,
-         rd_mode=Mode.BYPASS, rd_const=0,
-         re_mode=Mode.BYPASS, re_const=0,
-         rf_mode=Mode.CONST, rf_const=0):
+         ra_mode=Mode.BYPASS, ra_const=0, #data0
+         rb_mode=Mode.BYPASS, rb_const=0, #data1
+         rd_mode=Mode.CONST, rd_const=0, #bit0
+         re_mode=Mode.BYPASS, re_const=0, #bit1
+         rf_mode=Mode.BYPASS, rf_const=0): #bit2
     """
     https://github.com/StanfordAHA/CGRAGenerator/wiki/PE-Spec
     Format a configuration of the PE - sets all fields
@@ -36,8 +36,8 @@ def inst(alu, signed=Signed.unsigned, lut=0, cond=Cond.Z,
 # helper functions to format configurations
 
 def add(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS,enable_cin=False):
-    b2_mode = Mode.BYPASS if enable_cin else Mode.Const
-    return inst(ALU.Add, ra_mode=ra_mode, rb_mode=rb_mode,rf_mode=b2_mode)
+    b0_mode = Mode.BYPASS if enable_cin else Mode.Const
+    return inst(ALU.Add, ra_mode=ra_mode, rb_mode=rb_mode,rd_mode=b0_mode)
 
 def sub ():
     return inst(ALU.Sub)
