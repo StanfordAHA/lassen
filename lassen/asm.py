@@ -157,3 +157,13 @@ def const(val):
     return inst(ALU.Add,
                 ra_mode=Mode.CONST, ra_const=val,
                 rb_mode=Mode.CONST, rb_const=0)
+
+def const1bit(val):
+
+    #Just set the LUT to that value
+    if val > 1:
+        raise ValueError(val)
+    lut_val = BitVector[8]([val for _ in range(8)])
+    return inst(ALU.Add,lut=lut_val,cond=Cond.LUT)
+
+

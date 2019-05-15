@@ -13,7 +13,7 @@ class LassenMapper(mm.PeakMapper):
 
         #Map constants to Full PE (for now)
         self.const16_rr()
-        #self.const1_rr()
+        self.const1_rr()
 
         #Map float add/mul
         context.load_library("float")
@@ -40,7 +40,18 @@ class LassenMapper(mm.PeakMapper):
         ))
 
     def const1_rr(self):
-        raise NotImplemented()
+        const1 = self.context.get_namespace("corebit").modules['const']
+        def instr_lambda(inst):
+            cval = inst.config["value"].value
+            return asm.const1bit(int(cval))
+
+        #Adds a simple "1 to 1" rewrite rule
+        self.add_rewrite_rule(mm.Peak1to1(
+            const1,
+            self.PE,
+            instr_lambda,
+            dict(out="res_p")
+        ))
 
     def float_add_rr(self):
         bfloat_add = self.context.get_namespace("float").generators['add'](exp_bits=8,frac_bits=7)
