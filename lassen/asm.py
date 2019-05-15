@@ -101,8 +101,9 @@ def lsl():
 def lsr():
     return inst(ALU.SHR)
 
-def asr():
-    return inst(ALU.SHR, signed=Signed.signed)
+def asr(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
+    return inst(ALU.SHR, ra_mode=ra_mode, rb_mode=rb_mode,
+                signed=Signed.signed)
 
 def sel():
     return inst(ALU.Sel)
