@@ -209,6 +209,38 @@ def test_rules():
     imap = mapper.extract_instr_map(app)
     assert len(imap) == 3
 
+@pytest.mark.parametrize("op", ["and","or","xor"])
+def test_binary_lut(op):
+    c = coreir.Context()
+    #Create app that contains some all the binary and unary ops
+    g = c.global_namespace
+    mod_type = c.Record({
+        "in": c.Array(4,c.BitIn()),
+        "out":c.Bit()
+    })
+    app = g.new_module("app",mod_type)
+    mdef = app.new_definition()
+    bin_op = c.get_namespace("corebit").modules[op]
+    binst00 = mdef.add_module_instance(name="i00",module=bin_op)
+    binst01 = mdef.add_module_instance(name="i01",module=bin_op)
+    binst1 = mdef.add_module_instance(name="i1",module=bin_op)
+    io = mdef.interface
+    mdef.connect(io.select("in").select('0'),binst00.select("in0"))
+    mdef.connect(io.select("in").select('1'),binst00.select("in1"))
+    mdef.connect(io.select("in").select('2'),binst01.select("in0"))
+    mdef.connect(io.select("in").select('3'),binst01.select("in1"))
+    mdef.connect(binst00.select("out"),binst1.select("in0"))
+    mdef.connect(binst01.select("out"),binst1.select("in1"))
+    mdef.connect(binst1.select("out"),io.select("out"))
+    app.definition = mdef
+
+    mapper = LassenMapper(c)
+    mapper.map_app(app)
+    imap = mapper.extract_instr_map(app)
+    assert len(imap) == 3
+
+
+
 def test_init():
     c = coreir.Context()
     mapper = LassenMapper(c)
@@ -221,7 +253,10 @@ def test_init():
     imap = mapper.extract_instr_map(app)
     assert len(imap) == 3
 
+
+
+
 #test_float()
 #test_discover()
 #test_io()
-test_init()
+test_binary_lut("and")
