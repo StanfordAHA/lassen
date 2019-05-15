@@ -69,18 +69,6 @@ class LassenMapper(mm.PeakMapper):
 
     #This should convert all the bitwise operators into LUTS
     def __bitwise(self):
-        #Magic numbers 
-        B0 = BitVector[8](170)
-        B1 = BitVector[8](12*17)
-        B2 = BitVector[8](15*16)
-
-        lut_table = {
-            "not" : ~B0,
-            "and" : B0&B1,
-            "or" : B0|B1,
-            "xor" : B0^B1,
-            "mux" : (B2&B1)|((~B2)&B0)
-        }
 
         #Do the binary
         for op in ("and","or","xor"):
@@ -88,7 +76,7 @@ class LassenMapper(mm.PeakMapper):
             self.add_rewrite_rule(mm.Peak1to1(
                 cop,
                 self.PE,
-                asm.inst(ALU.Add,lut=lut_table[op],cond=Cond.LUT),
+                getattr(asm,f"lut_{op}")(),
                 dict(in0='bit0',in1='bit1',out='res_p')
             ))
 
@@ -97,7 +85,7 @@ class LassenMapper(mm.PeakMapper):
         self.add_rewrite_rule(mm.Peak1to1(
             cop,
             self.PE,
-            asm.inst(ALU.Add,lut=lut_table[op],cond=Cond.LUT),
+            asm.lut_not(),
             {"in":'bit0',"out":'res_p'}
         ))
 
@@ -106,7 +94,7 @@ class LassenMapper(mm.PeakMapper):
         self.add_rewrite_rule(mm.Peak1to1(
             cop,
             self.PE,
-            asm.inst(ALU.Add,lut=lut_table[op],cond=Cond.LUT),
+            asm.lut_mux(),
             dict(in0='bit0',in1='bit1',sel='bit2',out='res_p')
         ))
 

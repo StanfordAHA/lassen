@@ -16,6 +16,11 @@ DataConst = sim_family.BitVector[DATAWIDTH]
 BitConst = sim_family.Bit
 Cond = gen_cond_type(sim_family)
 
+#Lut Constants 
+B0 = BitVector[8](170)
+B1 = BitVector[8](12*17)
+B2 = BitVector[8](15*16)
+
 
 def inst(alu, signed=Signed.unsigned, lut=0, cond=Cond.Z,
          ra_mode=Mode.BYPASS, ra_const=0,
@@ -157,3 +162,26 @@ def const(val):
     return inst(ALU.Add,
                 ra_mode=Mode.CONST, ra_const=val,
                 rb_mode=Mode.CONST, rb_const=0)
+
+def lut(val):
+    return inst(ALU.Add,lut=val,cond=Cond.LUT)
+
+def lut_and():
+    return lut(B0&B1)
+
+def lut_or():
+    return lut(B0|B1)
+
+def lut_xor():
+    return lut(B0^B1)
+
+def lut_not():
+    return lut(~B0)
+
+def lut_mux():
+    return lut((B2&B1)|((~B2)&B0))
+
+
+
+
+
