@@ -17,9 +17,9 @@ BitConst = sim_family.Bit
 Cond = gen_cond_type(sim_family)
 
 #Lut Constants 
-B0 = BitVector[8](170)
-B1 = BitVector[8](12*17)
-B2 = BitVector[8](15*16)
+B0 = BitVector[8]([0,1,0,1,0,1,0,1])
+B1 = BitVector[8]([0,0,1,1,0,0,1,1])
+B2 = BitVector[8]([0,0,0,0,1,1,1,1])
 
 
 def inst(alu, signed=Signed.unsigned, lut=0, cond=Cond.Z,

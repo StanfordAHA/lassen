@@ -1,0 +1,71 @@
+from collections import namedtuple
+import operator
+import lassen.asm as asm
+from lassen.sim import gen_pe
+from lassen.isa import DATAWIDTH
+from hwtypes import SIntVector, UIntVector, BitVector, Bit
+import pytest
+import random
+
+Bit = Bit
+Data = BitVector[DATAWIDTH]
+
+op = namedtuple("op", ["name", "func"])
+NTESTS = 32
+
+@pytest.mark.parametrize("op", [
+    op('and', lambda x, y: x&y),
+    op('or',  lambda x, y: x|y),
+    op('xor',  lambda x, y: x^y),
+])
+def test_lut_binary(op):
+    pe = gen_pe(BitVector.get_family())()
+    inst = getattr(asm, f"lut_{op.name}")()
+    for _ in range(NTESTS):
+        x = Bit(random.choice([0,1]))
+        y = Bit(random.choice([0,1]))
+        data0 = UIntVector.random(DATAWIDTH)
+        _, res_p, _ = pe(inst, data0=data0,bit0=x,bit1=y)
+        assert res_p==op.func(x,y)
+
+@pytest.mark.parametrize("op", [
+    op('not', lambda x: ~x),
+])
+def test_lut_unary(op):
+    pe = gen_pe(BitVector.get_family())()
+    inst = getattr(asm, f"lut_{op.name}")()
+    for _ in range(NTESTS):
+        x = Bit(random.choice([0,1]))
+        data0 = UIntVector.random(DATAWIDTH)
+        _, res_p, _ = pe(inst, data0=data0,bit0=x)
+        assert res_p==op.func(x)
+
+@pytest.mark.parametrize("op", [
+    op('mux', lambda sel, d0, d1: d1 if sel else d0),
+])
+def test_lut_ternary(op):
+    pe = gen_pe(BitVector.get_family())()
+    inst = getattr(asm, f"lut_{op.name}")()
+    for _ in range(NTESTS):
+        sel = Bit(random.choice([0,1]))
+        d0 = Bit(random.choice([0,1]))
+        d1 = Bit(random.choice([0,1]))
+        data0 = UIntVector.random(DATAWIDTH)
+        _, res_p, _ = pe(inst, data0=data0,bit0=d0,bit1=d1,bit2=sel)
+        assert res_p==op.func(sel,d0,d1)
+
+def test_lut():
+    pe = gen_pe(BitVector.get_family())()
+    for _ in range(NTESTS):
+        lut_val = BitVector.random(8)
+        inst = asm.lut(lut_val)
+        b0 = Bit(random.choice([0,1]))
+        b1 = Bit(random.choice([0,1]))
+        b2 = Bit(random.choice([0,1]))
+        data0 = UIntVector.random(DATAWIDTH)
+        _, res_p, _ = pe(inst, data0=data0,bit0=b0,bit1=b1,bit2=b2)
+        assert res_p== lut_val[int(BitVector[3]([b0,b1,b2]))]
+
+
+
+
