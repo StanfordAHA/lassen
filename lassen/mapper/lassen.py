@@ -77,7 +77,7 @@ class LassenMapper(mm.PeakMapper):
                 cop,
                 self.PE,
                 getattr(asm,f"lut_{op}")(),
-                dict(in0='bit0',in1='bit1',out='res_p')
+                dict(in0='bit1',in1='bit2',out='res_p')
             ))
 
         #unary:
@@ -86,7 +86,7 @@ class LassenMapper(mm.PeakMapper):
             cop,
             self.PE,
             asm.lut_not(),
-            {"in":'bit0',"out":'res_p'}
+            {"in":'bit1',"out":'res_p'}
         ))
 
         #ternary:

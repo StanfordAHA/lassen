@@ -166,17 +166,18 @@ def const(val):
 def lut(val):
     return inst(ALU.Add,lut=val,cond=Cond.LUT)
 
+#Using bit1 and bit2 since bit0 can be used in the ALU
 def lut_and():
-    return lut(B0&B1)
+    return lut(B1&B2)
 
 def lut_or():
-    return lut(B0|B1)
+    return lut(B1|B2)
 
 def lut_xor():
-    return lut(B0^B1)
+    return lut(B1^B2)
 
 def lut_not():
-    return lut(~B0)
+    return lut(~B1)
 
 def lut_mux():
     return lut((B2&B1)|((~B2)&B0))

@@ -22,11 +22,12 @@ def test_lut_binary(op):
     pe = gen_pe(BitVector.get_family())()
     inst = getattr(asm, f"lut_{op.name}")()
     for _ in range(NTESTS):
-        x = Bit(random.choice([0,1]))
-        y = Bit(random.choice([0,1]))
+        b0 = Bit(random.choice([0,1]))
+        b1 = Bit(random.choice([0,1]))
+        b2 = Bit(random.choice([0,1]))
         data0 = UIntVector.random(DATAWIDTH)
-        _, res_p, _ = pe(inst, data0=data0,bit0=x,bit1=y)
-        assert res_p==op.func(x,y)
+        _, res_p, _ = pe(inst, data0=data0,bit0=b0,bit1=b1,bit2=b2)
+        assert res_p==op.func(b1,b2) #Testing from bit1 and bit2 port
 
 @pytest.mark.parametrize("op", [
     op('not', lambda x: ~x),
@@ -35,10 +36,12 @@ def test_lut_unary(op):
     pe = gen_pe(BitVector.get_family())()
     inst = getattr(asm, f"lut_{op.name}")()
     for _ in range(NTESTS):
-        x = Bit(random.choice([0,1]))
+        b0 = Bit(random.choice([0,1]))
+        b1 = Bit(random.choice([0,1]))
+        b2 = Bit(random.choice([0,1]))
         data0 = UIntVector.random(DATAWIDTH)
-        _, res_p, _ = pe(inst, data0=data0,bit0=x)
-        assert res_p==op.func(x)
+        _, res_p, _ = pe(inst, data0=data0,bit0=b0,bit1=b1,bit2=b2)
+        assert res_p==op.func(b1)
 
 @pytest.mark.parametrize("op", [
     op('mux', lambda sel, d0, d1: d1 if sel else d0),
