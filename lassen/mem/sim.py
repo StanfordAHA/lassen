@@ -15,7 +15,7 @@ def gen_mem(family, width=width,depth=depth):
             pass
             #self.mem = RAM(Word, depth, [Data(0) for i in range(depth)])
 
-        #For now only define the ports relevant for the ROM
+        #TODO For now only define the ports relevant for the ROM
         @name_outputs(rdata=Data)
         def __call__(self,instr : MemInstr, ain : Data, din : Data):
 
