@@ -116,8 +116,9 @@ def umin():
 def umax():
     return inst(ALU.GTE_Max, cond=Cond.ALU)
 
-def smin():
-    return inst(ALU.LTE_Min, signed=Signed.signed, cond=Cond.ALU)
+def smin(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
+    return inst(ALU.LTE_Min, signed=Signed.signed, cond=Cond.ALU,
+                ra_mode=ra_mode, rb_mode=rb_mode)
 
 def smax(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
     return inst(ALU.GTE_Max, signed=Signed.signed, cond=Cond.ALU,
