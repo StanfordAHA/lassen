@@ -4,7 +4,7 @@ import lassen.asm as asm
 from lassen.sim import gen_pe
 from lassen.isa import DATAWIDTH
 from lassen.utils import float2bfbin, bfbin2float, get_random_float
-from hwtypes import SIntVector, UIntVector, BitVector, Bit, FPVector
+from hwtypes import SIntVector, UIntVector, BitVector, Bit
 import pytest
 import math
 import random
