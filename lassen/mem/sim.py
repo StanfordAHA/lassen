@@ -6,7 +6,8 @@ width = 16
 depth = 1024
 
 def gen_mem(family, width=width,depth=depth):
-    MemInstr, Rom = gen_mem_instr(family,width,depth)
+    MemInstr = gen_mem_instr(family,width,depth)
+    Rom = MemInstr.field_dict['Rom']
     Bit = family.Bit
     Data = family.BitVector[width]
 
