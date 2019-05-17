@@ -38,7 +38,10 @@ magma.compile(f"{test_dir}/WrappedPE", pe_circuit, output="coreir-verilog")
 
 def rtl_tester(test_op, data0, data1, bit0=None, res=None, res_p=None):
     tester.clear()
-    tester.circuit.inst = assembler(test_op.inst)
+    if hasattr(test_op, "inst"):
+        tester.circuit.inst = assembler(test_op.inst)
+    else:
+        tester.circuit.inst = assembler(test_op)
     tester.circuit.CLK = 0
     data0 = BitVector[16](data0)
     data1 = BitVector[16](data1)
