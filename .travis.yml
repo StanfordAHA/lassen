@@ -33,4 +33,4 @@ install:
 - pip install -e ./MetaMapper
 - pip install -e .
 script:
-- pytest -x tests/
+- pytest -v tests/
