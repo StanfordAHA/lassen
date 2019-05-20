@@ -29,7 +29,9 @@ install:
 - pysmt-install --check
 - pip install pytest-cov
 - git clone https://github.com/phanrahan/peak.git
+- git clone https://github.com/leonardt/hwtypes.git
 - git clone -b iofix https://github.com/rdaly525/MetaMapper.git
+- pip install -e ./hwtypes
 - pip install --ignore-installed git+git://github.com/leonardt/fault#egg=fault
 - pip install --ignore-installed git+git://github.com/phanrahan/magma#egg=magma-lang
 - pip install -e ./peak
