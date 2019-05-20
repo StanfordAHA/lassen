@@ -9,16 +9,12 @@ import pytest
 import math
 import random
 
-
 Bit = Bit
 Data = BitVector[DATAWIDTH]
 BFloat16 = FPVector[7,8,hwtypes.RoundingMode.RNE,False]
 #float to bitvector
 def BFloat(f):
     return BFloat16(f).reinterpret_as_bv()
-
-def get_random_float(min=-100.0,max=100.0):
-    return random.uniform(min,max)
 
 #random.seed(10)
 pe = gen_pe(BitVector.get_family())()
@@ -155,22 +151,7 @@ def test_umult(args):
     res, _, _ = pe(umult2, Data(x), Data(y))
     assert res == xy[DATAWIDTH:]
 
-
 def test_fp_add():
-    pe = gen_pe(BitVector.get_family())()
-    inst = asm.fp_add()
-    # [sign, exponent (decimal), mantissa (binary)]:
-    # a   = [0, -111, 1.0000001]
-    # b   = [0, -112, 1.0000010]
-    # res = [0, -111, 1.1000010]
-    res, res_p, irq = pe(inst, Data(0x801), Data(0x782))
-    assert res == 0x842
-    assert res_p == 0
-    assert irq == 0
-
-@pytest.mark.skip("missing convert function")
-def test_fp_add2():
-    pe = gen_pe(BitVector.get_family())()
     inst = asm.fp_add()
     in0 = BFloat(2.0)
     in1 = BFloat(3.0)
@@ -180,10 +161,8 @@ def test_fp_add2():
     assert res_p == 0
     assert irq == 0
 
-@pytest.mark.skip("missing convert function")
 def test_fp_sub():
-    pe = gen_pe(BitVector.get_family())()
-    inst = asm.fp_add()
+    inst = asm.fp_sub()
     in0 = BFloat(2.0)
     in1 = BFloat(3.0)
     out = BFloat(-1.0)
@@ -192,9 +171,25 @@ def test_fp_sub():
     assert res_p == 0
     assert irq == 0
 
+#All the bits are defined backwards from Nihkil's tests
+def reverse_bits(val : int,width=16):
+    b = '{:0{width}b}'.format(val,width=width)
+    return int(b[::-1],2)
 
-def test_fp_mult():
-    pe = gen_pe(BitVector.get_family())()
+@pytest.mark.skip
+def test_fp_add_bv():
+    inst = asm.fp_add()
+    # [sign, exponent (decimal), mantissa (binary)]:
+    # a   = [0, -111, 1.0000001]
+    # b   = [0, -112, 1.0000010]
+    # res = [0, -111, 1.1000010]
+    res, res_p, irq = pe(inst, Data(reverse_bits(0x801)), Data(reverse_bits(0x782)))
+    assert res == 0x842
+    assert res_p == 0
+    assert irq == 0
+
+@pytest.mark.skip
+def test_fp_mult_bv():
     inst = asm.fp_mult()
     # [sign, exponent (decimal), mantissa (binary)]:
     # a   = [0, 2, 1.0000000]
@@ -202,15 +197,24 @@ def test_fp_mult():
     # res = [0, 3, 1.0000001]
     # mant = mant(a) * mant(b)
     # exp = exp(a) + exp(b)
-    res, res_p, irq = pe(inst, Data(0x4080), Data(0x4001))
+    res, res_p, irq = pe(inst, Data(reverse_bits(0x4080)), Data(reverse_bits(0x4001)))
     assert res == 0x4101
+    assert res_p == 0
+    assert irq == 0
+
+def test_fp_mult():
+    inst = asm.fp_mult()
+    in0 = BFloat(3.0)
+    in1 = BFloat(-7.0)
+    out = BFloat(-21.0)
+    res, res_p, irq = pe(inst, in0, in1)
+    assert res == out
     assert res_p == 0
     assert irq == 0
 
 
 # TODO these tests are likely captured by the tests above. Keep them for now
 def test_lsl():
-    pe = gen_pe(BitVector.get_family())()
     inst = asm.lsl()
     res, res_p, irq = pe(inst, Data(2), Data(1))
     assert res == 4
@@ -219,7 +223,6 @@ def test_lsl():
 
 
 def test_lsr():
-    pe = gen_pe(BitVector.get_family())()
     inst = asm.lsr()
     res, res_p, irq = pe(inst, Data(2), Data(1))
     assert res == 1
@@ -228,7 +231,6 @@ def test_lsr():
 
 
 def test_asr():
-    pe = gen_pe(BitVector.get_family())()
     inst = asm.asr()
     res, res_p, irq = pe(inst, Data(-2), Data(1))
     assert res == 65535
@@ -237,7 +239,6 @@ def test_asr():
 
 
 def test_sel():
-    pe = gen_pe(BitVector.get_family())()
     inst = asm.sel()
     res, res_p, irq = pe(inst, Data(1), Data(2), Bit(0))
     assert res == 2
@@ -246,7 +247,6 @@ def test_sel():
 
 
 def test_umin():
-    pe = gen_pe(BitVector.get_family())()
     inst = asm.umin()
     res, res_p, irq = pe(inst, Data(1), Data(1))
     assert res_p == 1
@@ -257,7 +257,6 @@ def test_umin():
 
 
 def test_umax():
-    pe = gen_pe(BitVector.get_family())()
     inst = asm.umax()
     res, res_p, irq = pe(inst, Data(1), Data(2))
     assert res == 2
@@ -268,7 +267,6 @@ def test_umax():
 
 
 def test_smin():
-    pe = gen_pe(BitVector.get_family())()
     inst = asm.smin()
     res, res_p, irq = pe(inst, Data(-1), Data(2))
     assert res == Data(-1)
@@ -282,7 +280,6 @@ def test_smin():
 
 
 def test_smax():
-    pe = gen_pe(BitVector.get_family())()
     inst = asm.smax()
     res, res_p, irq = pe(inst, Data(-1), Data(2))
     assert res == 2
@@ -296,7 +293,6 @@ def test_smax():
 
 
 def test_abs():
-    pe = gen_pe(BitVector.get_family())()
     inst = asm.abs()
     res, res_p, irq = pe(inst, Data(-1))
     assert res == 1
@@ -305,28 +301,24 @@ def test_abs():
 
 
 def test_eq():
-    pe = gen_pe(BitVector.get_family())()
     inst = asm.eq()
     res, res_p, irq = pe(inst, Data(1), Data(1))
     assert res_p == 1
 
 
 def test_ne():
-    pe = gen_pe(BitVector.get_family())()
     inst = asm.ne()
     res, res_p, irq = pe(inst, Data(1), Data(1))
     assert res_p == 0
 
 
 def test_uge():
-    pe = gen_pe(BitVector.get_family())()
     inst = asm.uge()
     res, res_p, irq = pe(inst, Data(1), Data(1))
     assert res_p == 1
 
 
 def test_ule():
-    pe = gen_pe(BitVector.get_family())()
     inst = asm.ule()
     res, res_p, irq = pe(inst, Data(1), Data(1))
     assert res_p == 1
@@ -337,42 +329,36 @@ def test_ule():
 
 
 def test_ugt():
-    pe = gen_pe(BitVector.get_family())()
     inst = asm.ugt()
     res, res_p, irq = pe(inst, Data(1), Data(1))
     assert res_p == 0
 
 
 def test_ult():
-    pe = gen_pe(BitVector.get_family())()
     inst = asm.ult()
     res, res_p, irq = pe(inst, Data(1), Data(1))
     assert res_p == 0
 
 
 def test_sge():
-    pe = gen_pe(BitVector.get_family())()
     inst = asm.sge()
     res, res_p, irq = pe(inst, Data(1), Data(1))
     assert res_p == 1
 
 
 def test_sle():
-    pe = gen_pe(BitVector.get_family())()
     inst = asm.sle()
     res, res_p, irq = pe(inst, Data(1), Data(1))
     assert res_p == 1
 
 
 def test_sgt():
-    pe = gen_pe(BitVector.get_family())()
     inst = asm.sgt()
     res, res_p, irq = pe(inst, Data(1), Data(1))
     assert res_p == 0
 
 
 def test_slt():
-    pe = gen_pe(BitVector.get_family())()
     inst = asm.slt()
     res, res_p, irq = pe(inst, Data(1), Data(1))
     assert res_p == 0
@@ -380,33 +366,6 @@ def test_slt():
 #
 # floating point
 #
-
-
-def test_fp_add():
-    inst = asm.fp_add()
-    # [sign, exponent (decimal), mantissa (binary)]:
-    # a   = [0, -111, 1.0000001]
-    # b   = [0, -112, 1.0000010]
-    # res = [0, -111, 1.1000010]
-    res, res_p, irq = pe(inst, Data(0x801), Data(0x782))
-    assert res == 0x842
-    assert res_p == 0
-    assert irq == 0
-
-
-def test_fp_mult():
-    inst = asm.fp_mult()
-    # [sign, exponent (decimal), mantissa (binary)]:
-    # a   = [0, 2, 1.0000000]
-    # b   = [0, 1, 1.0000001]
-    # res = [0, 3, 1.0000001]
-    # mant = mant(a) * mant(b)
-    # exp = exp(a) + exp(b)
-    res, res_p, irq = pe(inst, Data(0x4080), Data(0x4001))
-    assert res == 0x4101
-    assert res_p == 0
-    assert irq == 0
-
 
 def test_get_mant():
     inst = asm.fgetmant()
@@ -468,12 +427,12 @@ def test_get_float_frac():
     assert res_p == 0
     assert irq == 0
 
-@pytest.mark.skip("missing convert function")
+@pytest.mark.skip("This is broken")
 def test_int_to_float():
     for vector_count in range(NTESTS):
-        val = random.randint(-100,100)
+        val = random.randint(-10,10)
         in0 = Data(val)
-        in1 = Data.random()
+        in1 = Data.random(DATAWIDTH)
         correct = BFloat(float(val))
-        res, _, _ = pe(asm.fcnvsi2f(),in0,in1)
-        assert correct == res
+        res, _, _ = pe(asm.cast_sint_to_float(),in0,in1)
+        assert correct == res, str((val,in0,res))
