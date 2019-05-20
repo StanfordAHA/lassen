@@ -52,12 +52,14 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
             gte_pred = a >= b
             lte_pred = a <= b
             abs_pred = a >= 0
+            shr = a >> b
         elif signed == Signed.unsigned:
             mula, mulb = a.zext(16), b.zext(16)
             mul = mula * mulb
             gte_pred = a >= b
             lte_pred = a <= b
             abs_pred = a >= 0
+            shr = a >> b
 
         #Negate B and add cin if subtract
         Cin = Bit(0)
@@ -98,7 +100,7 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
             res, res_p = a ^ b, Bit(0)
         elif alu == ALU.SHR:
             #res, res_p = a >> Data(b[:4]), Bit(0)
-            res, res_p = a >> b, Bit(0)
+            res, res_p = shr, Bit(0)
         elif alu == ALU.SHL:
             #res, res_p = a << Data(b[:4]), Bit(0)
             res, res_p = a << b, Bit(0)
