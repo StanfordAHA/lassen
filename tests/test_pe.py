@@ -171,24 +171,19 @@ def test_fp_sub():
     assert res_p == 0
     assert irq == 0
 
-#All the bits are defined backwards from Nihkil's tests
-def reverse_bits(val : int,width=16):
-    b = '{:0{width}b}'.format(val,width=width)
-    return int(b[::-1],2)
-
-@pytest.mark.skip
+@pytest.mark.skip("test is broken. data format is probably wrong")
 def test_fp_add_bv():
     inst = asm.fp_add()
     # [sign, exponent (decimal), mantissa (binary)]:
     # a   = [0, -111, 1.0000001]
     # b   = [0, -112, 1.0000010]
     # res = [0, -111, 1.1000010]
-    res, res_p, irq = pe(inst, Data(reverse_bits(0x801)), Data(reverse_bits(0x782)))
+    res, res_p, irq = pe(inst, Data(0x801), Data(0x782))
     assert res == 0x842
     assert res_p == 0
     assert irq == 0
 
-@pytest.mark.skip
+@pytest.mark.skip("test is broken. data format is probably wrong")
 def test_fp_mult_bv():
     inst = asm.fp_mult()
     # [sign, exponent (decimal), mantissa (binary)]:
@@ -197,7 +192,7 @@ def test_fp_mult_bv():
     # res = [0, 3, 1.0000001]
     # mant = mant(a) * mant(b)
     # exp = exp(a) + exp(b)
-    res, res_p, irq = pe(inst, Data(reverse_bits(0x4080)), Data(reverse_bits(0x4001)))
+    res, res_p, irq = pe(inst, Data(0x4080), Data(0x4001))
     assert res == 0x4101
     assert res_p == 0
     assert irq == 0
@@ -427,7 +422,7 @@ def test_get_float_frac():
     assert res_p == 0
     assert irq == 0
 
-@pytest.mark.skip("This is broken")
+@pytest.mark.skip("This feature is not working")
 def test_int_to_float():
     for vector_count in range(NTESTS):
         val = random.randint(-10,10)
