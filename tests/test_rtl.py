@@ -1,5 +1,5 @@
 from lassen.asm import add, sub, and_, or_, xor, fp_mult, fp_add, faddiexp, \
-    fsubexp, fcnvexp2f, fgetfint, fgetffrac
+    fsubexp, fcnvexp2f, fgetfint, fgetffrac, asr
 from lassen.sim import gen_pe, gen_pe_type_family
 from lassen.mode import gen_mode_type
 from lassen.isa import DATAWIDTH, gen_inst_type
@@ -58,7 +58,7 @@ def wrap_with_disassembler(PE, disassembler, width, layout, inst_type):
     return WrappedPE
 
 
-@pytest.mark.parametrize('op', [add, and_, or_, xor, fp_add, fp_mult, faddiexp,
+@pytest.mark.parametrize('op', [asr, add, and_, or_, xor, fp_add, fp_mult, faddiexp,
                                 fsubexp, fcnvexp2f, fgetfint, fgetffrac])
 @pytest.mark.parametrize('mode', [Mode.BYPASS, Mode.DELAY])
 @pytest.mark.parametrize('use_assembler', [False, True])
@@ -106,6 +106,8 @@ def test_rtl(op, mode, use_assembler):
         data0, data1 = 0x4020, 0x0000
     elif op == fgetffrac:
         data0, data1 = 0x4020, 0x0000
+    elif op == asr:
+        data0, data1 = 0xFFFF, 2
     else:
         data0 = fault.random.random_bv(DATAWIDTH // 2)
         data1 = fault.random.random_bv(DATAWIDTH // 2)
