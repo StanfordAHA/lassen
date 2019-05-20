@@ -1,10 +1,8 @@
 from lassen.stdlib.fma import gen_FMA
 from lassen.isa import DATAWIDTH
 from hwtypes import BitVector, Bit
-from lassen.utils import float2bfbin, bfbin2float, get_random_float
 from lassen.sim import gen_pe
 import pytest
-from lassen.tlut import tlut
 import lassen.asm as asm
 import math
 import random
