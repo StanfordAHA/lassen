@@ -2,14 +2,7 @@ from lassen.stdlib.fma import gen_FMA
 from lassen.isa import DATAWIDTH
 from hwtypes import BitVector, Bit
 from lassen.sim import gen_pe
-import pytest
 import lassen.asm as asm
-import math
-import random
-
-
-#Hack
-#random.seed(10)
 
 Bit = Bit
 Data = BitVector[DATAWIDTH]
