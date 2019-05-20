@@ -25,7 +25,6 @@ install:
 - git clone https://github.com/phanrahan/peak.git
 - git clone -b iofix https://github.com/rdaly525/MetaMapper.git
 - pip install --ignore-installed git+git://github.com/leonardt/fault#egg=fault
-- git clone https://github.com/rdaly525/MetaMapper.git
 - pip install -e ./peak
 - pip install -e ./MetaMapper
 - pip install -e .
