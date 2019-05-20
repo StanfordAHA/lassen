@@ -1,6 +1,6 @@
 import magma as m
 from collections import namedtuple
-from hwtypes import BitVector, SIntVector, TypeFamily
+from hwtypes import BitVector, SIntVector, TypeFamily, FPVector, RoundingMode
 import hwtypes.adt
 from hwtypes import SMTBitVector
 
@@ -13,7 +13,7 @@ ExtendedTypeFamily = namedtuple('ExtendedTypeFamily', ['Bit', 'BitVector',
 
 def gen_pe_type_family(family):
     if family is BitVector.get_family() or family is SMTBitVector.get_family():
-        from hwtypes import overflow, FPVector, RoundingMode
+        from hwtypes import overflow
         BFloat16 = FPVector[7,8,RoundingMode.RNE,False]
         family = ExtendedTypeFamily(*family, hwtypes.adt.Product, hwtypes.adt.Enum,
                                     overflow, BFloat16)

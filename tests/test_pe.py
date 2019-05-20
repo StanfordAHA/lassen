@@ -3,15 +3,14 @@ import operator
 import lassen.asm as asm
 from lassen.sim import gen_pe
 from lassen.isa import DATAWIDTH
-import hwtypes
-from hwtypes import SIntVector, UIntVector, BitVector, Bit, FPVector
+from hwtypes import SIntVector, UIntVector, BitVector, Bit, FPVector, RoundingMode
 import pytest
 import math
 import random
 
 Bit = Bit
 Data = BitVector[DATAWIDTH]
-BFloat16 = FPVector[7,8,hwtypes.RoundingMode.RNE,False]
+BFloat16 = FPVector[7,8,RoundingMode.RNE,False]
 #float to bitvector
 def BFloat(f):
     return BFloat16(f).reinterpret_as_bv()
