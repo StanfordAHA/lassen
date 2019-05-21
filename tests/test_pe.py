@@ -37,7 +37,6 @@ tester = fault.Tester(pe_circuit, clock=pe_circuit.CLK)
 test_dir = "tests/build"
 magma.compile(f"{test_dir}/WrappedPE", pe_circuit, output="coreir-verilog")
 
-
 def rtl_tester(test_op, data0, data1, bit0=None, res=None, res_p=None):
     tester.clear()
     if hasattr(test_op, "inst"):
@@ -68,14 +67,6 @@ def rtl_tester(test_op, data0, data1, bit0=None, res=None, res_p=None):
 
 op = namedtuple("op", ["inst", "func"])
 NTESTS = 16
-
-
-def bfloat16(sign, exponent, mantissa):
-    sign &= 0x1
-    exponent &= 0xff
-    mantissa &= 0x7f
-    return Data((sign << 15) | (exponent << 7) | mantissa)
-
 
 @pytest.mark.parametrize("op", [
     op(asm.and_(),  lambda x, y: x&y),
