@@ -1,14 +1,13 @@
 language: python
 addons:
   apt:
-    sources:
-    - ubuntu-toolchain-r-test
     packages:
     - g++-4.9
     - verilator
     - libgmp-dev
     - libmpfr-dev
     - libmpc-dev
+
 before_install:
 # install conda
 - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
@@ -39,4 +38,4 @@ install:
 - pip install -e ./hwtypes
 - pip install -e .
 script:
-- pytest -x tests/
+- pytest -v tests/

@@ -1,5 +1,4 @@
 from collections import namedtuple
-import operator
 import lassen.asm as asm
 from lassen.sim import gen_pe
 from lassen.isa import DATAWIDTH
@@ -7,6 +6,17 @@ from hwtypes import SIntVector, UIntVector, BitVector, Bit, FPVector, RoundingMo
 import pytest
 import math
 import random
+import magma
+import peak
+import fault
+import os
+from peak.auto_assembler import generate_assembler
+
+
+class HashableDict(dict):
+    def __hash__(self):
+        return hash(tuple(sorted(self.keys())))
+
 
 Bit = Bit
 Data = BitVector[DATAWIDTH]
@@ -15,10 +25,52 @@ BFloat16 = FPVector[7,8,RoundingMode.RNE,False]
 def BFloat(f):
     return BFloat16(f).reinterpret_as_bv()
 
-#random.seed(10)
-pe = gen_pe(BitVector.get_family())()
-op = namedtuple("op", ["inst", "func"])
+pe_ = gen_pe(BitVector.get_family())
+pe = pe_()
 
+# create these variables in global space so that we can reuse them easily
+pe_magma = gen_pe(magma.get_family())
+instr_name, inst_type = pe.__call__._peak_isa_
+assembler, disassembler, width, layout = \
+            generate_assembler(inst_type)
+instr_magma_type = type(pe_magma.interface.ports[instr_name])
+pe_circuit = peak.wrap_with_disassembler(pe_magma, disassembler, width,
+                                         HashableDict(layout),
+                                         instr_magma_type)
+tester = fault.Tester(pe_circuit, clock=pe_circuit.CLK)
+test_dir = "tests/build"
+magma.compile(f"{test_dir}/WrappedPE", pe_circuit, output="coreir-verilog")
+
+
+def rtl_tester(test_op, data0, data1, bit0=None, res=None, res_p=None):
+    tester.clear()
+    if hasattr(test_op, "inst"):
+        tester.circuit.inst = assembler(test_op.inst)
+    else:
+        tester.circuit.inst = assembler(test_op)
+    tester.circuit.CLK = 0
+    data0 = BitVector[16](data0)
+    data1 = BitVector[16](data1)
+    tester.circuit.data0 = data0
+    tester.circuit.data1 = data1
+    if bit0 is not None:
+        tester.circuit.bit0 = BitVector[1](bit0)
+    tester.eval()
+    if res is not None:
+        tester.circuit.O0.expect(res)
+    if res_p is not None:
+        tester.circuit.O1.expect(res_p)
+    # detect if the PE circuit has been built
+    skip_verilator = os.path.isfile(os.path.join(test_dir, "obj_dir",
+                                                 "VWrappedPE__ALL.a"))
+    tester.compile_and_run(target="verilator",
+                           directory=test_dir,
+                           flags=['-Wno-UNUSED', '-Wno-PINNOCONNECT'],
+                           skip_compile=True,
+                           skip_verilator=skip_verilator)
+
+
+op = namedtuple("op", ["inst", "func"])
 NTESTS = 16
 
 @pytest.mark.parametrize("op", [
@@ -38,8 +90,8 @@ NTESTS = 16
 def test_unsigned_binary(op, args):
     x, y = args
     res, _, _ = pe(op.inst, Data(x), Data(y))
-    assert res == op.func(x, y)
-
+    assert res==op.func(x,y)
+    rtl_tester(op, x, y, res=res)
 
 @pytest.mark.parametrize("op", [
     op(asm.lsl(), lambda x, y: x << y),
@@ -53,8 +105,8 @@ def test_unsigned_binary(op, args):
 def test_signed_binary(op, args):
     x, y = args
     res, _, _ = pe(op.inst, Data(x), Data(y))
-    assert res == op.func(x, y)
-
+    assert res==op.func(x,y)
+    rtl_tester(op, x, y, res=res)
 
 @pytest.mark.parametrize("op", [
     op(asm.abs(), lambda x: x if x > 0 else -x),
@@ -65,6 +117,7 @@ def test_signed_unary(op, args):
     x = args
     res, _, _ = pe(op.inst, Data(x))
     assert res == op.func(x)
+    rtl_tester(op, x, 0, res=res)
 
 
 @pytest.mark.parametrize("op", [
@@ -81,8 +134,8 @@ def test_signed_unary(op, args):
 def test_unsigned_relation(op, args):
     x, y = args
     _, res_p, _ = pe(op.inst, Data(x), Data(y))
-    assert res_p == op.func(x, y)
-
+    assert res_p==op.func(x,y)
+    rtl_tester(op, x, y, res_p=res_p)
 
 @pytest.mark.parametrize("op", [
     op(asm.sgt(), lambda x, y: x > y),
@@ -96,8 +149,8 @@ def test_unsigned_relation(op, args):
 def test_signed_relation(op, args):
     x, y = args
     _, res_p, _ = pe(op.inst, Data(x), Data(y))
-    assert res_p == op.func(x, y)
-
+    assert res_p==op.func(x,y)
+    rtl_tester(op, x, y, res_p=res_p)
 
 @pytest.mark.parametrize("args", [
     (UIntVector.random(DATAWIDTH), UIntVector.random(DATAWIDTH))
@@ -106,10 +159,11 @@ def test_sel(args):
     inst = asm.sel()
     x, y = args
     res, _, _ = pe(inst, Data(x), Data(y), Bit(0))
-    assert res == y
+    assert res==y
+    rtl_tester(op, x, y, Bit(0), res=res)
     res, _, _ = pe(inst, Data(x), Data(y), Bit(1))
-    assert res == x
-
+    assert res==x
+    rtl_tester(op, x, y, Bit(1), res=res)
 
 @pytest.mark.parametrize("args", [
     (SIntVector.random(DATAWIDTH), SIntVector.random(DATAWIDTH))
@@ -125,10 +179,13 @@ def test_smult(args):
     xy = mul(x, y)
     res, _, _ = pe(smult0, Data(x), Data(y))
     assert res == xy[0:DATAWIDTH]
+    rtl_tester(smult0, x, y, res=res)
     res, _, _ = pe(smult1, Data(x), Data(y))
     assert res == xy[DATAWIDTH//2:DATAWIDTH//2+DATAWIDTH]
+    rtl_tester(smult1, x, y, res=res)
     res, _, _ = pe(smult2, Data(x), Data(y))
     assert res == xy[DATAWIDTH:]
+    rtl_tester(smult2, x, y, res=res)
 
 
 @pytest.mark.parametrize("args", [
@@ -145,10 +202,13 @@ def test_umult(args):
     xy = mul(x, y)
     res, _, _ = pe(umult0, Data(x), Data(y))
     assert res == xy[0:DATAWIDTH]
+    rtl_tester(umult0, x, y, res=res)
     res, _, _ = pe(umult1, Data(x), Data(y))
     assert res == xy[DATAWIDTH//2:DATAWIDTH//2+DATAWIDTH]
+    rtl_tester(umult1, x, y, res=res)
     res, _, _ = pe(umult2, Data(x), Data(y))
     assert res == xy[DATAWIDTH:]
+    rtl_tester(umult2, x, y, res=res)
 
 def test_fp_add():
     inst = asm.fp_add()
@@ -205,7 +265,6 @@ def test_fp_mult():
     assert res == out
     assert res_p == 0
     assert irq == 0
-
 
 # TODO these tests are likely captured by the tests above. Keep them for now
 def test_lsl():
