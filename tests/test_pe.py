@@ -25,17 +25,17 @@ pe_ = gen_pe(BitVector.get_family())
 pe = pe_()
 
 # create these variables in global space so that we can reuse them easily
-#pe_magma = gen_pe(magma.get_family())
-#instr_name, inst_type = pe.__call__._peak_isa_
-#assembler, disassembler, width, layout = \
-#            generate_assembler(inst_type)
-#instr_magma_type = type(pe_magma.interface.ports[instr_name])
-#pe_circuit = peak.wrap_with_disassembler(pe_magma, disassembler, width,
-#                                         HashableDict(layout),
-#                                         instr_magma_type)
-#tester = fault.Tester(pe_circuit, clock=pe_circuit.CLK)
-#test_dir = "tests/build"
-#magma.compile(f"{test_dir}/WrappedPE", pe_circuit, output="coreir-verilog")
+pe_magma = gen_pe(magma.get_family())
+instr_name, inst_type = pe.__call__._peak_isa_
+assembler, disassembler, width, layout = \
+            generate_assembler(inst_type)
+instr_magma_type = type(pe_magma.interface.ports[instr_name])
+pe_circuit = peak.wrap_with_disassembler(pe_magma, disassembler, width,
+                                         HashableDict(layout),
+                                         instr_magma_type)
+tester = fault.Tester(pe_circuit, clock=pe_circuit.CLK)
+test_dir = "tests/build"
+magma.compile(f"{test_dir}/WrappedPE", pe_circuit, output="coreir-verilog")
 
 
 def rtl_tester(test_op, data0, data1, bit0=None, res=None, res_p=None):

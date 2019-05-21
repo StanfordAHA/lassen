@@ -46,8 +46,7 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
     def float2bv(bvf):
         return BFloat16.reinterpret_as_bv(bvf)
 
-    def alu(inst:Inst, a:Data, b:Data, d:Bit) -> (Data, Bit, Bit, Bit, Bit,
-                                                  Bit):
+    def alu(inst:Inst, a:Data, b:Data, d:Bit) -> (Data, Bit, Bit, Bit, Bit, Bit):
         signed = inst.signed_
         alu = inst.alu
         if signed == Signed.signed:
