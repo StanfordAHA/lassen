@@ -8,6 +8,7 @@ import magma
 import peak
 import fault
 import os
+import random
 from peak.auto_assembler import generate_assembler
 
 
@@ -22,18 +23,19 @@ Data = BitVector[DATAWIDTH]
 pe_ = gen_pe(BitVector.get_family())
 pe = pe_()
 
-# create these variables in global space so that we can reuse them easily
-pe_magma = gen_pe(magma.get_family())
-instr_name, inst_type = pe.__call__._peak_isa_
-assembler, disassembler, width, layout = \
-            generate_assembler(inst_type)
-instr_magma_type = type(pe_magma.interface.ports[instr_name])
-pe_circuit = peak.wrap_with_disassembler(pe_magma, disassembler, width,
-                                         HashableDict(layout),
-                                         instr_magma_type)
-tester = fault.Tester(pe_circuit, clock=pe_circuit.CLK)
-test_dir = "tests/build"
-magma.compile(f"{test_dir}/WrappedPE", pe_circuit, output="coreir-verilog")
+if False:
+    # create these variables in global space so that we can reuse them easily
+    pe_magma = gen_pe(magma.get_family())
+    instr_name, inst_type = pe.__call__._peak_isa_
+    assembler, disassembler, width, layout = \
+                generate_assembler(inst_type)
+    instr_magma_type = type(pe_magma.interface.ports[instr_name])
+    pe_circuit = peak.wrap_with_disassembler(pe_magma, disassembler, width,
+                                             HashableDict(layout),
+                                             instr_magma_type)
+    tester = fault.Tester(pe_circuit, clock=pe_circuit.CLK)
+    test_dir = "tests/build"
+    magma.compile(f"{test_dir}/WrappedPE", pe_circuit, output="coreir-verilog")
 
 
 def rtl_tester(test_op, data0, data1, bit0=None, res=None, res_p=None):
@@ -153,18 +155,22 @@ def test_signed_relation(op, args):
     assert res_p==op.func(x,y)
     rtl_tester(op, x, y, res_p=res_p)
 
+@pytest.mark.parametrize("op", [
+    op(asm.sel(),  lambda x, y, d: x if d else y),
+    op(asm.adc(),  lambda x, y, c: x + y + c),
+    op(asm.sbc(),  lambda x, y, c: x - y +c-1),
+])
 @pytest.mark.parametrize("args", [
-    (UIntVector.random(DATAWIDTH), UIntVector.random(DATAWIDTH))
+    (UIntVector.random(DATAWIDTH), UIntVector.random(DATAWIDTH), Bit(random.choice([1,0])))
         for _ in range(NTESTS) ] )
-def test_sel(args):
-    inst = asm.sel()
-    x, y = args
-    res, _, _ = pe(inst, Data(x), Data(y), Bit(0))
-    assert res==y
-    rtl_tester(inst, x, y, Bit(0), res=res)
-    res, _, _ = pe(inst, Data(x), Data(y), Bit(1))
-    assert res==x
-    rtl_tester(inst, x, y, Bit(1), res=res)
+def test_ternary(op,args):
+    inst = op.inst
+    d0 = args[0]
+    d1 = args[1]
+    b0 = args[2]
+    res, _, _ = pe(inst, d0,d1,b0)
+    assert res==op.func(d0,d1,b0)
+    rtl_tester(inst, d0, d1, b0, res=res)
 
 @pytest.mark.parametrize("args", [
     (SIntVector.random(DATAWIDTH), SIntVector.random(DATAWIDTH))

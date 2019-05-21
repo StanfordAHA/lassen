@@ -61,14 +61,17 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
             abs_pred = a >= 0
             shr = a >> b
 
-        #Negate B and add cin if subtract
-        Cin = d
-        if alu == ALU.Sub:
+        Cin = Bit(0)
+        if (alu == ALU.Sub) | (alu == ALU.Sbc):
             b = ~b
+        if (alu == ALU.Sub):
+            Cin = Bit(1)
+        elif (alu == ALU.Adc) | (alu == ALU.Sbc):
+            Cin = d
 
         C = Bit(0)
         V = Bit(0)
-        if (alu == ALU.Add) | (alu == ALU.Sub):
+        if (alu == ALU.Add) | (alu == ALU.Sub) | (alu == ALU.Adc) | (alu == ALU.Sbc):
             res, C = a.adc(b, Cin)
             V = overflow(a, b, res)
             res_p = C
