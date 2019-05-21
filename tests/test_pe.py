@@ -26,45 +26,45 @@ pe_ = gen_pe(BitVector.get_family())
 pe = pe_()
 
 # create these variables in global space so that we can reuse them easily
-pe_magma = gen_pe(magma.get_family())
-instr_name, inst_type = pe.__call__._peak_isa_
-assembler, disassembler, width, layout = \
-            generate_assembler(inst_type)
-instr_magma_type = type(pe_magma.interface.ports[instr_name])
-pe_circuit = peak.wrap_with_disassembler(pe_magma, disassembler, width,
-                                         HashableDict(layout),
-                                         instr_magma_type)
-tester = fault.Tester(pe_circuit, clock=pe_circuit.CLK)
-test_dir = "tests/build"
-magma.compile(f"{test_dir}/WrappedPE", pe_circuit, output="coreir-verilog")
-
-
-def rtl_tester(test_op, data0, data1, bit0=None, res=None, res_p=None):
-    tester.clear()
-    if hasattr(test_op, "inst"):
-        tester.circuit.inst = assembler(test_op.inst)
-    else:
-        tester.circuit.inst = assembler(test_op)
-    tester.circuit.CLK = 0
-    data0 = BitVector[16](data0)
-    data1 = BitVector[16](data1)
-    tester.circuit.data0 = data0
-    tester.circuit.data1 = data1
-    if bit0 is not None:
-        tester.circuit.bit0 = BitVector[1](bit0)
-    tester.eval()
-    if res is not None:
-        tester.circuit.O0.expect(res)
-    if res_p is not None:
-        tester.circuit.O1.expect(res_p)
-    # detect if the PE circuit has been built
-    skip_verilator = os.path.isfile(os.path.join(test_dir, "obj_dir",
-                                                 "VWrappedPE__ALL.a"))
-    tester.compile_and_run(target="verilator",
-                           directory=test_dir,
-                           flags=['-Wno-UNUSED', '-Wno-PINNOCONNECT'],
-                           skip_compile=True,
-                           skip_verilator=skip_verilator)
+#pe_magma = gen_pe(magma.get_family())
+#instr_name, inst_type = pe.__call__._peak_isa_
+#assembler, disassembler, width, layout = \
+#            generate_assembler(inst_type)
+#instr_magma_type = type(pe_magma.interface.ports[instr_name])
+#pe_circuit = peak.wrap_with_disassembler(pe_magma, disassembler, width,
+#                                         HashableDict(layout),
+#                                         instr_magma_type)
+#tester = fault.Tester(pe_circuit, clock=pe_circuit.CLK)
+#test_dir = "tests/build"
+#magma.compile(f"{test_dir}/WrappedPE", pe_circuit, output="coreir-verilog")
+#
+#
+#def rtl_tester(test_op, data0, data1, bit0=None, res=None, res_p=None):
+#    tester.clear()
+#    if hasattr(test_op, "inst"):
+#        tester.circuit.inst = assembler(test_op.inst)
+#    else:
+#        tester.circuit.inst = assembler(test_op)
+#    tester.circuit.CLK = 0
+#    data0 = BitVector[16](data0)
+#    data1 = BitVector[16](data1)
+#    tester.circuit.data0 = data0
+#    tester.circuit.data1 = data1
+#    if bit0 is not None:
+#        tester.circuit.bit0 = BitVector[1](bit0)
+#    tester.eval()
+#    if res is not None:
+#        tester.circuit.O0.expect(res)
+#    if res_p is not None:
+#        tester.circuit.O1.expect(res_p)
+#    # detect if the PE circuit has been built
+#    skip_verilator = os.path.isfile(os.path.join(test_dir, "obj_dir",
+#                                                 "VWrappedPE__ALL.a"))
+#    tester.compile_and_run(target="verilator",
+#                           directory=test_dir,
+#                           flags=['-Wno-UNUSED', '-Wno-PINNOCONNECT'],
+#                           skip_compile=True,
+#                           skip_verilator=skip_verilator)
 
 
 op = namedtuple("op", ["inst", "func"])
@@ -237,10 +237,21 @@ def BFloat(fpdata):
     sign = BitVector[1](fpdata.sign)
     exp = BitVector[7](fpdata.exp)
     frac = BitVector[8](fpdata.frac)
+    #This concat seems backwards to me
     return BitVector.concat(BitVector.concat(sign,exp),frac)
 
+@pytest.mark.parametrize("fpdata", [
+    fpdata(random.choice([0,1]),random.randint(1,2**7-1),random.randint(0,2**8-1))
+    for _ in range(NTESTS)
+])
+def test_bfloat_construct(fpdata):
+    fp = BFloat(fpdata)
+    assert fp[15] == fpdata.sign
+    assert fp[8:15] == fpdata.exp
+    assert fp[:8] == fpdata.frac
+
 @pytest.mark.parametrize("args", [
-    (fpdata(random.choice([0,1]),random.randint(1,2**7-1),random.randint(0,2**8-1)),BFloat16.random())
+    (fpdata(random.choice([0,1]),random.randint(1,2**7-1),random.randint(0,2**8-1)),SIntVector.random(DATAWIDTH))
     for _ in range(NTESTS)
 ])
 def test_get_mant(args):
