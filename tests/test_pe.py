@@ -87,7 +87,7 @@ def bfloat16(sign, exponent, mantissa):
     op(asm.umax(),  lambda x, y: (x > y).ite(x, y))
 ])
 @pytest.mark.parametrize("args", [
-    (UIntVector.random(DATAWIDTH), UIntVector.random(DATAWIDTH))  
+    (UIntVector.random(DATAWIDTH), UIntVector.random(DATAWIDTH))
         for _ in range(NTESTS) ] )
 def test_unsigned_binary(op, args):
     x, y = args
@@ -102,7 +102,7 @@ def test_unsigned_binary(op, args):
     op(asm.smax(),  lambda x, y: (x > y).ite(x, y)),
 ])
 @pytest.mark.parametrize("args", [
-    (SIntVector.random(DATAWIDTH), SIntVector.random(DATAWIDTH))  
+    (SIntVector.random(DATAWIDTH), SIntVector.random(DATAWIDTH))
         for _ in range(NTESTS) ] )
 def test_signed_binary(op, args):
     x, y = args
@@ -113,7 +113,7 @@ def test_signed_binary(op, args):
 @pytest.mark.parametrize("op", [
     op(asm.abs(),  lambda x: x if x > 0 else -x),
 ])
-@pytest.mark.parametrize("args", 
+@pytest.mark.parametrize("args",
     [SIntVector.random(DATAWIDTH) for _ in range(NTESTS) ] )
 def test_signed_unary(op, args):
     x = args
@@ -130,7 +130,7 @@ def test_signed_unary(op, args):
     op(asm.ule(),  lambda x, y: x <= y),
 ])
 @pytest.mark.parametrize("args", [
-    (UIntVector.random(DATAWIDTH), UIntVector.random(DATAWIDTH))  
+    (UIntVector.random(DATAWIDTH), UIntVector.random(DATAWIDTH))
         for _ in range(NTESTS) ] )
 def test_unsigned_relation(op, args):
     x, y = args
@@ -145,7 +145,7 @@ def test_unsigned_relation(op, args):
     op(asm.sle(),  lambda x, y: x <= y),
 ])
 @pytest.mark.parametrize("args", [
-    (SIntVector.random(DATAWIDTH), SIntVector.random(DATAWIDTH))  
+    (SIntVector.random(DATAWIDTH), SIntVector.random(DATAWIDTH))
         for _ in range(NTESTS) ] )
 def test_signed_relation(op, args):
     x, y = args
@@ -154,20 +154,20 @@ def test_signed_relation(op, args):
     rtl_tester(op, x, y, res_p=res_p)
 
 @pytest.mark.parametrize("args", [
-    (UIntVector.random(DATAWIDTH), UIntVector.random(DATAWIDTH))  
+    (UIntVector.random(DATAWIDTH), UIntVector.random(DATAWIDTH))
         for _ in range(NTESTS) ] )
 def test_sel(args):
     inst = asm.sel()
     x, y = args
     res, _, _ = pe(inst, Data(x), Data(y), Bit(0))
     assert res==y
-    rtl_tester(op, x, y, Bit(0), res=res)
+    rtl_tester(inst, x, y, Bit(0), res=res)
     res, _, _ = pe(inst, Data(x), Data(y), Bit(1))
     assert res==x
-    rtl_tester(op, x, y, Bit(1), res=res)
+    rtl_tester(inst, x, y, Bit(1), res=res)
 
 @pytest.mark.parametrize("args", [
-    (SIntVector.random(DATAWIDTH), SIntVector.random(DATAWIDTH))  
+    (SIntVector.random(DATAWIDTH), SIntVector.random(DATAWIDTH))
         for _ in range(NTESTS) ] )
 def test_smult(args):
     def mul(x,y):
@@ -189,7 +189,7 @@ def test_smult(args):
     rtl_tester(smult2, x, y, res=res)
 
 @pytest.mark.parametrize("args", [
-    (UIntVector.random(DATAWIDTH), UIntVector.random(DATAWIDTH))  
+    (UIntVector.random(DATAWIDTH), UIntVector.random(DATAWIDTH))
         for _ in range(NTESTS) ] )
 def test_umult(args):
     def mul(x,y):
@@ -210,162 +210,9 @@ def test_umult(args):
     assert res == xy[DATAWIDTH:]
     rtl_tester(umult2, x, y, res=res)
 
-
-# TODO these tests are likely captured by the tests above. Keep them for now
-def test_lsl():
-    pe = gen_pe(BitVector.get_family())()
-    inst = asm.lsl()
-    res, res_p, irq = pe(inst, Data(2),Data(1))
-    assert res==4
-    assert res_p==0
-    assert irq==0
-
-def test_lsr():
-    pe = gen_pe(BitVector.get_family())()
-    inst = asm.lsr()
-    res, res_p, irq = pe(inst, Data(2),Data(1))
-    assert res==1
-    assert res_p==0
-    assert irq==0
-
-def test_asr():
-    pe = gen_pe(BitVector.get_family())()
-    inst = asm.asr()
-    res, res_p, irq = pe(inst, Data(-2),Data(1))
-    assert res==65535
-    assert res_p==0
-    assert irq==0
-
-def test_sel():
-    pe = gen_pe(BitVector.get_family())()
-    inst = asm.sel()
-    res, res_p, irq = pe(inst, Data(1),Data(2),Bit(0))
-    assert res==2
-    assert res_p==0
-    assert irq==0
-
-def test_umin():
-    pe = gen_pe(BitVector.get_family())()
-    inst = asm.umin()
-    res, res_p, irq = pe(inst,Data(1),Data(1))
-    assert res_p == 1
-    res, res_p, _ = pe(inst, Data(1), Data(2))
-    assert res_p == 1
-    res, res_p, _ = pe(inst, Data(2), Data(1))
-    assert res_p == 0
-
-def test_umax():
-    pe = gen_pe(BitVector.get_family())()
-    inst = asm.umax()
-    res, res_p, irq = pe(inst, Data(1), Data(2))
-    assert res == 2
-    assert res_p == 0
-    res, res_p, irq = pe(inst, Data(2), Data(1))
-    assert res == 2
-    assert res_p == 1
-
-def test_smin():
-    pe = gen_pe(BitVector.get_family())()
-    inst = asm.smin()
-    res, res_p, irq = pe(inst, Data(-1), Data(2))
-    assert res == Data(-1)
-    assert res_p == 1
-    res, res_p, irq = pe(inst, Data(2), Data(-1))
-    assert res == Data(-1)
-    assert res_p == 0
-    res, res_p, irq = pe(inst, Data(-1), Data(-1))
-    assert res == Data(-1)
-    assert res_p == 1
-
-def test_smax():
-    pe = gen_pe(BitVector.get_family())()
-    inst = asm.smax()
-    res, res_p, irq = pe(inst, Data(-1), Data(2))
-    assert res == 2
-    assert res_p == 0
-    res, res_p, irq = pe(inst, Data(2), Data(-1))
-    assert res == 2
-    assert res_p == 1
-    res, res_p, irq = pe(inst, Data(-1), Data(-1))
-    assert res == Data(-1)
-    assert res_p == 1
-
-def test_abs():
-    pe = gen_pe(BitVector.get_family())()
-    inst = asm.abs()
-    res, res_p, irq = pe(inst,Data(-1))
-    assert res==1
-    assert res_p==0
-    assert irq==0
-
-def test_eq():
-    pe = gen_pe(BitVector.get_family())()
-    inst = asm.eq()
-    res, res_p, irq = pe(inst,Data(1),Data(1))
-    assert res_p==1
-
-def test_ne():
-    pe = gen_pe(BitVector.get_family())()
-    inst = asm.ne()
-    res, res_p, irq = pe(inst,Data(1),Data(1))
-    assert res_p==0
-
-def test_uge():
-    pe = gen_pe(BitVector.get_family())()
-    inst = asm.uge()
-    res, res_p, irq = pe(inst,Data(1),Data(1))
-    assert res_p==1
-
-def test_ule():
-    pe = gen_pe(BitVector.get_family())()
-    inst = asm.ule()
-    res, res_p, irq = pe(inst,Data(1),Data(1))
-    assert res_p == 1
-    res, res_p, _ = pe(inst, Data(1), Data(2))
-    assert res_p == 1
-    res, res_p, _ = pe(inst, Data(2), Data(1))
-    assert res_p == 0
-
-def test_ugt():
-    pe = gen_pe(BitVector.get_family())()
-    inst = asm.ugt()
-    res, res_p, irq = pe(inst,Data(1),Data(1))
-    assert res_p==0
-
-def test_ult():
-    pe = gen_pe(BitVector.get_family())()
-    inst = asm.ult()
-    res, res_p, irq = pe(inst,Data(1),Data(1))
-    assert res_p==0
-
-def test_sge():
-    pe = gen_pe(BitVector.get_family())()
-    inst = asm.sge()
-    res, res_p, irq = pe(inst,Data(1),Data(1))
-    assert res_p==1
-
-def test_sle():
-    pe = gen_pe(BitVector.get_family())()
-    inst = asm.sle()
-    res, res_p, irq = pe(inst,Data(1),Data(1))
-    assert res_p==1
-
-def test_sgt():
-    pe = gen_pe(BitVector.get_family())()
-    inst = asm.sgt()
-    res, res_p, irq = pe(inst,Data(1),Data(1))
-    assert res_p==0
-
-def test_slt():
-    pe = gen_pe(BitVector.get_family())()
-    inst = asm.slt()
-    res, res_p, irq = pe(inst,Data(1),Data(1))
-    assert res_p==0
-
 #
 # floating point
 #
-
 def test_fp_add():
     inst = asm.fp_add()
     # [sign, exponent (decimal), mantissa (binary)]:
