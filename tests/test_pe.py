@@ -87,7 +87,7 @@ def bfloat16(sign, exponent, mantissa):
     op(asm.umax(),  lambda x, y: (x > y).ite(x, y))
 ])
 @pytest.mark.parametrize("args", [
-    (UIntVector.random(DATAWIDTH), UIntVector.random(DATAWIDTH))  
+    (UIntVector.random(DATAWIDTH), UIntVector.random(DATAWIDTH))
         for _ in range(NTESTS) ] )
 def test_unsigned_binary(op, args):
     x, y = args
@@ -102,7 +102,7 @@ def test_unsigned_binary(op, args):
     op(asm.smax(),  lambda x, y: (x > y).ite(x, y)),
 ])
 @pytest.mark.parametrize("args", [
-    (SIntVector.random(DATAWIDTH), SIntVector.random(DATAWIDTH))  
+    (SIntVector.random(DATAWIDTH), SIntVector.random(DATAWIDTH))
         for _ in range(NTESTS) ] )
 def test_signed_binary(op, args):
     x, y = args
@@ -113,7 +113,7 @@ def test_signed_binary(op, args):
 @pytest.mark.parametrize("op", [
     op(asm.abs(),  lambda x: x if x > 0 else -x),
 ])
-@pytest.mark.parametrize("args", 
+@pytest.mark.parametrize("args",
     [SIntVector.random(DATAWIDTH) for _ in range(NTESTS) ] )
 def test_signed_unary(op, args):
     x = args
@@ -130,7 +130,7 @@ def test_signed_unary(op, args):
     op(asm.ule(),  lambda x, y: x <= y),
 ])
 @pytest.mark.parametrize("args", [
-    (UIntVector.random(DATAWIDTH), UIntVector.random(DATAWIDTH))  
+    (UIntVector.random(DATAWIDTH), UIntVector.random(DATAWIDTH))
         for _ in range(NTESTS) ] )
 def test_unsigned_relation(op, args):
     x, y = args
@@ -145,7 +145,7 @@ def test_unsigned_relation(op, args):
     op(asm.sle(),  lambda x, y: x <= y),
 ])
 @pytest.mark.parametrize("args", [
-    (SIntVector.random(DATAWIDTH), SIntVector.random(DATAWIDTH))  
+    (SIntVector.random(DATAWIDTH), SIntVector.random(DATAWIDTH))
         for _ in range(NTESTS) ] )
 def test_signed_relation(op, args):
     x, y = args
@@ -154,7 +154,7 @@ def test_signed_relation(op, args):
     rtl_tester(op, x, y, res_p=res_p)
 
 @pytest.mark.parametrize("args", [
-    (UIntVector.random(DATAWIDTH), UIntVector.random(DATAWIDTH))  
+    (UIntVector.random(DATAWIDTH), UIntVector.random(DATAWIDTH))
         for _ in range(NTESTS) ] )
 def test_sel(args):
     inst = asm.sel()
@@ -167,7 +167,7 @@ def test_sel(args):
     rtl_tester(op, x, y, Bit(1), res=res)
 
 @pytest.mark.parametrize("args", [
-    (SIntVector.random(DATAWIDTH), SIntVector.random(DATAWIDTH))  
+    (SIntVector.random(DATAWIDTH), SIntVector.random(DATAWIDTH))
         for _ in range(NTESTS) ] )
 def test_smult(args):
     def mul(x,y):
@@ -189,7 +189,7 @@ def test_smult(args):
     rtl_tester(smult2, x, y, res=res)
 
 @pytest.mark.parametrize("args", [
-    (UIntVector.random(DATAWIDTH), UIntVector.random(DATAWIDTH))  
+    (UIntVector.random(DATAWIDTH), UIntVector.random(DATAWIDTH))
         for _ in range(NTESTS) ] )
 def test_umult(args):
     def mul(x,y):
