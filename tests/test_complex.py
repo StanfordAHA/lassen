@@ -28,8 +28,8 @@ def test_fma(args):
 
 def test_add32_targeted():
     add32 = Add32()
-    #assert Data32(10) == add32(Data32(2),Data32(8))
-    #assert Data32(100000) == add32(Data32(20000),Data32(80000))
+    assert Data32(10) == add32(Data32(2),Data32(8))
+    assert Data32(100000) == add32(Data32(20000),Data32(80000))
     assert Data32(2**17-2) == add32(Data32(2**16-1),Data32(2**16-1))
     assert Data32(2**31-2) == add32(Data32(2**30-1),Data32(2**30-1))
 
