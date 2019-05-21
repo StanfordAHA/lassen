@@ -20,11 +20,7 @@ class HashableDict(dict):
 
 Bit = Bit
 Data = BitVector[DATAWIDTH]
-BFloat16 = FPVector[7,8,RoundingMode.RNE,False]
-
-#float to bitvector
-def BFloat(f):
-    return BFloat16(f).reinterpret_as_bv()
+BFloat16 = FPVector[8,7,RoundingMode.RNE,False]
 
 pe_ = gen_pe(BitVector.get_family())
 pe = pe_()
@@ -235,19 +231,61 @@ def test_fp_binary_op(op,args):
     res, res_p, irq = pe(inst, BFloat16.reinterpret_as_bv(in0), BFloat16.reinterpret_as_bv(in1))
     assert res == BFloat16.reinterpret_as_bv(out)
 
-def test_get_mant():
+fpdata = namedtuple("fpdata", ["sign", "exp", "frac"])
+
+def BFloat(fpdata):
+    sign = BitVector[1](fpdata.sign)
+    exp = BitVector[8](fpdata.exp)
+    frac = BitVector[7](fpdata.frac)
+    return BitVector.concat(BitVector.concat(sign,exp),frac)
+
+@pytest.mark.parametrize("fpdata", [
+    fpdata(random.choice([0,1]),random.randint(1,2**7-1),random.randint(0,2**8-1))
+    for _ in range(NTESTS)
+])
+def test_bfloat_construct(fpdata):
+    fp = BFloat(fpdata)
+    assert fp[15] == fpdata.sign
+    assert fp[7:15] == fpdata.exp
+    assert fp[:7] == fpdata.frac
+
+@pytest.mark.parametrize("args", [
+    (fpdata(random.choice([0,1]),random.randint(1,2**8-1),random.randint(0,2**7-1)),SIntVector.random(DATAWIDTH))
+    for _ in range(NTESTS)
+])
+def test_get_mant(args):
+    fpdata = args[0]
+    in0 = BFloat(fpdata)
+    in1 = args[1]
     inst = asm.fgetmant()
-    res, res_p, irq = pe(inst, Data(0x7F8A), Data(0x0000))
-    assert res == 0xA
+    res, res_p, irq = pe(inst, in0, in1)
+    assert res == Data(fpdata.frac)
     assert res_p == 0
     assert irq == 0
 
-def test_add_exp_imm():
+
+def test_add_exp_imm_targeted():
     inst = asm.faddiexp()
     res, res_p, irq = pe(inst, Data(0x7F8A), Data(0x0005))
     # 7F8A => Sign=0; Exp=0xFF; Mant=0x0A
     # Add 5 to exp => Sign=0; Exp=0x04; Mant=0x0A i.e. float  = 0x020A
     assert res == 0x020A
+    assert res_p == 0
+    assert irq == 0
+
+@pytest.mark.skip("Not sure what the exact semantics are")
+@pytest.mark.parametrize("args", [
+    (fpdata(random.choice([0,1]),random.randint(1,2**8-1),random.randint(0,2**7-1)),Data(random.randint(0,2**6)))
+        for _ in range(NTESTS)
+])
+def test_add_exp_imm(args):
+    fpdata = args[0]
+    in0 = BFloat(fpdata)
+    in1 = args[1]
+    inst = asm.faddiexp()
+    res, res_p, irq = pe(inst, in0, in1)
+    #TODO what is the gold function?
+    assert res == in1 + Data(fpdata.exp)
     assert res_p == 0
     assert irq == 0
 
@@ -261,7 +299,23 @@ def test_sub_exp():
     assert res_p == 0
     assert irq == 0
 
-def test_cnvt_exp_to_float():
+@pytest.mark.skip("Not sure the exact op semantics")
+@pytest.mark.parametrize("args", [
+    (fpdata(random.choice([0,1]),random.randint(1,2**8-1),random.randint(0,2**7-1)),BitVector.random(DATAWIDTH))
+        for _ in range(NTESTS)
+])
+def test_cnvt_exp_to_float(args):
+    fpdata = args[0]
+    in0 = BFloat(fpdata)
+    in1 = args[1]
+    inst = asm.faddiexp()
+    res, res_p, irq = pe(inst, in0, in1)
+    #TODO what is the gold function?
+    assert res == BFloat16(fpdata.exp).reinterpret_as_bv()
+    assert res_p == 0
+    assert irq == 0
+
+def test_cnvt_exp_to_float_targeted():
     inst = asm.fcnvexp2f()
     res, res_p, irq = pe(inst, Data(0x4005), Data(0x0000))
     # 4005 => Sign=0; Exp=0x80; Mant=0x05 (0100 0000 0000 0101) i.e. unbiased exp = 1
@@ -280,7 +334,23 @@ def test_get_float_int():
     assert res_p == 0
     assert irq == 0
 
-def test_get_float_frac():
+@pytest.mark.skip("Not sure the exact op semantics")
+@pytest.mark.parametrize("args", [
+    (fpdata(random.choice([0,1]),random.randint(1,2**8-1),random.randint(0,2**7-1)),BitVector.random(DATAWIDTH))
+        for _ in range(NTESTS)
+])
+def test_get_float_frac(args):
+    fpdata = args[0]
+    in0 = BFloat(fpdata)
+    in1 = args[1]
+    inst = asm.fgetffrac()
+    res, res_p, irq = pe(inst, in0, in1)
+    #TODO what is the gold function?
+    assert res == Data(fpdata.frac)
+    assert res_p == 0
+    assert irq == 0
+
+def test_get_float_frac_targeted():
     inst = asm.fgetffrac()
     res, res_p, irq = pe(inst, Data(0x4020), Data(0x0000))
     # 2.5 = 10.1 i.e. exp = 1 with 1.01 # biased exp = 128 i.e 80
@@ -289,13 +359,3 @@ def test_get_float_frac():
     assert res == 0x40
     assert res_p == 0
     assert irq == 0
-
-@pytest.mark.skip("This feature is not working")
-def test_int_to_float():
-    for vector_count in range(NTESTS):
-        val = random.randint(-10,10)
-        in0 = Data(val)
-        in1 = Data.random(DATAWIDTH)
-        correct = BFloat(float(val))
-        res, _, _ = pe(asm.cast_sint_to_float(),in0,in1)
-        assert correct == res, str((val,in0,res))
