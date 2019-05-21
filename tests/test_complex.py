@@ -1,6 +1,5 @@
 from lassen.stdlib.fma import gen_FMA
 from lassen.isa import DATAWIDTH
-from hwtypes import BitVector, Bit
 from hwtypes import BitVector, Bit, SIntVector
 from lassen.sim import gen_pe
 import pytest
