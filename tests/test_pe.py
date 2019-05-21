@@ -263,12 +263,29 @@ def test_get_mant(args):
     assert res_p == 0
     assert irq == 0
 
-def test_add_exp_imm():
+
+def test_add_exp_imm_targeted():
     inst = asm.faddiexp()
     res, res_p, irq = pe(inst, Data(0x7F8A), Data(0x0005))
     # 7F8A => Sign=0; Exp=0xFF; Mant=0x0A
     # Add 5 to exp => Sign=0; Exp=0x04; Mant=0x0A i.e. float  = 0x020A
     assert res == 0x020A
+    assert res_p == 0
+    assert irq == 0
+
+@pytest.mark.skip("Not sure what the exact semantics are")
+@pytest.mark.parametrize("args", [
+    (fpdata(random.choice([0,1]),random.randint(1,2**8-1),random.randint(0,2**7-1)),Data(random.randint(0,2**6)))
+        for _ in range(NTESTS)
+])
+def test_add_exp_imm(args):
+    fpdata = args[0]
+    in0 = BFloat(fpdata)
+    in1 = args[1]
+    inst = asm.faddiexp()
+    res, res_p, irq = pe(inst, in0, in1)
+    #TODO what is the gold function?
+    assert res == in1 + Data(fpdata.exp)
     assert res_p == 0
     assert irq == 0
 
@@ -282,7 +299,23 @@ def test_sub_exp():
     assert res_p == 0
     assert irq == 0
 
-def test_cnvt_exp_to_float():
+@pytest.mark.skip("Not sure the exact op semantics")
+@pytest.mark.parametrize("args", [
+    (fpdata(random.choice([0,1]),random.randint(1,2**8-1),random.randint(0,2**7-1)),BitVector.random(DATAWIDTH))
+        for _ in range(NTESTS)
+])
+def test_cnvt_exp_to_float(args):
+    fpdata = args[0]
+    in0 = BFloat(fpdata)
+    in1 = args[1]
+    inst = asm.faddiexp()
+    res, res_p, irq = pe(inst, in0, in1)
+    #TODO what is the gold function?
+    assert res == BFloat16(fpdata.exp).reinterpret_as_bv()
+    assert res_p == 0
+    assert irq == 0
+
+def test_cnvt_exp_to_float_targeted():
     inst = asm.fcnvexp2f()
     res, res_p, irq = pe(inst, Data(0x4005), Data(0x0000))
     # 4005 => Sign=0; Exp=0x80; Mant=0x05 (0100 0000 0000 0101) i.e. unbiased exp = 1
@@ -301,7 +334,22 @@ def test_get_float_int():
     assert res_p == 0
     assert irq == 0
 
-def test_get_float_frac():
+@pytest.mark.parametrize("args", [
+    (fpdata(random.choice([0,1]),random.randint(1,2**8-1),random.randint(0,2**7-1)),BitVector.random(DATAWIDTH))
+        for _ in range(NTESTS)
+])
+def test_get_float_frac(args):
+    fpdata = args[0]
+    in0 = BFloat(fpdata)
+    in1 = args[1]
+    inst = asm.fgetffrac()
+    res, res_p, irq = pe(inst, in0, in1)
+    #TODO what is the gold function?
+    assert res == Data(fpdata.frac)
+    assert res_p == 0
+    assert irq == 0
+
+def test_get_float_frac_targeted():
     inst = asm.fgetffrac()
     res, res_p, irq = pe(inst, Data(0x4020), Data(0x0000))
     # 2.5 = 10.1 i.e. exp = 1 with 1.01 # biased exp = 128 i.e 80
