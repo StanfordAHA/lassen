@@ -289,13 +289,3 @@ def test_get_float_frac():
     assert res == 0x40
     assert res_p == 0
     assert irq == 0
-
-@pytest.mark.skip("This feature is not working")
-def test_int_to_float():
-    for vector_count in range(NTESTS):
-        val = random.randint(-10,10)
-        in0 = Data(val)
-        in1 = Data.random(DATAWIDTH)
-        correct = BFloat(float(val))
-        res, _, _ = pe(asm.cast_sint_to_float(),in0,in1)
-        assert correct == res, str((val,in0,res))
