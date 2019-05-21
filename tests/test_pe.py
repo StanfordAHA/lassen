@@ -22,10 +22,6 @@ Bit = Bit
 Data = BitVector[DATAWIDTH]
 BFloat16 = FPVector[7,8,RoundingMode.RNE,False]
 
-#float to bitvector
-def BFloat(f):
-    return BFloat16(f).reinterpret_as_bv()
-
 pe_ = gen_pe(BitVector.get_family())
 pe = pe_()
 
@@ -235,10 +231,25 @@ def test_fp_binary_op(op,args):
     res, res_p, irq = pe(inst, BFloat16.reinterpret_as_bv(in0), BFloat16.reinterpret_as_bv(in1))
     assert res == BFloat16.reinterpret_as_bv(out)
 
-def test_get_mant():
+fpdata = namedtuple("fpdata", ["sign", "exp", "frac"])
+
+def BFloat(fpdata):
+    sign = BitVector[1](fpdata.sign)
+    exp = BitVector[7](fpdata.exp)
+    frac = BitVector[8](fpdata.frac)
+    return BitVector.concat(BitVector.concat(sign,exp),frac)
+
+@pytest.mark.parametrize("args", [
+    (fpdata(random.choice([0,1]),random.randint(1,2**7-1),random.randint(0,2**8-1)),BFloat16.random())
+    for _ in range(NTESTS)
+])
+def test_get_mant(args):
+    fpdata = args[0]
+    in0 = BFloat(fpdata)
+    in1 = args[1]
     inst = asm.fgetmant()
-    res, res_p, irq = pe(inst, Data(0x7F8A), Data(0x0000))
-    assert res == 0xA
+    res, res_p, irq = pe(inst, in0, in1)
+    assert res == Data(fpdata.exp)
     assert res_p == 0
     assert irq == 0
 
