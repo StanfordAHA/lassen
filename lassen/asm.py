@@ -169,7 +169,7 @@ def const(val):
                 ra_mode=Mode.CONST, ra_const=val,
                 rb_mode=Mode.CONST, rb_const=0)
 
-def lut(val,use_bit0=False):
+def lut(val,use_bit0=True):
     if use_bit0:
         return inst(ALU.Add,lut=val,cond=Cond.LUT,rd_mode=Mode.BYPASS)
     else:
@@ -177,16 +177,16 @@ def lut(val,use_bit0=False):
 
 #Using bit1 and bit2 since bit0 can be used in the ALU
 def lut_and():
-    return lut(B1&B2)
+    return lut(B1&B2,False)
 
 def lut_or():
-    return lut(B1|B2)
+    return lut(B1|B2,False)
 
 def lut_xor():
-    return lut(B1^B2)
+    return lut(B1^B2,False)
 
 def lut_not():
-    return lut(~B1)
+    return lut(~B1,False)
 
 def lut_mux():
     return lut((B2&B1)|((~B2)&B0),use_bit0=True)
