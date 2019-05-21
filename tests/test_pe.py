@@ -161,10 +161,10 @@ def test_sel(args):
     x, y = args
     res, _, _ = pe(inst, Data(x), Data(y), Bit(0))
     assert res==y
-    rtl_tester(op, x, y, Bit(0), res=res)
+    rtl_tester(inst, x, y, Bit(0), res=res)
     res, _, _ = pe(inst, Data(x), Data(y), Bit(1))
     assert res==x
-    rtl_tester(op, x, y, Bit(1), res=res)
+    rtl_tester(inst, x, y, Bit(1), res=res)
 
 @pytest.mark.parametrize("args", [
     (SIntVector.random(DATAWIDTH), SIntVector.random(DATAWIDTH))
