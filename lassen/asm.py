@@ -114,7 +114,7 @@ def asr(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
                 signed=Signed.signed)
 
 def sel():
-    return inst(ALU.Sel)
+    return inst(ALU.Sel,rd_mode=Mode.BYPASS)
 
 def abs():
     return inst(ALU.Abs, signed=Signed.signed)
