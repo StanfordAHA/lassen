@@ -21,6 +21,7 @@ class HashableDict(dict):
 Bit = Bit
 Data = BitVector[DATAWIDTH]
 BFloat16 = FPVector[7,8,RoundingMode.RNE,False]
+
 #float to bitvector
 def BFloat(f):
     return BFloat16(f).reinterpret_as_bv()
@@ -86,7 +87,8 @@ NTESTS = 16
 ])
 @pytest.mark.parametrize("args", [
     (UIntVector.random(DATAWIDTH), UIntVector.random(DATAWIDTH))
-    for _ in range(NTESTS)])
+        for _ in range(NTESTS)
+])
 def test_unsigned_binary(op, args):
     x, y = args
     res, _, _ = pe(op.inst, Data(x), Data(y))
@@ -101,7 +103,8 @@ def test_unsigned_binary(op, args):
 ])
 @pytest.mark.parametrize("args", [
     (SIntVector.random(DATAWIDTH), SIntVector.random(DATAWIDTH))
-    for _ in range(NTESTS)])
+        for _ in range(NTESTS) ]
+)
 def test_signed_binary(op, args):
     x, y = args
     res, _, _ = pe(op.inst, Data(x), Data(y))
@@ -112,7 +115,8 @@ def test_signed_binary(op, args):
     op(asm.abs(), lambda x: x if x > 0 else -x),
 ])
 @pytest.mark.parametrize("args",
-                         [SIntVector.random(DATAWIDTH) for _ in range(NTESTS)])
+    [SIntVector.random(DATAWIDTH) for _ in range(NTESTS) ]
+)
 def test_signed_unary(op, args):
     x = args
     res, _, _ = pe(op.inst, Data(x))
@@ -130,7 +134,8 @@ def test_signed_unary(op, args):
 ])
 @pytest.mark.parametrize("args", [
     (UIntVector.random(DATAWIDTH), UIntVector.random(DATAWIDTH))
-    for _ in range(NTESTS)])
+        for _ in range(NTESTS)
+])
 def test_unsigned_relation(op, args):
     x, y = args
     _, res_p, _ = pe(op.inst, Data(x), Data(y))
@@ -145,7 +150,8 @@ def test_unsigned_relation(op, args):
 ])
 @pytest.mark.parametrize("args", [
     (SIntVector.random(DATAWIDTH), SIntVector.random(DATAWIDTH))
-    for _ in range(NTESTS)])
+        for _ in range(NTESTS)
+])
 def test_signed_relation(op, args):
     x, y = args
     _, res_p, _ = pe(op.inst, Data(x), Data(y))
@@ -154,20 +160,22 @@ def test_signed_relation(op, args):
 
 @pytest.mark.parametrize("args", [
     (UIntVector.random(DATAWIDTH), UIntVector.random(DATAWIDTH))
-    for _ in range(NTESTS)])
+        for _ in range(NTESTS)
+])
 def test_sel(args):
     inst = asm.sel()
     x, y = args
     res, _, _ = pe(inst, Data(x), Data(y), Bit(0))
     assert res==y
-    rtl_tester(op, x, y, Bit(0), res=res)
+    rtl_tester(inst, x, y, Bit(0), res=res)
     res, _, _ = pe(inst, Data(x), Data(y), Bit(1))
     assert res==x
-    rtl_tester(op, x, y, Bit(1), res=res)
+    rtl_tester(inst, x, y, Bit(1), res=res)
 
 @pytest.mark.parametrize("args", [
     (SIntVector.random(DATAWIDTH), SIntVector.random(DATAWIDTH))
-    for _ in range(NTESTS)])
+        for _ in range(NTESTS)
+])
 def test_smult(args):
     def mul(x, y):
         mulx, muly = x.sext(DATAWIDTH), y.sext(DATAWIDTH)
@@ -190,7 +198,8 @@ def test_smult(args):
 
 @pytest.mark.parametrize("args", [
     (UIntVector.random(DATAWIDTH), UIntVector.random(DATAWIDTH))
-    for _ in range(NTESTS)])
+        for _ in range(NTESTS)
+])
 def test_umult(args):
     def mul(x, y):
         mulx, muly = x.zext(DATAWIDTH), y.zext(DATAWIDTH)
@@ -210,215 +219,21 @@ def test_umult(args):
     assert res == xy[DATAWIDTH:]
     rtl_tester(umult2, x, y, res=res)
 
-def test_fp_add():
-    inst = asm.fp_add()
-    in0 = BFloat(2.0)
-    in1 = BFloat(3.0)
-    out = BFloat(5.0)
-    res, res_p, irq = pe(inst, in0, in1)
-    assert res == out
-    assert res_p == 0
-    assert irq == 0
-
-def test_fp_sub():
-    inst = asm.fp_sub()
-    in0 = BFloat(2.0)
-    in1 = BFloat(3.0)
-    out = BFloat(-1.0)
-    res, res_p, irq = pe(inst, in0, in1)
-    assert res == out
-    assert res_p == 0
-    assert irq == 0
-
-@pytest.mark.skip("test is broken. data format is probably wrong")
-def test_fp_add_bv():
-    inst = asm.fp_add()
-    # [sign, exponent (decimal), mantissa (binary)]:
-    # a   = [0, -111, 1.0000001]
-    # b   = [0, -112, 1.0000010]
-    # res = [0, -111, 1.1000010]
-    res, res_p, irq = pe(inst, Data(0x801), Data(0x782))
-    assert res == 0x842
-    assert res_p == 0
-    assert irq == 0
-
-@pytest.mark.skip("test is broken. data format is probably wrong")
-def test_fp_mult_bv():
-    inst = asm.fp_mult()
-    # [sign, exponent (decimal), mantissa (binary)]:
-    # a   = [0, 2, 1.0000000]
-    # b   = [0, 1, 1.0000001]
-    # res = [0, 3, 1.0000001]
-    # mant = mant(a) * mant(b)
-    # exp = exp(a) + exp(b)
-    res, res_p, irq = pe(inst, Data(0x4080), Data(0x4001))
-    assert res == 0x4101
-    assert res_p == 0
-    assert irq == 0
-
-def test_fp_mult():
-    inst = asm.fp_mult()
-    in0 = BFloat(3.0)
-    in1 = BFloat(-7.0)
-    out = BFloat(-21.0)
-    res, res_p, irq = pe(inst, in0, in1)
-    assert res == out
-    assert res_p == 0
-    assert irq == 0
-
-# TODO these tests are likely captured by the tests above. Keep them for now
-def test_lsl():
-    inst = asm.lsl()
-    res, res_p, irq = pe(inst, Data(2), Data(1))
-    assert res == 4
-    assert res_p == 0
-    assert irq == 0
-
-
-def test_lsr():
-    inst = asm.lsr()
-    res, res_p, irq = pe(inst, Data(2), Data(1))
-    assert res == 1
-    assert res_p == 0
-    assert irq == 0
-
-
-def test_asr():
-    inst = asm.asr()
-    res, res_p, irq = pe(inst, Data(-2), Data(1))
-    assert res == 65535
-    assert res_p == 0
-    assert irq == 0
-
-
-def test_sel():
-    inst = asm.sel()
-    res, res_p, irq = pe(inst, Data(1), Data(2), Bit(0))
-    assert res == 2
-    assert res_p == 0
-    assert irq == 0
-
-
-def test_umin():
-    inst = asm.umin()
-    res, res_p, irq = pe(inst, Data(1), Data(1))
-    assert res_p == 1
-    res, res_p, _ = pe(inst, Data(1), Data(2))
-    assert res_p == 1
-    res, res_p, _ = pe(inst, Data(2), Data(1))
-    assert res_p == 0
-
-
-def test_umax():
-    inst = asm.umax()
-    res, res_p, irq = pe(inst, Data(1), Data(2))
-    assert res == 2
-    assert res_p == 0
-    res, res_p, irq = pe(inst, Data(2), Data(1))
-    assert res == 2
-    assert res_p == 1
-
-
-def test_smin():
-    inst = asm.smin()
-    res, res_p, irq = pe(inst, Data(-1), Data(2))
-    assert res == Data(-1)
-    assert res_p == 1
-    res, res_p, irq = pe(inst, Data(2), Data(-1))
-    assert res == Data(-1)
-    assert res_p == 0
-    res, res_p, irq = pe(inst, Data(-1), Data(-1))
-    assert res == Data(-1)
-    assert res_p == 1
-
-
-def test_smax():
-    inst = asm.smax()
-    res, res_p, irq = pe(inst, Data(-1), Data(2))
-    assert res == 2
-    assert res_p == 0
-    res, res_p, irq = pe(inst, Data(2), Data(-1))
-    assert res == 2
-    assert res_p == 1
-    res, res_p, irq = pe(inst, Data(-1), Data(-1))
-    assert res == Data(-1)
-    assert res_p == 1
-
-
-def test_abs():
-    inst = asm.abs()
-    res, res_p, irq = pe(inst, Data(-1))
-    assert res == 1
-    assert res_p == 0
-    assert irq == 0
-
-
-def test_eq():
-    inst = asm.eq()
-    res, res_p, irq = pe(inst, Data(1), Data(1))
-    assert res_p == 1
-
-
-def test_ne():
-    inst = asm.ne()
-    res, res_p, irq = pe(inst, Data(1), Data(1))
-    assert res_p == 0
-
-
-def test_uge():
-    inst = asm.uge()
-    res, res_p, irq = pe(inst, Data(1), Data(1))
-    assert res_p == 1
-
-
-def test_ule():
-    inst = asm.ule()
-    res, res_p, irq = pe(inst, Data(1), Data(1))
-    assert res_p == 1
-    res, res_p, _ = pe(inst, Data(1), Data(2))
-    assert res_p == 1
-    res, res_p, _ = pe(inst, Data(2), Data(1))
-    assert res_p == 0
-
-
-def test_ugt():
-    inst = asm.ugt()
-    res, res_p, irq = pe(inst, Data(1), Data(1))
-    assert res_p == 0
-
-
-def test_ult():
-    inst = asm.ult()
-    res, res_p, irq = pe(inst, Data(1), Data(1))
-    assert res_p == 0
-
-
-def test_sge():
-    inst = asm.sge()
-    res, res_p, irq = pe(inst, Data(1), Data(1))
-    assert res_p == 1
-
-
-def test_sle():
-    inst = asm.sle()
-    res, res_p, irq = pe(inst, Data(1), Data(1))
-    assert res_p == 1
-
-
-def test_sgt():
-    inst = asm.sgt()
-    res, res_p, irq = pe(inst, Data(1), Data(1))
-    assert res_p == 0
-
-
-def test_slt():
-    inst = asm.slt()
-    res, res_p, irq = pe(inst, Data(1), Data(1))
-    assert res_p == 0
-
-#
-# floating point
-#
+@pytest.mark.parametrize("op", [
+    op(asm.fp_add(), lambda x, y: x + y),
+    op(asm.fp_sub(), lambda x, y: x - y),
+    op(asm.fp_mult(), lambda x, y: x * y)
+])
+@pytest.mark.parametrize("args", [
+    (BFloat16.random(), BFloat16.random())
+    for _ in range(NTESTS)])
+def test_fp_binary_op(op,args):
+    inst = op.inst
+    in0 = args[0]
+    in1 = args[1]
+    out = op.func(in0,in1)
+    res, res_p, irq = pe(inst, BFloat16.reinterpret_as_bv(in0), BFloat16.reinterpret_as_bv(in1))
+    assert res == BFloat16.reinterpret_as_bv(out)
 
 def test_get_mant():
     inst = asm.fgetmant()
@@ -426,7 +241,6 @@ def test_get_mant():
     assert res == 0xA
     assert res_p == 0
     assert irq == 0
-
 
 def test_add_exp_imm():
     inst = asm.faddiexp()
@@ -436,7 +250,6 @@ def test_add_exp_imm():
     assert res == 0x020A
     assert res_p == 0
     assert irq == 0
-
 
 def test_sub_exp():
     inst = asm.fsubexp()
@@ -448,7 +261,6 @@ def test_sub_exp():
     assert res_p == 0
     assert irq == 0
 
-
 def test_cnvt_exp_to_float():
     inst = asm.fcnvexp2f()
     res, res_p, irq = pe(inst, Data(0x4005), Data(0x0000))
@@ -457,7 +269,6 @@ def test_cnvt_exp_to_float():
     assert res == 0x3F80
     assert res_p == 0
     assert irq == 0
-
 
 def test_get_float_int():
     inst = asm.fgetfint()
@@ -468,7 +279,6 @@ def test_get_float_int():
     assert res == 0x2
     assert res_p == 0
     assert irq == 0
-
 
 def test_get_float_frac():
     inst = asm.fgetffrac()
