@@ -210,7 +210,7 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
         #else:
         #    raise NotImplementedError(alu)
 
-#https://community.arm.com/developer/ip-products/processors/b/processors-ip-blog/posts/condition-codes-4-floating-point-comparisons-using-vfp
+        #https://community.arm.com/developer/ip-products/processors/b/processors-ip-blog/posts/condition-codes-4-floating-point-comparisons-using-vfp
         if (alu == ALU.FP_sub):
             Z = res[:-1] == BitVector[15](0)
             N = (res[-1] & ~Z)
