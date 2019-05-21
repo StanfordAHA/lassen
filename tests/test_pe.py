@@ -2,7 +2,7 @@ from collections import namedtuple
 import lassen.asm as asm
 from lassen.sim import gen_pe
 from lassen.isa import DATAWIDTH
-from hwtypes import SIntVector, UIntVector, BitVector, Bit
+from hwtypes import SIntVector, UIntVector, BitVector, Bit, FPVector, RoundingMode
 import pytest
 import magma
 import peak
@@ -18,6 +18,7 @@ class HashableDict(dict):
 
 Bit = Bit
 Data = BitVector[DATAWIDTH]
+BFloat16 = FPVector[7,8,RoundingMode.RNE,False]
 
 pe_ = gen_pe(BitVector.get_family())
 pe = pe_()
@@ -213,29 +214,22 @@ def test_umult(args):
 #
 # floating point
 #
-def test_fp_add():
-    inst = asm.fp_add()
-    # [sign, exponent (decimal), mantissa (binary)]:
-    # a   = [0, -111, 1.0000001]
-    # b   = [0, -112, 1.0000010]
-    # res = [0, -111, 1.1000010]
-    res, res_p, irq = pe(inst, Data(0x801),Data(0x782))
-    assert res==0x842
-    assert res_p==0
-    assert irq==0
 
-def test_fp_mult():
-    inst = asm.fp_mult()
-    # [sign, exponent (decimal), mantissa (binary)]:
-    # a   = [0, 2, 1.0000000]
-    # b   = [0, 1, 1.0000001]
-    # res = [0, 3, 1.0000001]
-    # mant = mant(a) * mant(b)
-    # exp = exp(a) + exp(b)
-    res, res_p, irq = pe(inst, Data(0x4080),Data(0x4001))
-    assert res==0x4101
-    assert res_p==0
-    assert irq==0
+@pytest.mark.parametrize("op", [
+    op(asm.fp_add(), lambda x, y: x + y),
+    op(asm.fp_mult(), lambda x, y: x * y)
+])
+@pytest.mark.parametrize("args", [
+    (BFloat16.random(), BFloat16.random())
+    for _ in range(NTESTS)])
+def test_fp_binary_op(op,args):
+    inst = op.inst
+    in0 = args[0]
+    in1 = args[1]
+    out = op.func(in0,in1)
+    res, res_p, irq = pe(inst, BFloat16.reinterpret_as_bv(in0), BFloat16.reinterpret_as_bv(in1))
+    assert res == BFloat16.reinterpret_as_bv(out)
+
 
 def test_get_mant():
     inst = asm.fgetmant()
