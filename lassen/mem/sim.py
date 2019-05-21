@@ -10,6 +10,8 @@ def gen_mem(family, width=width,depth=depth):
     Rom = MemInstr.field_dict['Rom']
     Bit = family.Bit
     Data = family.BitVector[width]
+    Addr = family.BitVector[width]
+    ConfigWidth = family.BitVector[32]
 
     class Mem(Peak):
         def __init__(self):
@@ -18,7 +20,15 @@ def gen_mem(family, width=width,depth=depth):
 
         #TODO For now only define the ports relevant for the ROM
         @name_outputs(rdata=Data)
-        def __call__(self,instr : MemInstr, ain : Data, din : Data):
+        def __call__(self, instr : MemInstr, clk_en : Bit, flush : Bit, 
+                     addr_in : Addr, data_in : Data, data_out : Data, 
+                     wen_in : Bit, ren_in : Bit, valid_out : Bit,
+                     chain_in : Data, chain_out : Data, chain_wen_in : Bit,
+                     chain_valid_out : Bit, almost_full : Bit, almost_empty : Bit,
+                     switch_db : Bit, config_addr : ConfigWidth, config_data : ConfigWidth,
+                     config_read : Bit, config_write : Bit, config_en_sram : BitVector[4],
+                     read_data_sram_0 : ConfigWidth, read_data_sram_1 : ConfigWidth,
+                     read_data_sram_2 : ConfigWidth, read_data_sram_3 : ConfigWidth):
 
             instr_kind, instr = instr.match()
             if instr_kind == Rom:
