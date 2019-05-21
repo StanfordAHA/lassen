@@ -31,7 +31,6 @@ def test_fma(args):
     fma = FMA()
     assert SData(args[0]*args[1]+args[2]) == fma(SData(args[0]), SData(args[1]), SData(args[2]))
 
-@pytest.mark.skip("Broken")
 def test_div():
     test_vectors = []
     for vector_count in range(50):
@@ -72,7 +71,6 @@ def test_div():
             test_vector[2]), bfbin2float("{:016b}".format(int(result))))
         assert abs(exp_res-int(result)) <= acc
 
-@pytest.mark.skip("Broken")
 def test_ln():
     test_vectors = []
     for vector_count in range(50):
@@ -119,7 +117,6 @@ def test_ln():
             test_vector[2]), bfbin2float("{:016b}".format(int(result))))
         assert abs(exp_res-int(result)) <= acc
 
-@pytest.mark.skip("Broken")
 def test_exp():
     test_vectors = []
     for vector_count in range(50):
