@@ -3,6 +3,10 @@ addons:
   apt:
     packages:
     - verilator
+    - libgmp-dev
+    - libmpfr-dev
+    - libmpc-dev
+
 before_install:
 # install conda
 - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
@@ -23,12 +27,14 @@ install:
 - pysmt-install --check
 - pip install pytest-cov
 - git clone https://github.com/phanrahan/peak.git
+- git clone -b fp https://github.com/leonardt/hwtypes.git
 - git clone -b iofix https://github.com/rdaly525/MetaMapper.git
 - pip install --ignore-installed git+git://github.com/leonardt/fault#egg=fault
 - pip install --ignore-installed git+git://github.com/phanrahan/magma#egg=magma-lang
 - pip install --ignore-installed git+git://github.com/phanrahan/mantle#egg=mantle
 - pip install -e ./peak
 - pip install -e ./MetaMapper
+- pip install -e ./hwtypes
 - pip install -e .
 script:
 - pytest -v tests/

@@ -40,6 +40,12 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
     Signed = gen_signed_type(family)
     BFloat16 = family.BFloat16
 
+    def bv2float(bv):
+        return BFloat16.reinterpret_from_bv(bv)
+
+    def float2bv(bvf):
+        return BFloat16.reinterpret_as_bv(bvf)
+
     def alu(inst:Inst, a:Data, b:Data, d:Bit) -> (Data, Bit, Bit, Bit, Bit,
                                                   Bit):
         signed = inst.signed_
@@ -106,15 +112,15 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
         elif alu == ALU.SHL:
             #res, res_p = a << Data(b[:4]), Bit(0)
             res, res_p = a << b, Bit(0)
-        elif alu == ALU.FP_add:
-            a = BFloat16(a)
-            b = BFloat16(b)
-            res = a + b
+        elif (alu == ALU.FP_add):
+            a = bv2float(a)
+            b = bv2float(b)
+            res = float2bv(a + b)
             res_p = Bit(0)
         elif alu == ALU.FP_mult:
-            a = BFloat16(a)
-            b = BFloat16(b)
-            res = a * b
+            a = bv2float(a)
+            b = bv2float(b)
+            res = float2bv(a * b)
             res_p = Bit(0)
         elif alu == ALU.FGetMant:
             res, res_p = (a & 0x7F), Bit(0)
