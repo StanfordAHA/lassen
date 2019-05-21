@@ -115,6 +115,11 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
             b = bv2float(b)
             res = float2bv(a + b)
             res_p = Bit(0)
+        elif (alu == ALU.FP_sub):
+            a = bv2float(a)
+            b = bv2float(b)
+            res = float2bv(a - b)
+            res_p = Bit(0)
         elif alu == ALU.FP_mult:
             a = bv2float(a)
             b = bv2float(b)
@@ -206,8 +211,15 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
         #else:
         #    raise NotImplementedError(alu)
 
-        Z = res == 0
-        N = Bit(res[-1])
+#https://community.arm.com/developer/ip-products/processors/b/processors-ip-blog/posts/condition-codes-4-floating-point-comparisons-using-vfp
+        if (alu == ALU.FP_sub):
+            Z = res[:-1] == BitVector[15](0)
+            N = (res[-1] & ~Z)
+            C = Z | ~N
+            V = Bit(0)
+        else:
+            Z = res == 0
+            N = Bit(res[-1])
 
         return res, res_p, Z, N, C, V
     if family.Bit is m.Bit:
