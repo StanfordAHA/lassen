@@ -1,14 +1,25 @@
 from lassen.stdlib.fma import gen_FMA
 from lassen.isa import DATAWIDTH
-from hwtypes import BitVector, Bit
+from hwtypes import BitVector, Bit, SIntVector
 from lassen.sim import gen_pe
 import lassen.asm as asm
+import pytest
+import random
 
 Bit = Bit
 Data = BitVector[DATAWIDTH]
+SData = SIntVector[DATAWIDTH]
+
+NTESTS=16
 
 FMA = gen_FMA(BitVector.get_family())
 
-def test_fma():
+
+@pytest.mark.parametrize("args", [
+    (random.randint(-10,10),
+     random.randint(-10,10),
+     random.randint(-10,10))
+    for _ in range(NTESTS) ] )
+def test_fma(args):
     fma = FMA()
-    assert Data(58) == fma(Data(5), Data(10), Data(8))
+    assert SData(args[0]*args[1]+args[2]) == fma(SData(args[0]), SData(args[1]), SData(args[2]))
