@@ -334,6 +334,7 @@ def test_get_float_int():
     assert res_p == 0
     assert irq == 0
 
+@pytest.mark.skip("Not sure the exact op semantics")
 @pytest.mark.parametrize("args", [
     (fpdata(random.choice([0,1]),random.randint(1,2**8-1),random.randint(0,2**7-1)),BitVector.random(DATAWIDTH))
         for _ in range(NTESTS)
