@@ -210,61 +210,21 @@ def test_umult(args):
     assert res == xy[DATAWIDTH:]
     rtl_tester(umult2, x, y, res=res)
 
-def test_fp_add():
-    inst = asm.fp_add()
-    in0 = BFloat(2.0)
-    in1 = BFloat(3.0)
-    out = BFloat(5.0)
-    res, res_p, irq = pe(inst, in0, in1)
-    assert res == out
-    assert res_p == 0
-    assert irq == 0
-
-def test_fp_sub():
-    inst = asm.fp_sub()
-    in0 = BFloat(2.0)
-    in1 = BFloat(3.0)
-    out = BFloat(-1.0)
-    res, res_p, irq = pe(inst, in0, in1)
-    assert res == out
-    assert res_p == 0
-    assert irq == 0
-
-@pytest.mark.skip("test is broken. data format is probably wrong")
-def test_fp_add_bv():
-    inst = asm.fp_add()
-    # [sign, exponent (decimal), mantissa (binary)]:
-    # a   = [0, -111, 1.0000001]
-    # b   = [0, -112, 1.0000010]
-    # res = [0, -111, 1.1000010]
-    res, res_p, irq = pe(inst, Data(0x801), Data(0x782))
-    assert res == 0x842
-    assert res_p == 0
-    assert irq == 0
-
-@pytest.mark.skip("test is broken. data format is probably wrong")
-def test_fp_mult_bv():
-    inst = asm.fp_mult()
-    # [sign, exponent (decimal), mantissa (binary)]:
-    # a   = [0, 2, 1.0000000]
-    # b   = [0, 1, 1.0000001]
-    # res = [0, 3, 1.0000001]
-    # mant = mant(a) * mant(b)
-    # exp = exp(a) + exp(b)
-    res, res_p, irq = pe(inst, Data(0x4080), Data(0x4001))
-    assert res == 0x4101
-    assert res_p == 0
-    assert irq == 0
-
-def test_fp_mult():
-    inst = asm.fp_mult()
-    in0 = BFloat(3.0)
-    in1 = BFloat(-7.0)
-    out = BFloat(-21.0)
-    res, res_p, irq = pe(inst, in0, in1)
-    assert res == out
-    assert res_p == 0
-    assert irq == 0
+@pytest.mark.parametrize("op", [
+    op(asm.fp_add(), lambda x, y: x + y),
+    op(asm.fp_sub(), lambda x, y: x - y),
+    op(asm.fp_mult(), lambda x, y: x * y)
+])
+@pytest.mark.parametrize("args", [
+    (BFloat16.random(), BFloat16.random())
+    for _ in range(NTESTS)])
+def test_fp_binary_op(op,args):
+    inst = op.inst
+    in0 = args[0]
+    in1 = args[1]
+    out = op.func(in0,in1)
+    res, res_p, irq = pe(inst, BFloat16.reinterpret_as_bv(in0), BFloat16.reinterpret_as_bv(in1))
+    assert res == BFloat16.reinterpret_as_bv(out)
 
 def test_get_mant():
     inst = asm.fgetmant()
@@ -272,7 +232,6 @@ def test_get_mant():
     assert res == 0xA
     assert res_p == 0
     assert irq == 0
-
 
 def test_add_exp_imm():
     inst = asm.faddiexp()
@@ -282,7 +241,6 @@ def test_add_exp_imm():
     assert res == 0x020A
     assert res_p == 0
     assert irq == 0
-
 
 def test_sub_exp():
     inst = asm.fsubexp()
@@ -294,7 +252,6 @@ def test_sub_exp():
     assert res_p == 0
     assert irq == 0
 
-
 def test_cnvt_exp_to_float():
     inst = asm.fcnvexp2f()
     res, res_p, irq = pe(inst, Data(0x4005), Data(0x0000))
@@ -303,7 +260,6 @@ def test_cnvt_exp_to_float():
     assert res == 0x3F80
     assert res_p == 0
     assert irq == 0
-
 
 def test_get_float_int():
     inst = asm.fgetfint()
@@ -314,7 +270,6 @@ def test_get_float_int():
     assert res == 0x2
     assert res_p == 0
     assert irq == 0
-
 
 def test_get_float_frac():
     inst = asm.fgetffrac()
