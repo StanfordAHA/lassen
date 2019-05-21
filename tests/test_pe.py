@@ -21,6 +21,7 @@ class HashableDict(dict):
 Bit = Bit
 Data = BitVector[DATAWIDTH]
 BFloat16 = FPVector[7,8,RoundingMode.RNE,False]
+
 #float to bitvector
 def BFloat(f):
     return BFloat16(f).reinterpret_as_bv()
