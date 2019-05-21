@@ -218,6 +218,7 @@ def test_umult(args):
 
 @pytest.mark.parametrize("op", [
     op(asm.fp_add(), lambda x, y: x + y),
+    op(asm.fp_sub(), lambda x, y: x - y),
     op(asm.fp_mult(), lambda x, y: x * y)
 ])
 @pytest.mark.parametrize("args", [
