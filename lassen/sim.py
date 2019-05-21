@@ -62,10 +62,9 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
             shr = a >> b
 
         #Negate B and add cin if subtract
-        Cin = Bit(0)
+        Cin = d
         if alu == ALU.Sub:
             b = ~b
-            Cin = Bit(1)
 
         C = Bit(0)
         V = Bit(0)
@@ -202,7 +201,6 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
 
         Z = res == 0
         N = Bit(res[-1])
-
         return res, res_p, Z, N, C, V
     if family.Bit is m.Bit:
         alu = assemble_values_in_func(assembler, alu, locals(), globals())

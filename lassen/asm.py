@@ -4,7 +4,7 @@ from .mode import gen_mode_type
 from .lut import gen_lut_type
 from .isa import *
 from .sim import gen_pe_type_family
-from hwtypes import BitVector
+from hwtypes import BitVector, Bit
 
 sim_family = gen_pe_type_family(BitVector.get_family())
 Mode = gen_mode_type(sim_family)
@@ -25,7 +25,7 @@ B2 = BitVector[8]([0,0,0,0,1,1,1,1])
 def inst(alu, signed=Signed.unsigned, lut=0, cond=Cond.Z,
          ra_mode=Mode.BYPASS, ra_const=0,
          rb_mode=Mode.BYPASS, rb_const=0,
-         rd_mode=Mode.BYPASS, rd_const=0,
+         rd_mode=Mode.CONST, rd_const=0,
          re_mode=Mode.BYPASS, re_const=0,
          rf_mode=Mode.BYPASS, rf_const=0):
     """
@@ -40,11 +40,14 @@ def inst(alu, signed=Signed.unsigned, lut=0, cond=Cond.Z,
 
 # helper functions to format configurations
 
-def add(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
-    return inst(ALU.Add, ra_mode=ra_mode, rb_mode=rb_mode)
+def add(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS,en_cin=False):
+    if en_cin:
+        return inst(ALU.Add, ra_mode=ra_mode, rb_mode=rb_mode,rd_mode=Mode.BYPASS)
+    else:
+        return inst(ALU.Add, ra_mode=ra_mode, rb_mode=rb_mode)
 
 def sub ():
-    return inst(ALU.Sub)
+    return inst(ALU.Sub,rd_const=Bit(1))
 
 def neg ():
     return inst(ALU.Sub)
