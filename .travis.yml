@@ -12,8 +12,7 @@ install:
     # check CoSA dependencies
     - docker exec -i lassen bash -c "pysmt-install --check"
     - docker exec -i lassen bash -c "cd /lassen && pip install -e ." 
-
-
+    
 script:
     - docker exec -i lassen bash -c "/lassen/.travis/run.sh"
 
