@@ -76,6 +76,9 @@ def fp_add(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
 def fp_mult(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
     return inst(ALU.FP_mult, ra_mode=ra_mode, rb_mode=rb_mode)
 
+def fp_sub(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
+    return inst(ALU.FP_sub, ra_mode=ra_mode, rb_mode=rb_mode)
+
 def faddiexp (ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
     return inst(ALU.FAddIExp, ra_mode=ra_mode, rb_mode=rb_mode)
 
@@ -106,8 +109,9 @@ def lsl():
 def lsr():
     return inst(ALU.SHR)
 
-def asr():
-    return inst(ALU.SHR, signed=Signed.signed)
+def asr(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
+    return inst(ALU.SHR, ra_mode=ra_mode, rb_mode=rb_mode,
+                signed=Signed.signed)
 
 def sel():
     return inst(ALU.Sel)
@@ -121,11 +125,13 @@ def umin():
 def umax():
     return inst(ALU.GTE_Max, cond=Cond.ALU)
 
-def smin():
-    return inst(ALU.LTE_Min, signed=Signed.signed, cond=Cond.ALU)
+def smin(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
+    return inst(ALU.LTE_Min, signed=Signed.signed, cond=Cond.ALU,
+                ra_mode=ra_mode, rb_mode=rb_mode)
 
-def smax():
-    return inst(ALU.GTE_Max, signed=Signed.signed, cond=Cond.ALU)
+def smax(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
+    return inst(ALU.GTE_Max, signed=Signed.signed, cond=Cond.ALU,
+                ra_mode=ra_mode, rb_mode=rb_mode)
 
 def eq():
     return inst(ALU.Sub, cond=Cond.Z)
