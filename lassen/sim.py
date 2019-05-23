@@ -1,5 +1,5 @@
 from hwtypes import TypeFamily
-from peak import Peak, name_outputs
+from peak import Peak, name_outputs, Global
 from peak.auto_assembler import assemble_values_in_func
 from .mode import gen_register_mode
 from .lut import gen_lut_type, gen_lut
@@ -246,7 +246,7 @@ def gen_pe(family, assembler=None):
         def __call__(self, inst: Inst, \
             data0: Data, data1: Data = Data(0), \
             bit0: Bit = Bit(0), bit1: Bit = Bit(0), bit2: Bit = Bit(0)
-        ) -> (Data, Bit, Bit):
+        ) -> (Data, Bit, Global(Bit)):
             # Simulate one clock cycle
 
             ra = self.rega(inst.rega, inst.data0, data0)
@@ -266,12 +266,13 @@ def gen_pe(family, assembler=None):
             res_p = cond(inst.cond, alu_res_p, lut_res, Z, N, C, V)
 
             # calculate interrupt request
-            irq = Bit(0) # NYI
+            # TODO(rsetaluri, rdaly): Implement logic to compute irq.
+            irq = Global(Bit)(0)
 
             # return 16-bit result, 1-bit result, irq
             return alu_res, res_p, irq
     if family.Bit is m.Bit:
         PE = m.circuit.sequential(PE)
     else:
-        PE.__call__ = name_outputs(alu_res=Data,res_p=Bit,irq=Bit)(PE.__call__)
+        PE.__call__ = name_outputs(alu_res=Data,res_p=Bit,irq=Global(Bit))(PE.__call__)
     return PE
