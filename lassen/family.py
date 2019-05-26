@@ -14,7 +14,7 @@ ExtendedTypeFamily = namedtuple('ExtendedTypeFamily', ['Bit', 'BitVector',
 def gen_pe_type_family(family):
     if family is BitVector.get_family() or family is SMTBitVector.get_family():
         from hwtypes import overflow
-        BFloat16 = FPVector[7,8,RoundingMode.RNE,False]
+        BFloat16 = FPVector[8,7,RoundingMode.RNE,False]
         family = ExtendedTypeFamily(*family, hwtypes.adt.Product, hwtypes.adt.Enum,
                                     overflow, BFloat16)
     elif family is m.get_family():
@@ -23,9 +23,9 @@ def gen_pe_type_family(family):
 
         #TODO hack since magma bfloat does not inheret from abstract FPVector
         def reinterpret_from_bv(bv):
-            return bv
+            return BFloat16(bv)
         def reinterpret_as_bv(bv):
-            return bv
+            return m.Bits[16](bv)
         BFloat16.reinterpret_from_bv = reinterpret_from_bv
         BFloat16.reinterpret_as_bv = reinterpret_as_bv
         family = ExtendedTypeFamily(*family, m.Product, m.Enum, overflow, BFloat16)
