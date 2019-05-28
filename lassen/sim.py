@@ -1,6 +1,7 @@
 from hwtypes import TypeFamily
-from peak import Peak, name_outputs, Global
+from peak import Peak, name_outputs
 from peak.auto_assembler import assemble_values_in_func
+from .common import Global
 from .mode import gen_register_mode
 from .lut import gen_lut_type, gen_lut
 from .cond import gen_cond
