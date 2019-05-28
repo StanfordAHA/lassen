@@ -37,7 +37,7 @@ def gen_mem(family, width=width, depth=depth):
 
             instr_kind, instr = instr.match()
             if instr_kind == Rom:
-                ain_int = int(ain)
+                ain_int = int(addr_in)
                 if ain_int >= depth:
                     raise ValueError("address out of range!")
                 return instr.init[ain_int]
