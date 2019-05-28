@@ -40,6 +40,12 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
     Signed = gen_signed_type(family)
     BFloat16 = family.BFloat16
 
+    def bv2float(bv):
+        return BFloat16.reinterpret_from_bv(bv)
+
+    def float2bv(bvf):
+        return BFloat16.reinterpret_as_bv(bvf)
+
     def alu(inst:Inst, a:Data, b:Data, d:Bit) -> (Data, Bit, Bit, Bit, Bit,
                                                   Bit):
         signed = inst.signed_
@@ -49,9 +55,17 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
             b = SInt[datawidth](b)
             mula, mulb = a.sext(16), b.sext(16)
             mul = mula * mulb
+            gte_pred = a >= b
+            lte_pred = a <= b
+            abs_pred = a >= 0
+            shr = a >> b
         elif signed == Signed.unsigned:
             mula, mulb = a.zext(16), b.zext(16)
             mul = mula * mulb
+            gte_pred = a >= b
+            lte_pred = a <= b
+            abs_pred = a >= 0
+            shr = a >> b
 
         #Negate B and add cin if subtract
         Cin = Bit(0)
@@ -76,15 +90,12 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
             res_p = C
         elif alu == ALU.GTE_Max:
             # C, V = a-b?
-            pred = a >= b
-            res, res_p = pred.ite(a,b), a >= b
+            res, res_p = gte_pred.ite(a,b), gte_pred
         elif alu == ALU.LTE_Min:
             # C, V = a-b?
-            pred = a <= b
-            res, res_p = pred.ite(a,b), a <= b
+            res, res_p = lte_pred.ite(a,b), lte_pred
         elif alu == ALU.Abs:
-            pred = a >= 0
-            res, res_p = pred.ite(a,-a), Bit(a[-1])
+            res, res_p = abs_pred.ite(a,-a), Bit(a[-1])
         elif alu == ALU.Sel:
             res, res_p = d.ite(a,b), Bit(0)
         elif alu == ALU.And:
@@ -95,19 +106,19 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
             res, res_p = a ^ b, Bit(0)
         elif alu == ALU.SHR:
             #res, res_p = a >> Data(b[:4]), Bit(0)
-            res, res_p = a >> b, Bit(0)
+            res, res_p = shr, Bit(0)
         elif alu == ALU.SHL:
             #res, res_p = a << Data(b[:4]), Bit(0)
             res, res_p = a << b, Bit(0)
-        elif alu == ALU.FP_add:
-            a = BFloat16(a)
-            b = BFloat16(b)
-            res = a + b
+        elif (alu == ALU.FP_add):
+            a = bv2float(a)
+            b = bv2float(b)
+            res = float2bv(a + b)
             res_p = Bit(0)
         elif alu == ALU.FP_mult:
-            a = BFloat16(a)
-            b = BFloat16(b)
-            res = a * b
+            a = bv2float(a)
+            b = bv2float(b)
+            res = float2bv(a * b)
             res_p = Bit(0)
         elif alu == ALU.FGetMant:
             res, res_p = (a & 0x7F), Bit(0)
