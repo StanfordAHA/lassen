@@ -7,8 +7,7 @@ import pytest
 import magma
 import peak
 import fault
-import os
-import itertools
+from itertools import product
 from peak.auto_assembler import generate_assembler
 
 
@@ -21,21 +20,23 @@ Bit = Bit
 Data = BitVector[DATAWIDTH]
 BFloat16 = FPVector[8,7,RoundingMode.RNE,False]
 
+
+
 pe_ = gen_pe(BitVector.get_family())
 pe = pe_()
 
 # create these variables in global space so that we can reuse them easily
-pe_magma = gen_pe(magma.get_family())
-instr_name, inst_type = pe.__call__._peak_isa_
-assembler, disassembler, width, layout = \
-            generate_assembler(inst_type)
-instr_magma_type = type(pe_magma.interface.ports[instr_name])
-pe_circuit = peak.wrap_with_disassembler(pe_magma, disassembler, width,
-                                         HashableDict(layout),
-                                         instr_magma_type)
-tester = fault.Tester(pe_circuit, clock=pe_circuit.CLK)
-test_dir = "tests/build"
-magma.compile(f"{test_dir}/WrappedPE", pe_circuit, output="coreir-verilog")
+#pe_magma = gen_pe(magma.get_family())
+#instr_name, inst_type = pe.__call__._peak_isa_
+#assembler, disassembler, width, layout = \
+#            generate_assembler(inst_type)
+#instr_magma_type = type(pe_magma.interface.ports[instr_name])
+#pe_circuit = peak.wrap_with_disassembler(pe_magma, disassembler, width,
+#                                         HashableDict(layout),
+#                                         instr_magma_type)
+#tester = fault.Tester(pe_circuit, clock=pe_circuit.CLK)
+#test_dir = "tests/build"
+#magma.compile(f"{test_dir}/WrappedPE", pe_circuit, output="coreir-verilog")
 
 def rtl_tester(test_op, data0, data1, bit0=None, res=None, res_p=None):
     tester.clear()
@@ -207,14 +208,26 @@ def test_umult(args):
 # floating point
 #
 
+def BV(val):
+    return BFloat16(val)
+
+fp_sign_vec = [BV(2.0),BV(-2.0),BV(3.0),BV(-3.0)]
+fp_zero_vec = [BV(0.0),BV('-0.0')]
+fp_inf_vec = [BV('inf'),BV('-inf')]
+
+#fp_sign_x_sign = list(product(
+#fp_zinf_vectors = list(product(*[[BV(0),BV('-0'),BV('inf'),BV('-inf')] for _ in range(2)]))
+#fp_zinf_random_vectors = list(itertools.product([BV(0),BV('-0'),BV('inf'),BV('-inf')],[BFloat16.random() for _ in range(NTESTS)]))
+
 @pytest.mark.parametrize("op", [
     op(asm.fp_add(), lambda x, y: x + y),
     op(asm.fp_sub(), lambda x, y: x - y),
     op(asm.fp_mult(), lambda x, y: x * y)
 ])
-@pytest.mark.parametrize("args", [
-    (BFloat16.random(), BFloat16.random())
-    for _ in range(NTESTS)])
+@pytest.mark.parametrize("args",
+    [(BFloat16.random(), BFloat16.random()) for _ in range(NTESTS)] +
+    list(product(fp_sign_vec+fp_zero_vec,fp_sign_vec+fp_zero_vec))
+)
 def test_fp_binary_op(op,args):
     inst = op.inst
     in0 = args[0]
@@ -223,14 +236,11 @@ def test_fp_binary_op(op,args):
     res, res_p, irq = pe(inst, BFloat16.reinterpret_as_bv(in0), BFloat16.reinterpret_as_bv(in1))
     assert res == BFloat16.reinterpret_as_bv(out)
 
-def BV(val):
-    return BFloat16(val)
 
 @pytest.mark.parametrize("xy",
     [(BFloat16.random(), BFloat16.random()) for _ in range(NTESTS)] +
-    list(itertools.product(*[[BV(2.0),BV(-2.0),BV(3.0),BV(-3.0)] for _ in range(2)])) +
-    list(itertools.product(*[[BV(0),BV('-0'),BV('inf'),BV('-inf')] for _ in range(2)])) +
-    list(itertools.product([BV(0),BV('-0'),BV('inf'),BV('-inf')],[BFloat16.random() for _ in range(4)]))
+    list(product(fp_sign_vec+fp_zero_vec+fp_inf_vec,fp_sign_vec+fp_zero_vec+fp_inf_vec)) +
+    list(product(fp_zero_vec+fp_inf_vec,[BFloat16.random() for _ in range(NTESTS)]))
 )
 @pytest.mark.parametrize("op", [
     op('gt',  lambda x, y: x >  y),

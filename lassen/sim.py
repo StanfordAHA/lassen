@@ -83,7 +83,6 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
             lte_pred = a <= b
             abs_pred = a >= 0
             shr = a >> b
-
         a_inf = fp_is_inf(a)
         b_inf = fp_is_inf(b)
         a_neg = fp_is_neg(a)
@@ -234,14 +233,15 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
         #    raise NotImplementedError(alu)
 
         N = Bit(res[-1])
-        if (alu == ALU.FP_sub) | (alu == ALU.FP_add) | (alu == ALU.FP_mult):
+        if (alu == ALU.FP_sub) | (alu == ALU.FP_add) | (alu == ALU.FP_mult) | (alu==ALU.FP_cmp):
             Z = fp_is_zero(res)
         else:
             Z = (res == 0)
 
         #Nicely handles infinities for comparisons
-        if (alu == ALU.FP_cmp) & (a_inf & b_inf) & (a_neg == b_neg):
-            Z = Bit(1)
+        if (alu == ALU.FP_cmp):
+            if (a_inf & b_inf) & (a_neg == b_neg):
+                Z = Bit(1)
 
         return res, res_p, Z, N, C, V
     if family.Bit is m.Bit:
@@ -302,7 +302,6 @@ def gen_pe(family, assembler=None):
 
             # calculate 1-bit result
             res_p = cond(inst.cond, alu_res_p, lut_res, Z, N, C, V)
-
             # calculate interrupt request
             irq = Bit(0) # NYI
 
