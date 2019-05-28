@@ -80,7 +80,7 @@ def fp_mult(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
     return inst(ALU.FP_mult, ra_mode=ra_mode, rb_mode=rb_mode)
 
 def fp_cmp(cond):
-    return inst(ALU.FP_sub,cond=cond)
+    return inst(ALU.FP_cmp,cond=cond)
 
 def fp_gt():
     return fp_cmp(Cond.FP_GT)

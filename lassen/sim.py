@@ -137,7 +137,7 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
             b = bv2float(b)
             res = float2bv(a + b)
             res_p = Bit(0)
-        elif (alu == ALU.FP_sub):
+        elif (alu == ALU.FP_sub) | (alu == ALU.FP_cmp):
             a = bv2float(a)
             b = bv2float(b)
             res = float2bv(a - b)
@@ -240,7 +240,7 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
             Z = (res == 0)
 
         #Nicely handles infinities for comparisons
-        if (alu == ALU.FP_sub) & (a_inf & b_inf) & (a_neg == b_neg):
+        if (alu == ALU.FP_cmp) & (a_inf & b_inf) & (a_neg == b_neg):
             Z = Bit(1)
 
         return res, res_p, Z, N, C, V
@@ -302,7 +302,6 @@ def gen_pe(family, assembler=None):
 
             # calculate 1-bit result
             res_p = cond(inst.cond, alu_res_p, lut_res, Z, N, C, V)
-            #print(alu_res,Z,N,res_p,inst.cond)
 
             # calculate interrupt request
             irq = Bit(0) # NYI

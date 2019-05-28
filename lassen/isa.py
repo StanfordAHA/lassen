@@ -26,7 +26,8 @@ def gen_alu_type(family):
         XOr = 0x14
         FP_add = 0x16
         FP_sub = 0x17
-        FP_mult = 0x18
+        FP_cmp = 0x18
+        FP_mult = 0x19
         FGetMant = 0x92
         FAddIExp = 0x93
         FSubExp = 0x94
