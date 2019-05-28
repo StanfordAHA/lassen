@@ -29,6 +29,8 @@ def gen_cond_type(family):
         SLE = 13
         LUT = 14
         ALU = 15
+        FP_EQ = 0
+        FP_NE = 1
         FP_GE = 16
         FP_GT = 17
         FP_LE = 18

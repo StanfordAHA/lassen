@@ -95,10 +95,10 @@ def fp_le():
     return fp_cmp(Cond.FP_LE)
 
 def fp_eq():
-    return fp_cmp(Cond.Z)
+    return fp_cmp(Cond.FP_EQ)
 
 def fp_ne():
-    return fp_cmp(Cond.Z_n)
+    return fp_cmp(Cond.FP_NE)
 
 
 def faddiexp (ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
