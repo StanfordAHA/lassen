@@ -215,10 +215,6 @@ fp_sign_vec = [BV(2.0),BV(-2.0),BV(3.0),BV(-3.0)]
 fp_zero_vec = [BV(0.0),BV('-0.0')]
 fp_inf_vec = [BV('inf'),BV('-inf')]
 
-#fp_sign_x_sign = list(product(
-#fp_zinf_vectors = list(product(*[[BV(0),BV('-0'),BV('inf'),BV('-inf')] for _ in range(2)]))
-#fp_zinf_random_vectors = list(itertools.product([BV(0),BV('-0'),BV('inf'),BV('-inf')],[BFloat16.random() for _ in range(NTESTS)]))
-
 @pytest.mark.parametrize("op", [
     op(asm.fp_add(), lambda x, y: x + y),
     op(asm.fp_sub(), lambda x, y: x - y),
