@@ -40,11 +40,29 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
     Signed = gen_signed_type(family)
     BFloat16 = family.BFloat16
 
+    FPExpBV = BitVector[8]
+    FPFracBV = BitVector[7]
+
     def bv2float(bv):
         return BFloat16.reinterpret_from_bv(bv)
 
     def float2bv(bvf):
         return BFloat16.reinterpret_as_bv(bvf)
+
+    def fp_get_exp(val : Data):
+        return val[7:15]
+
+    def fp_get_frac(val : Data):
+        return val[:7]
+
+    def fp_is_zero(val : Data):
+        return (fp_get_exp(val) == FPExpBV(0)) & (fp_get_frac(val) == FPFracBV(0))
+
+    def fp_is_inf(val : Data):
+        return (fp_get_exp(val) == FPExpBV(-1)) & (fp_get_frac(val) == FPFracBV(0))
+
+    def fp_is_neg(val : Data):
+        return Bit(val[-1])
 
     def alu(inst:Inst, a:Data, b:Data, d:Bit) -> (Data, Bit, Bit, Bit, Bit, Bit):
         signed = inst.signed_
@@ -65,6 +83,11 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
             lte_pred = a <= b
             abs_pred = a >= 0
             shr = a >> b
+
+        a_inf = fp_is_inf(a)
+        b_inf = fp_is_inf(b)
+        a_neg = fp_is_neg(a)
+        b_neg = fp_is_neg(b)
 
         #Negate B and add cin if subtract
         Cin = Bit(0)
@@ -210,15 +233,15 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
         #else:
         #    raise NotImplementedError(alu)
 
-        #https://community.arm.com/developer/ip-products/processors/b/processors-ip-blog/posts/condition-codes-4-floating-point-comparisons-using-vfp
-        if (alu == ALU.FP_sub):
-            Z = res[:-1] == BitVector[15](0)
-            N = (res[-1] & ~Z)
-            C = Z | ~N
-            V = Bit(0)
+        N = Bit(res[-1])
+        if (alu == ALU.FP_sub) | (alu == ALU.FP_add) | (alu == ALU.FP_mult):
+            Z = fp_is_zero(res)
         else:
-            Z = res == 0
-            N = Bit(res[-1])
+            Z = (res == 0)
+
+        #Nicely handles infinities for comparisons
+        if (alu == ALU.FP_sub) & (a_inf & b_inf) & (a_neg == b_neg):
+            Z = Bit(1)
 
         return res, res_p, Z, N, C, V
     if family.Bit is m.Bit:
@@ -226,6 +249,10 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
         alu = m.circuit.combinational(alu)
 
     return alu
+
+
+
+
 
 def gen_pe(family, assembler=None):
     family = gen_pe_type_family(family)
@@ -275,6 +302,7 @@ def gen_pe(family, assembler=None):
 
             # calculate 1-bit result
             res_p = cond(inst.cond, alu_res_p, lut_res, Z, N, C, V)
+            #print(alu_res,Z,N,res_p,inst.cond)
 
             # calculate interrupt request
             irq = Bit(0) # NYI

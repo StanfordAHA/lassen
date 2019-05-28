@@ -25,17 +25,17 @@ pe_ = gen_pe(BitVector.get_family())
 pe = pe_()
 
 # create these variables in global space so that we can reuse them easily
-pe_magma = gen_pe(magma.get_family())
-instr_name, inst_type = pe.__call__._peak_isa_
-assembler, disassembler, width, layout = \
-            generate_assembler(inst_type)
-instr_magma_type = type(pe_magma.interface.ports[instr_name])
-pe_circuit = peak.wrap_with_disassembler(pe_magma, disassembler, width,
-                                         HashableDict(layout),
-                                         instr_magma_type)
-tester = fault.Tester(pe_circuit, clock=pe_circuit.CLK)
-test_dir = "tests/build"
-magma.compile(f"{test_dir}/WrappedPE", pe_circuit, output="coreir-verilog")
+#pe_magma = gen_pe(magma.get_family())
+#instr_name, inst_type = pe.__call__._peak_isa_
+#assembler, disassembler, width, layout = \
+#            generate_assembler(inst_type)
+#instr_magma_type = type(pe_magma.interface.ports[instr_name])
+#pe_circuit = peak.wrap_with_disassembler(pe_magma, disassembler, width,
+#                                         HashableDict(layout),
+#                                         instr_magma_type)
+#tester = fault.Tester(pe_circuit, clock=pe_circuit.CLK)
+#test_dir = "tests/build"
+#magma.compile(f"{test_dir}/WrappedPE", pe_circuit, output="coreir-verilog")
 
 def rtl_tester(test_op, data0, data1, bit0=None, res=None, res_p=None):
     tester.clear()
@@ -223,18 +223,26 @@ def test_fp_binary_op(op,args):
     res, res_p, irq = pe(inst, BFloat16.reinterpret_as_bv(in0), BFloat16.reinterpret_as_bv(in1))
     assert res == BFloat16.reinterpret_as_bv(out)
 
-@pytest.mark.parametrize("xy", itertools.product([2.0,-2.0,3.0,-3.0],[2.0,-2.0,3.0,-3.0]))
+def BV(val):
+    return BFloat16(val)
+
+@pytest.mark.parametrize("xy",
+    [(BFloat16.random(), BFloat16.random()) for _ in range(NTESTS)] +
+    list(itertools.product(*[[BV(2.0),BV(-2.0),BV(3.0),BV(-3.0)] for _ in range(2)])) +
+    list(itertools.product(*[[BV(0),BV('-0'),BV('inf'),BV('-inf')] for _ in range(2)])) +
+    list(itertools.product([BV(0),BV('-0'),BV('inf'),BV('-inf')],[BFloat16.random() for _ in range(4)]))
+)
 @pytest.mark.parametrize("op", [
     op('gt',  lambda x, y: x >  y),
     op('ge',  lambda x, y: x >= y),
     op('lt',  lambda x, y: x <  y),
     op('le',  lambda x, y: x <= y),
+    op('eq',  lambda x, y: x == y),
+    op('ne',  lambda x, y: x != y),
 ])
 def test_fp_cmp(xy,op):
     inst = getattr(asm,f"fp_{op.inst}")()
-    x,y = xy
-    in0 = BFloat16(x)
-    in1 = BFloat16(y)
+    in0,in1 = xy
     out = op.func(in0,in1)
     _, res_p, _ = pe(inst, BFloat16.reinterpret_as_bv(in0), BFloat16.reinterpret_as_bv(in1))
     assert res_p == out

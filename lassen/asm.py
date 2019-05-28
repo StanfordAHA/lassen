@@ -82,20 +82,24 @@ def fp_mult(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
 def fp_cmp(cond):
     return inst(ALU.FP_sub,cond=cond)
 
-#The following 4 are from:
-#https://community.arm.com/developer/ip-products/processors/b/processors-ip-blog/posts/condition-codes-4-floating-point-comparisons-using-vfp
-
 def fp_gt():
-    return fp_cmp(Cond.SGT)
+    return fp_cmp(Cond.FP_GT)
 
 def fp_ge():
-    return fp_cmp(Cond.SGE)
+    return fp_cmp(Cond.FP_GE)
 
 def fp_lt():
-    return fp_cmp(Cond.N)
+    return fp_cmp(Cond.FP_LT)
 
 def fp_le():
-    return fp_cmp(Cond.ULE)
+    return fp_cmp(Cond.FP_LE)
+
+def fp_eq():
+    return fp_cmp(Cond.Z)
+
+def fp_ne():
+    return fp_cmp(Cond.Z_n)
+
 
 def faddiexp (ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
     return inst(ALU.FAddIExp, ra_mode=ra_mode, rb_mode=rb_mode)

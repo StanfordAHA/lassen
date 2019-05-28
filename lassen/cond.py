@@ -29,6 +29,10 @@ def gen_cond_type(family):
         SLE = 13
         LUT = 14
         ALU = 15
+        FP_GE = 16
+        FP_GT = 17
+        FP_LE = 18
+        FP_LT = 19
     return Cond
 
 def gen_cond(family, assembler=None):
@@ -75,6 +79,15 @@ def gen_cond(family, assembler=None):
             return alu
         elif code == Cond.LUT:
             return lut
+        elif code == Cond.FP_GE:
+            return ~N | Z
+        elif code == Cond.FP_GT:
+            return ~N & ~Z
+        elif code == Cond.FP_LE:
+            return N | Z
+        elif code == Cond.FP_LT:
+            return N & ~Z
+
     if family.Bit is m.Bit:
         cond = assemble_values_in_func(assembler, cond, locals(), globals())
         cond = m.circuit.combinational(cond)
