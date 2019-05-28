@@ -40,6 +40,9 @@ tester = fault.Tester(pe_circuit, clock=pe_circuit.CLK)
 test_dir = "tests/build"
 magma.compile(f"{test_dir}/WrappedPE", pe_circuit, output="coreir-verilog")
 
+# check if we need to use ncsim + cw IP
+cw_dir = "/cad/cadence/GENUS17.21.000.lnx86/share/synth/lib/chipware/sim/verilog/CW/"
+CAD_ENV = shutil.which("ncsim") and os.path.isdir(cw_dir)
 
 def copy_file(src_filename, dst_filename, override=False):
     if not override and os.path.isfile(dst_filename):
@@ -75,9 +78,7 @@ def rtl_tester(test_op, data0=None, data1=None, bit0=None, bit1=None, bit2=None,
         tester.circuit.O0.expect(res)
     if res_p is not None:
         tester.circuit.O1.expect(res_p)
-    # check if we need to use ncsim + cw IP
-    cw_dir = "/cad/cadence/GENUS17.21.000.lnx86/share/synth/lib/chipware/sim/verilog/CW/"
-    if shutil.which("ncsim") and os.path.isdir(cw_dir):
+    if CAD_ENV:
         # use ncsim
         libs = ["CW_fp_mult.v", "CW_fp_add.v"]
         for filename in libs:
@@ -256,6 +257,8 @@ def test_umult(args):
     (BFloat16.random(), BFloat16.random())
     for _ in range(NTESTS)])
 def test_fp_binary_op(op,args):
+    if not CAD_ENV:
+        pytest.skip("Skipping fp op tests because CW primitives are not available")
     inst = op.inst
     in0 = args[0]
     in1 = args[1]
