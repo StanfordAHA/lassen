@@ -89,6 +89,10 @@ def rtl_tester(test_op, data0=None, data1=None, bit0=None, bit1=None, bit2=None,
                                include_verilog_libraries=libs,
                                skip_compile=True)
     else:
+        libs = ["CW_fp_mult.v", "CW_fp_add.v"]
+        for filename in libs:
+            copy_file(os.path.join("stubs", filename),
+                      os.path.join(test_dir, filename))
         # detect if the PE circuit has been built
         skip_verilator = os.path.isfile(os.path.join(test_dir, "obj_dir",
                                                      "VWrappedPE__ALL.a"))
