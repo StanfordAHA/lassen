@@ -156,7 +156,7 @@ def test_fp_pointwise():
     mapper.add_rewrite_rule(mm.Peak1to1(
         bfloat_mul, #Coreir module
         pe, #coreir pe
-        asm.fp_mult(), #Instruction for PE
+        asm.fp_mul(), #Instruction for PE
         dict(in0='data0',in1='data1',out="alu_res") #Port Mapping
     ))
 
@@ -239,7 +239,25 @@ def test_binary_lut(op):
     imap = mapper.extract_instr_map(app)
     assert len(imap) == 3
 
+@pytest.mark.parametrize("op",["lt","le","gt","ge","eq","neq","add","sub","mul"])
+def test_fp(op):
+    c = coreir.Context()
+    c.load_library("float")
+    g = c.global_namespace
+    coreir_op = c.get_namespace("float").generators[op](exp_bits=8,frac_bits=7)
+    mod_type = coreir_op.type
+    app = g.new_module("app",mod_type)
+    mdef = app.new_definition()
+    op_inst = mdef.add_module_instance(name="i",module=coreir_op)
+    io = mdef.interface
+    for pname,ptype in mod_type.items():
+        mdef.connect(io.select(pname),op_inst.select(pname))
 
+    app.definition = mdef
+    mapper = LassenMapper(c)
+    mapper.map_app(app)
+    imap = mapper.extract_instr_map(app)
+    assert len(imap) == 1
 
 def test_init():
     c = coreir.Context()
