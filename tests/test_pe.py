@@ -1,3 +1,4 @@
+import os
 from collections import namedtuple
 import lassen.asm as asm
 from lassen.sim import gen_pe
@@ -26,10 +27,10 @@ pe_ = gen_pe(BitVector.get_family())
 pe = pe_()
 
 # create these variables in global space so that we can reuse them easily
-pe_magma = gen_pe(magma.get_family())
 instr_name, inst_type = pe.__call__._peak_isa_
 assembler, disassembler, width, layout = \
             generate_assembler(inst_type)
+pe_magma = gen_pe(magma.get_family(), use_assembler=True)
 instr_magma_type = type(pe_magma.interface.ports[instr_name])
 pe_circuit = peak.wrap_with_disassembler(pe_magma, disassembler, width,
                                          HashableDict(layout),

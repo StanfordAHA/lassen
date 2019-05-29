@@ -1,6 +1,7 @@
+import hwtypes
 from hwtypes import TypeFamily
 from peak import Peak, name_outputs
-from peak.auto_assembler import assemble_values_in_func
+from peak.auto_assembler import assemble_values_in_func, generate_assembler
 from .mode import gen_register_mode
 from .lut import gen_lut_type, gen_lut
 from .cond import gen_cond
@@ -29,7 +30,7 @@ import magma as m
 #   C (carry generated)
 #   V (overflow generated)
 #
-def gen_alu(family: TypeFamily, datawidth, assembler=None):
+def gen_alu(family: TypeFamily, datawidth, use_assembler=False):
     Bit = family.Bit
     BitVector = family.Unsigned
     Data = family.Unsigned[datawidth]
@@ -245,7 +246,15 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
 
         return res, res_p, Z, N, C, V
     if family.Bit is m.Bit:
-        alu = assemble_values_in_func(assembler, alu, locals(), globals())
+        if use_assembler:
+            bv_fam = gen_pe_type_family(hwtypes.BitVector.get_family())
+            bv_alu = gen_alu_type(bv_fam)
+            bv_signed = gen_signed_type(bv_fam)
+            assemblers = {
+                ALU: (bv_alu, generate_assembler(bv_alu)[0]),
+                Signed: (bv_signed, generate_assembler(bv_signed)[0])
+            }
+            alu = assemble_values_in_func(assemblers, alu, locals(), globals())
         alu = m.circuit.combinational(alu)
 
     return alu
@@ -254,11 +263,11 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
 
 
 
-def gen_pe(family, assembler=None):
+def gen_pe(family, use_assembler=False):
     family = gen_pe_type_family(family)
-    alu = gen_alu(family, DATAWIDTH, assembler)
+    alu = gen_alu(family, DATAWIDTH, use_assembler)
     lut = gen_lut(family)
-    cond = gen_cond(family, assembler)
+    cond = gen_cond(family, use_assembler)
 
     Bit = family.Bit
     Data = family.BitVector[DATAWIDTH]
