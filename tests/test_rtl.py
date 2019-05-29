@@ -78,7 +78,7 @@ def test_rtl(op, mode, use_assembler):
             generate_assembler(inst_type)
     else:
         assembler = lambda x: x
-    PE = gen_pe(m.get_family(), assembler=assembler)
+    PE = gen_pe(m.get_family(), use_assembler=use_assembler)
     if use_assembler:
         PE = wrap_with_disassembler(PE, disassembler, width, layout,
                                     gen_inst_type(gen_pe_type_family(m.get_family())))
