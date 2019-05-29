@@ -51,7 +51,8 @@ def copy_file(src_filename, dst_filename, override=False):
 
 
 def rtl_tester(test_op, data0=None, data1=None, bit0=None, bit1=None, bit2=None,
-               res=None, res_p=None, delay=0):
+               res=None, res_p=None, delay=0, data0_delay_values=None,
+               data1_delay_values=None):
     tester.clear()
     if hasattr(test_op, "inst"):
         tester.circuit.inst = assembler(test_op.inst)
@@ -72,7 +73,12 @@ def rtl_tester(test_op, data0=None, data1=None, bit0=None, bit1=None, bit2=None,
         tester.circuit.bit0 = BitVector[1](bit2)
     tester.eval()
 
-    tester.step(delay * 2)
+    for i in range(delay):
+        tester.step(2)
+        if data0_delay_values is not None:
+            tester.circuit.data0 = data0_delay_values[i]
+        if data1_delay_values is not None:
+            tester.circuit.data1 = data1_delay_values[i]
 
     if res is not None:
         tester.circuit.O0.expect(res)
@@ -365,7 +371,9 @@ def test_lut(lut_code):
 def test_reg_delay(args):
     data0, data1 = args
     inst = asm.add(ra_mode=Mode.DELAY, rb_mode=Mode.DELAY)
-    rtl_tester(inst, data0, data1, res=data0 + data1, delay=1)
+    data1_delay_values = [UIntVector.random(DATAWIDTH)]
+    rtl_tester(inst, data0, data1, res=data0 + data1, delay=1,
+               data1_delay_values=data1_delay_values)
 
 
 @pytest.mark.parametrize("args", [
@@ -374,5 +382,5 @@ def test_reg_delay(args):
 def test_reg_const(args):
     data0, const1 = args
     data1 = UIntVector.random(DATAWIDTH)
-    inst = asm.add(rb_mode=Mode.CONST, rb_value=const1)
+    inst = asm.add(rb_mode=Mode.CONST, rb_const=const1)
     rtl_tester(inst, data0, data1, res=data0 + const1)
