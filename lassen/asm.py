@@ -41,7 +41,7 @@ def inst(alu, signed=Signed.unsigned, lut=0, cond=Cond.Z,
 # helper functions to format configurations
 
 def add(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
-        return inst(ALU.Add, ra_mode=ra_mode, rb_mode=rb_mode)
+    return inst(ALU.Add, ra_mode=ra_mode, rb_mode=rb_mode)
 
 def sub ():
     return inst(ALU.Sub)
@@ -117,7 +117,7 @@ def asr(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
                 signed=Signed.signed)
 
 def sel():
-    return inst(ALU.Sel,rd_mode=Mode.BYPASS)
+    return inst(ALU.Sel)
 
 def abs():
     return inst(ALU.Abs, signed=Signed.signed)
