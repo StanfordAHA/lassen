@@ -68,9 +68,9 @@ def rtl_tester(test_op, data0=None, data1=None, bit0=None, bit1=None, bit2=None,
     if bit0 is not None:
         tester.circuit.bit0 = BitVector[1](bit0)
     if bit1 is not None:
-        tester.circuit.bit0 = BitVector[1](bit1)
+        tester.circuit.bit1 = BitVector[1](bit1)
     if bit2 is not None:
-        tester.circuit.bit0 = BitVector[1](bit2)
+        tester.circuit.bit2 = BitVector[1](bit2)
     tester.eval()
 
     for i in range(delay):
