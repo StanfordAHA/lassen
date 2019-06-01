@@ -1,4 +1,4 @@
-from lassen.asm import add, sub, and_, or_, xor, fp_mult, fp_add, faddiexp, \
+from lassen.asm import add, sub, and_, or_, xor, fp_mul, fp_add, faddiexp, \
     fsubexp, fcnvexp2f, fgetfint, fgetffrac, asr
 from lassen.sim import gen_pe, gen_pe_type_family
 from lassen.mode import gen_mode_type
@@ -58,7 +58,7 @@ def wrap_with_disassembler(PE, disassembler, width, layout, inst_type):
     return WrappedPE
 
 
-@pytest.mark.parametrize('op', [fp_add, fp_mult, faddiexp,
+@pytest.mark.parametrize('op', [fp_add, fp_mul, faddiexp,
                                 fsubexp, fcnvexp2f, fgetfint, fgetffrac])
 @pytest.mark.parametrize('mode', [Mode.BYPASS, Mode.DELAY])
 @pytest.mark.parametrize('use_assembler', [False, True])
@@ -68,7 +68,7 @@ def test_rtl(op, mode, use_assembler):
         "/cad/cadence/GENUS17.21.000.lnx86/share/synth/lib/chipware/sim/verilog/CW/CW_fp_add.v"
     ]
     CW_avail = all(os.path.isfile(file) for file in libs)
-    if not CW_avail and op in {fp_add, fp_mult}:
+    if not CW_avail and op in {fp_add, fp_mul}:
         pytest.skip("Skipping fp op tests because CW primitives are not available")
 
     inst_type = gen_inst_type(gen_pe_type_family(BitVector.get_family()))
@@ -94,7 +94,7 @@ def test_rtl(op, mode, use_assembler):
     # Special case these inputs because they are known to work from test_pe
     if op == fp_add:
         data0, data1 = 0x801, 0x782
-    elif op == fp_mult:
+    elif op == fp_mul:
         data0, data1 = 0x4080, 0x4001
     elif op == faddiexp:
         data0, data1 = 0x7F8A, 0x0000
