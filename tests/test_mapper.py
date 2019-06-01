@@ -223,6 +223,26 @@ def test_binary_lut(op):
     imap = mapper.extract_instr_map(app)
     assert len(imap) == 3
 
+@pytest.mark.parametrize("op",["ult","ule","ugt","uge","eq","neq","add","sub","mul","mux"])
+def test_coreir_ops(op):
+    c = coreir.Context()
+    g = c.global_namespace
+    coreir_op = c.get_namespace("coreir").generators[op](width=16)
+    mod_type = coreir_op.type
+    app = g.new_module("app",mod_type)
+    mdef = app.new_definition()
+    op_inst = mdef.add_module_instance(name="i",module=coreir_op)
+    io = mdef.interface
+    for pname,ptype in mod_type.items():
+        mdef.connect(io.select(pname),op_inst.select(pname))
+
+    app.definition = mdef
+    mapper = LassenMapper(c)
+    for rule in Rules:
+        mapper.add_rr_from_description(rule)
+    mapper.map_app(app)
+    imap = mapper.extract_instr_map(app)
+    assert len(imap) == 1
 
 
 def test_init():
