@@ -180,22 +180,6 @@ def test_fp_pointwise():
     print("instance map",imap)
     app.save_to_file("tests/examples/fp_pointwise.mapped.json")
 
-def test_serialize():
-    c = coreir.Context()
-    mapper = mm.PeakMapper(c,"alu_ns")
-    pe = mapper.add_peak_primitive("PE",gen_pe)
-    with open('rules/simple.json','r') as jfile:
-        rrs = json.load(jfile)
-
-    for rr in rrs:
-        mapper.add_rr_from_description(rr)
-
-    #test the mapper on simple add4 app
-    app = c.load_from_file("tests/examples/add4.json")
-    mapper.map_app(app)
-    imap = mapper.extract_instr_map(app)
-    assert len(imap) == 3
-
 def test_rules():
     c = coreir.Context()
     mapper = mm.PeakMapper(c,"alu_ns")
