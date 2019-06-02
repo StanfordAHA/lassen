@@ -39,7 +39,6 @@ tester = fault.Tester(pe_circuit, clock=pe_circuit.CLK)
 test_dir = "tests/build"
 magma.compile(f"{test_dir}/WrappedPE", pe_circuit, output="coreir-verilog")
 
-def _rtl_tester(test_op, data0, data1, bit0=None, res=None, res_p=None): pass
 def rtl_tester(test_op, data0, data1, bit0=None, res=None, res_p=None):
     tester.clear()
     if hasattr(test_op, "inst"):
