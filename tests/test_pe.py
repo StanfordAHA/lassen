@@ -56,6 +56,9 @@ def copy_file(src_filename, dst_filename, override=False):
 
 def rtl_tester(test_op, data0=None, data1=None, bit0=None, bit1=None, bit2=None,
                res=None, res_p=None, delay=0, data0_delay_values=None,
+               data1_delay_values=None): pass
+def _rtl_tester(test_op, data0=None, data1=None, bit0=None, bit1=None, bit2=None,
+               res=None, res_p=None, delay=0, data0_delay_values=None,
                data1_delay_values=None):
     tester.clear()
     if hasattr(test_op, "inst"):
@@ -265,7 +268,7 @@ fp_inf_vec = [BV('inf'),BV('-inf')]
 @pytest.mark.parametrize("op", [
     op(asm.fp_add(), lambda x, y: x + y),
     op(asm.fp_sub(), lambda x, y: x - y),
-    op(asm.fp_mult(), lambda x, y: x * y)
+    op(asm.fp_mul(), lambda x, y: x * y)
 ])
 @pytest.mark.parametrize("args",
     [(BFloat16.random(), BFloat16.random()) for _ in range(NTESTS)] +
@@ -296,7 +299,7 @@ def test_fp_binary_op(op,args):
     op('lt',  lambda x, y: x <  y),
     op('le',  lambda x, y: x <= y),
     op('eq',  lambda x, y: x == y),
-    op('ne',  lambda x, y: x != y),
+    op('neq',  lambda x, y: x != y),
 ])
 def test_fp_cmp(xy,op):
     inst = getattr(asm,f"fp_{op.inst}")()
