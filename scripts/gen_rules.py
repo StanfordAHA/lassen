@@ -28,4 +28,4 @@ def discover(file_name):
     with open(file_name,'w') as jfile:
         json.dump(rrs,jfile,indent=2)
 
-#discover('rules/_all.json')
+discover('rules/_all.json')
