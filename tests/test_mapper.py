@@ -19,7 +19,7 @@ def test_discover():
             inst.rega == type(inst.rega).BYPASS and
             inst.regb == type(inst.regb).BYPASS and
             inst.regd == type(inst.regd).BYPASS and
-            inst.rege == type(inst.rege).BYPASS and 
+            inst.rege == type(inst.rege).BYPASS and
             inst.regf == type(inst.regf).BYPASS and
             (inst.cond == type(inst.cond).Z or inst.cond == type(inst.cond).Z_n)
         )
@@ -223,7 +223,6 @@ def test_binary_lut(op):
     imap = mapper.extract_instr_map(app)
     assert len(imap) == 3
 
-<<<<<<< HEAD
 @pytest.mark.parametrize("op",["lt","le","gt","ge","eq","neq","add","sub","mul"])
 def test_fp(op):
     c = coreir.Context()
