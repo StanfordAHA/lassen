@@ -13,7 +13,7 @@ from itertools import product
 import os
 import shutil
 from peak.auto_assembler import generate_assembler
-
+import random
 
 class HashableDict(dict):
     def __hash__(self):
