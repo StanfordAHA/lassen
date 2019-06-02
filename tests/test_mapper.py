@@ -223,7 +223,6 @@ def test_binary_lut(op):
     imap = mapper.extract_instr_map(app)
     assert len(imap) == 3
 
-<<<<<<< HEAD
 @pytest.mark.parametrize("op",["lt","le","gt","ge","eq","neq","add","sub","mul"])
 def test_fp(op):
     c = coreir.Context()
