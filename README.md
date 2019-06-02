@@ -1,4 +1,6 @@
-[![Build Status](https://travis-ci.com/StanfordAHA/lassen.svg?branch=master)](https://travis-ci.com/StanfordAHA/lassen)
+<img src="https://avatars0.githubusercontent.com/in/67?s=20&v=4"> [![Build Status](https://travis-ci.com/StanfordAHA/lassen.svg?branch=master)](https://travis-ci.com/StanfordAHA/lassen)
+
+<img src="https://avatars1.githubusercontent.com/oa/46194?s=20&v=4"> [![Build Status](https://badge.buildkite.com/ff881d32201c87b9105d613c55df78ac85de68a0e819cf7205.svg)](https://buildkite.com/stanford-aha/lassen)
 
 # Lassen
 The PE for the second generation CGRA (garnet).
