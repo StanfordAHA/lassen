@@ -407,10 +407,6 @@ def test_get_float_frac(args):
     assert res == Data(fpdata.frac)
     assert res_p == 0
     assert irq == 0
-=======
-    assert res==0x3F80
-    assert res_p==0
-    assert irq==0
     rtl_tester(inst, data0, data1, res=res)
 
 def test_get_float_int():
@@ -470,4 +466,3 @@ def test_reg_const(args):
     data1 = UIntVector.random(DATAWIDTH)
     inst = asm.add(rb_mode=Mode.CONST, rb_const=const1)
     rtl_tester(inst, data0, data1, res=data0 + const1)
->>>>>>> master
