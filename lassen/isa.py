@@ -12,6 +12,8 @@ def gen_alu_type(family):
     class ALU(family.Enum):
         Add = 0
         Sub = 1
+        Adc = 2
+        Sbc = 6
         Abs = 3
         GTE_Max = 4
         LTE_Min = 5
