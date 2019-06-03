@@ -57,9 +57,6 @@ def copy_file(src_filename, dst_filename, override=False):
 
 def rtl_tester(test_op, data0=None, data1=None, bit0=None, bit1=None, bit2=None,
                res=None, res_p=None, delay=0, data0_delay_values=None,
-               data1_delay_values=None): pass
-def _rtl_tester(test_op, data0=None, data1=None, bit0=None, bit1=None, bit2=None,
-               res=None, res_p=None, delay=0, data0_delay_values=None,
                data1_delay_values=None):
     tester.clear()
     if hasattr(test_op, "inst"):
