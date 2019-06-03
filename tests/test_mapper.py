@@ -260,11 +260,13 @@ def test_rules(rule):
     app = make_single_op_app(c,namespace,op)
     app.print_()
     mapper = LassenMapper(c)
-    #try:
-    #    mapper.map_app(app)
-    #except:
-    #    raise NotImplementedError("You probably need to run the scripts/gen_rules.py script")
-    mapper.map_app(app)
+    for rule in Rules:
+        mapper.add_rr_from_description(rule)
+
+    try:
+        mapper.map_app(app)
+    except:
+        raise NotImplementedError("You probably need to regenerate rules by running the scripts/gen_rules.py script")
 
     imap = mapper.extract_instr_map(app)
     assert len(imap) == 1
