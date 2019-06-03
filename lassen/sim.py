@@ -135,15 +135,13 @@ def gen_alu(family: TypeFamily, datawidth, use_assembler=False):
         elif alu == ALU.SHL:
             #res, res_p = a << Data(b[:4]), Bit(0)
             res, res_p = a << b, Bit(0)
-        elif (alu == ALU.FP_add):
+        elif (alu == ALU.FP_add) | (alu == ALU.FP_sub) | (alu == ALU.FP_cmp):
+            #Flip the sign bit of b
+            if (alu == ALU.FP_sub) | (alu == ALU.FP_cmp):
+                b = BitVector.concat(b[:-1],~b[-1:])
             a = bv2float(a)
             b = bv2float(b)
             res = float2bv(a + b)
-            res_p = Bit(0)
-        elif (alu == ALU.FP_sub) | (alu == ALU.FP_cmp):
-            a = bv2float(a)
-            b = bv2float(b)
-            res = float2bv(a - b)
             res_p = Bit(0)
         elif alu == ALU.FP_mult:
             a = bv2float(a)

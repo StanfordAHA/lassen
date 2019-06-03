@@ -28,6 +28,7 @@ def gen_pe_type_family(family):
             return m.Bits[16](bv)
         BFloat16.reinterpret_from_bv = reinterpret_from_bv
         BFloat16.reinterpret_as_bv = reinterpret_as_bv
+        m.BitVector.concat = m.concat
         family = ExtendedTypeFamily(*family, m.Product, m.Enum, overflow, BFloat16)
     else:
         raise NotImplementedError(family)
