@@ -4,7 +4,7 @@ from .mode import gen_mode_type
 from .lut import gen_lut_type
 from .isa import *
 from .sim import gen_pe_type_family
-from hwtypes import BitVector
+from hwtypes import BitVector, Bit
 
 sim_family = gen_pe_type_family(BitVector.get_family())
 Mode = gen_mode_type(sim_family)
@@ -46,6 +46,12 @@ def add(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS, ra_const=0, rb_const=0):
 
 def sub ():
     return inst(ALU.Sub)
+
+def adc ():
+    return inst(ALU.Adc)
+
+def sbc ():
+    return inst(ALU.Sbc)
 
 def neg ():
     return inst(ALU.Sub)
