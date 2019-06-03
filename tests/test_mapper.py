@@ -282,11 +282,3 @@ def test_init():
     mapper.map_app(app)
     imap = mapper.extract_instr_map(app)
     assert len(imap) == 3
-
-
-
-
-#test_float()
-#test_discover()
-#test_io()
-#test_binary_lut("and")
