@@ -180,19 +180,6 @@ def test_fp_pointwise():
     print("instance map",imap)
     app.save_to_file("tests/examples/fp_pointwise.mapped.json")
 
-def test_rules():
-    c = coreir.Context()
-    mapper = mm.PeakMapper(c,"alu_ns")
-    pe = mapper.add_peak_primitive("PE",gen_pe)
-    for rr in Rules:
-        mapper.add_rr_from_description(rr)
-
-    #test the mapper on simple add4 app
-    app = c.load_from_file("tests/examples/add4.json")
-    mapper.map_app(app)
-    imap = mapper.extract_instr_map(app)
-    assert len(imap) == 3
-
 @pytest.mark.parametrize("op", ["and","or","xor"])
 def test_binary_lut(op):
     c = coreir.Context()
@@ -223,11 +210,9 @@ def test_binary_lut(op):
     imap = mapper.extract_instr_map(app)
     assert len(imap) == 3
 
-@pytest.mark.parametrize("op",["ult","ule","ugt","uge","eq","neq","add","sub","mul","mux"])
-def test_coreir_ops(op):
-    c = coreir.Context()
+def make_single_op_app(c : coreir.Context,namespace : str, op : str):
     g = c.global_namespace
-    coreir_op = c.get_namespace("coreir").generators[op](width=16)
+    coreir_op = c.get_namespace(namespace).generators[op](width=16)
     mod_type = coreir_op.type
     app = g.new_module("app",mod_type)
     mdef = app.new_definition()
@@ -237,6 +222,12 @@ def test_coreir_ops(op):
         mdef.connect(io.select(pname),op_inst.select(pname))
 
     app.definition = mdef
+    return app
+
+@pytest.mark.parametrize("op",["ult","ule","ugt","uge","eq","neq","add","sub","mul","mux"])
+def test_coreir_ops(op):
+    c = coreir.Context()
+    app = make_single_op_app(c,"coreir",op)
     mapper = LassenMapper(c)
     for rule in Rules:
         mapper.add_rr_from_description(rule)
@@ -244,6 +235,25 @@ def test_coreir_ops(op):
     imap = mapper.extract_instr_map(app)
     assert len(imap) == 1
 
+@pytest.mark.parametrize("rule",Rules)
+def test_rules(rule):
+    if rule['kind'] != "1to1":
+        pytest.skip()
+    namespace,op = rule["coreir_prim"]
+    c = coreir.Context()
+    app = make_single_op_app(c,namespace,op)
+    app.print_()
+    mapper = LassenMapper(c)
+    for rule in Rules:
+        mapper.add_rr_from_description(rule)
+
+    try:
+        mapper.map_app(app)
+    except:
+        raise NotImplementedError("You probably need to regenerate rules by running the scripts/gen_rules.py script")
+
+    imap = mapper.extract_instr_map(app)
+    assert len(imap) == 1
 
 def test_init():
     c = coreir.Context()
@@ -256,11 +266,3 @@ def test_init():
     mapper.map_app(app)
     imap = mapper.extract_instr_map(app)
     assert len(imap) == 3
-
-
-
-
-#test_float()
-#test_discover()
-#test_io()
-test_binary_lut("and")
