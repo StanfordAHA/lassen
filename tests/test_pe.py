@@ -277,8 +277,6 @@ fp_inf_vec = [BV('inf'),BV('-inf')]
     list(product(fp_sign_vec+fp_zero_vec,fp_sign_vec+fp_zero_vec))
 )
 def test_fp_binary_op(op,args):
-    if not CAD_ENV:
-        pytest.skip("Skipping fp op tests because CW primitives are not available")
     inst = op.inst
     in0 = args[0]
     in1 = args[1]
@@ -287,7 +285,8 @@ def test_fp_binary_op(op,args):
     data1 = BFloat16.reinterpret_as_bv(in1)
     res, res_p, irq = pe(inst, data0, data1)
     assert res == BFloat16.reinterpret_as_bv(out)
-    rtl_tester(op, data0, data1, res=res)
+    if CAD_ENV:
+        rtl_tester(op, data0, data1, res=res)
 
 
 @pytest.mark.parametrize("xy",
