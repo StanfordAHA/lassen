@@ -221,7 +221,11 @@ def test_rules(rule):
         pytest.skip()
     namespace,op = rule["coreir_prim"]
     c = coreir.Context()
-    app = make_single_op_app(c,namespace,op)
+    if namespace == "coreir":
+        genargs = dict(width=16)
+    elif namespace == "float":
+        genargs = dict(exp_bits=8,frac_bits=7)
+    app = make_single_op_app(c,namespace,op,**genargs)
     app.print_()
     mapper = LassenMapper(c)
     for rule in Rules:
