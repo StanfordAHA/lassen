@@ -83,7 +83,7 @@ def fp_add(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
 def fp_sub(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
     return inst(ALU.FP_sub, ra_mode=ra_mode, rb_mode=rb_mode)
 
-def fp_mult(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
+def fp_mul(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
     return inst(ALU.FP_mult, ra_mode=ra_mode, rb_mode=rb_mode)
 
 def fp_cmp(cond):
@@ -104,7 +104,7 @@ def fp_le():
 def fp_eq():
     return fp_cmp(Cond.FP_EQ)
 
-def fp_ne():
+def fp_neq():
     return fp_cmp(Cond.FP_NE)
 
 

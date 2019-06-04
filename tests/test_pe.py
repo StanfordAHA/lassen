@@ -270,7 +270,7 @@ fp_inf_vec = [BV('inf'),BV('-inf')]
 @pytest.mark.parametrize("op", [
     op(asm.fp_add(), lambda x, y: x + y),
     op(asm.fp_sub(), lambda x, y: x - y),
-    op(asm.fp_mult(), lambda x, y: x * y)
+    op(asm.fp_mul(), lambda x, y: x * y)
 ])
 @pytest.mark.parametrize("args",
     [(BFloat16.random(), BFloat16.random()) for _ in range(NTESTS)] +
@@ -300,7 +300,7 @@ def test_fp_binary_op(op,args):
     op('lt',  lambda x, y: x <  y),
     op('le',  lambda x, y: x <= y),
     op('eq',  lambda x, y: x == y),
-    op('ne',  lambda x, y: x != y),
+    op('neq',  lambda x, y: x != y),
 ])
 def test_fp_cmp(xy,op):
     inst = getattr(asm,f"fp_{op.inst}")()
