@@ -138,39 +138,8 @@ def test_float():
 def test_fp_pointwise():
     c = coreir.Context()
     c.load_library("float")
-    mapper = mm.PeakMapper(c,"alu_ns")
-
-    pe = mapper.add_peak_primitive("PE",gen_pe)
-
-    # FADD: Adds a simple "1 to 1" rewrite rule for fadd
-    bfloat_add = c.get_namespace("float").generators['add'](exp_bits=8,frac_bits=7)
-    mapper.add_rewrite_rule(mm.Peak1to1(
-        bfloat_add, #Coreir module
-        pe, #coreir pe
-        asm.fp_add(), #Instruction for PE
-        dict(in0='data0',in1='data1',out="alu_res") #Port Mapping
-    ))
-
-    # FMUL: Adds a simple "1 to 1" rewrite rule for fmul
-    bfloat_mul = c.get_namespace("float").generators['mul'](exp_bits=8,frac_bits=7)
-    mapper.add_rewrite_rule(mm.Peak1to1(
-        bfloat_mul, #Coreir module
-        pe, #coreir pe
-        asm.fp_mul(), #Instruction for PE
-        dict(in0='data0',in1='data1',out="alu_res") #Port Mapping
-    ))
-
-    # CONST: Adds a simple "1 to 1" rewrite rule for const
-    const16 = c.get_namespace("coreir").generators['const'](width=16)
-    def instr_const(inst):
-        return asm.const(inst.config["value"].value)
-
-    mapper.add_rewrite_rule(mm.Peak1to1(
-        const16,
-        pe,
-        instr_const,
-        dict(out="alu_res")
-    ))
+    #mapper = mm.PeakMapper(c,"alu_ns")
+    mapper = LassenMapper(c)
 
     #test the mapper on simple add4 app
     app = c.load_from_file("tests/examples/fp_pointwise.json")
@@ -226,7 +195,9 @@ def make_single_op_app(c : coreir.Context,namespace : str, op : str):
 @pytest.mark.parametrize("op",["lt","le","gt","ge","eq","neq","add","sub","mul"])
 def test_fp_ops(op):
     c = coreir.Context()
+    c.load_library("float")
     app = make_single_op_app(c,"float",op)
+    assert 0
     mapper = LassenMapper(c)
     for rule in Rules:
         mapper.add_rr_from_description(rule)
