@@ -179,9 +179,9 @@ def test_binary_lut(op):
     imap = mapper.extract_instr_map(app)
     assert len(imap) == 3
 
-def make_single_op_app(c : coreir.Context,namespace : str, op : str):
+def make_single_op_app(c : coreir.Context,namespace : str, op : str,**genargs):
     g = c.global_namespace
-    coreir_op = c.get_namespace(namespace).generators[op](width=16)
+    coreir_op = c.get_namespace(namespace).generators[op](**genargs)
     mod_type = coreir_op.type
     app = g.new_module("app",mod_type)
     mdef = app.new_definition()
@@ -196,8 +196,7 @@ def make_single_op_app(c : coreir.Context,namespace : str, op : str):
 def test_fp_ops(op):
     c = coreir.Context()
     c.load_library("float")
-    app = make_single_op_app(c,"float",op)
-    assert 0
+    app = make_single_op_app(c,"float",op,exp_bits=8,frac_bits=7)
     mapper = LassenMapper(c)
     for rule in Rules:
         mapper.add_rr_from_description(rule)
@@ -208,7 +207,7 @@ def test_fp_ops(op):
 @pytest.mark.parametrize("op",["ult","ule","ugt","uge","eq","neq","add","sub","mul","mux"])
 def test_coreir_ops(op):
     c = coreir.Context()
-    app = make_single_op_app(c,"coreir",op)
+    app = make_single_op_app(c,"coreir",op,width=16)
     mapper = LassenMapper(c)
     for rule in Rules:
         mapper.add_rr_from_description(rule)
