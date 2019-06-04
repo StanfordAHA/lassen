@@ -308,6 +308,8 @@ def test_fp_cmp(xy,op):
     out = op.func(in0,in1)
     _, res_p, _ = pe(inst, BFloat16.reinterpret_as_bv(in0), BFloat16.reinterpret_as_bv(in1))
     assert res_p == out
+    if CAD_ENV:
+        rtl_tester(op, data0, data1, res=res)
 
 def test_get_mant():
     inst = asm.fgetmant()
