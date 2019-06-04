@@ -32,7 +32,7 @@ Mode = gen_mode_type(sim_family)
 
 # create these variables in global space so that we can reuse them easily
 pe_magma = gen_pe(magma.get_family())
-nstr_name, inst_type = pe.__call__._peak_isa_
+instr_name, inst_type = pe.__call__._peak_isa_
 assembler, disassembler, width, layout = \
             generate_assembler(inst_type)
 instr_magma_type = type(pe_magma.interface.ports[instr_name])
