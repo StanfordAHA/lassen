@@ -285,24 +285,27 @@ def test_fp_binary_op(op,args):
     assert res == BFloat16.reinterpret_as_bv(out)
     rtl_tester(op, data0, data1, res=res)
 
+#container for a floating point value easily indexed by sign, exp, and frac
 fpdata = namedtuple("fpdata", ["sign", "exp", "frac"])
 
+#Convert fpdata to a BFloat value
 def BFloat(fpdata):
     sign = BitVector[1](fpdata.sign)
     exp = BitVector[8](fpdata.exp)
     frac = BitVector[7](fpdata.frac)
     return BitVector.concat(BitVector.concat(sign,exp),frac)
 
+#Generate random bfloat
 def random_bfloat():
-    return fpdata(random.choice([0,1]),BitVector.random(8),BitVector.random(7))
+    return fpdata(BitVector.random(1),BitVector.random(8),BitVector.random(7))
 
 @pytest.mark.parametrize("fpdata", [
     random_bfloat() for _ in range(NTESTS)
 ])
 def test_bfloat_construct(fpdata):
     fp = BFloat(fpdata)
-    assert fp[15] == fpdata.sign
-    assert fp[7:15] == fpdata.exp
+    assert fp[-1] == fpdata.sign
+    assert fp[7:-1] == fpdata.exp
     assert fp[:7] == fpdata.frac
 
 @pytest.mark.parametrize("args", [
@@ -331,22 +334,21 @@ def test_add_exp_imm_targeted():
     assert res_p == 0
     assert irq == 0
 
-@pytest.mark.skip("Not sure what the exact semantics are")
+#@pytest.mark.skip("Not sure what the exact semantics are")
 @pytest.mark.parametrize("args", [
-    (random_bfloat(),random.randint(0,2**6))
+    (random_bfloat(),BitVector.random(8))
         for _ in range(NTESTS)
 ])
 def test_add_exp_imm(args):
-    fpdata = args[0]
-    in0 = BFloat(fpdata)
-    in1 = args[1]
+    in0 = BFloat(args[0])
+    in1 = Data(args[1])
+    out = BFloat(fpdata(args[0].sign,args[0].exp+args[1],args[0].frac))
     inst = asm.faddiexp()
     res, res_p, irq = pe(inst, in0, in1)
-    #TODO what is the gold function?
-    assert res == in1 + Data(fpdata.exp)
+    assert res == out
     assert res_p == 0
     assert irq == 0
-    rtl_tester(inst, data0, data1, res=res)
+    rtl_tester(inst, in0, in1, res=out)
 
 def test_sub_exp():
     inst = asm.fsubexp()
