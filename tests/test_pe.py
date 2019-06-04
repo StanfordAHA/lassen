@@ -334,7 +334,6 @@ def test_add_exp_imm_targeted():
     assert res_p == 0
     assert irq == 0
 
-#@pytest.mark.skip("Not sure what the exact semantics are")
 @pytest.mark.parametrize("args", [
     (random_bfloat(),BitVector.random(8))
         for _ in range(NTESTS)
@@ -350,7 +349,23 @@ def test_add_exp_imm(args):
     assert irq == 0
     rtl_tester(inst, in0, in1, res=out)
 
-def test_sub_exp():
+@pytest.mark.parametrize("args", [
+    (random_bfloat(),BitVector.random(8))
+        for _ in range(NTESTS)
+])
+def test_sub_exp(args):
+    in0 = BFloat(args[0])
+    in1 = Data(args[1])
+    #TODO what is this gold function?
+    out = BFloat(fpdata(args[0].sign,args[0].exp-args[1],args[0].frac))
+    inst = asm.faddiexp()
+    res, res_p, irq = pe(inst, in0, in1)
+    assert res == out
+    assert res_p == 0
+    assert irq == 0
+    rtl_tester(inst, in0, in1, res=out)
+
+def test_sub_exp_targeted():
     inst = asm.fsubexp()
     data0 = Data(0x7F8A)
     data1 = Data(0x4005)
@@ -363,7 +378,7 @@ def test_sub_exp():
     assert irq==0
     rtl_tester(inst, data0, data1, res=res)
 
-@pytest.mark.skip("Not sure the exact op semantics")
+#@pytest.mark.skip("Not sure the exact op semantics")
 @pytest.mark.parametrize("args", [
     (random_bfloat(),SIntVector.random(DATAWIDTH)) for _ in range(NTESTS)
 ])
@@ -371,10 +386,12 @@ def test_cnvt_exp_to_float(args):
     fpdata = args[0]
     in0 = BFloat(fpdata)
     in1 = args[1]
-    inst = asm.faddiexp()
-    res, res_p, irq = pe(inst, in0, in1)
     #TODO what is the gold function?
-    assert res == BFloat16(fpdata.exp).reinterpret_as_bv()
+    out = BFloat16(fpdata.exp).reinterpret_as_bv()
+    inst = asm.faddiexp()
+
+    res, res_p, irq = pe(inst, in0, in1)
+    assert res == out
     assert res_p == 0
     assert irq == 0
 
@@ -389,17 +406,7 @@ def test_cnvt_exp_to_float_targeted():
     assert res_p == 0
     assert irq == 0
 
-def test_get_float_int():
-    inst = asm.fgetfint()
-    res, res_p, irq = pe(inst, Data(0x4020), Data(0x0000))
-    # 2.5 = 10.1 i.e. exp = 1 with 1.01 # biased exp = 128 i.e 80
-    # float is 0100 0000 0010 0000 i.e. 4020
-    # res: int(2.5) =  2
-    assert res == 0x2
-    assert res_p == 0
-    assert irq == 0
-
-@pytest.mark.skip("Not sure the exact op semantics")
+#@pytest.mark.skip("Not sure the exact op semantics")
 @pytest.mark.parametrize("args", [
     (random_bfloat(),SIntVector.random(DATAWIDTH)) for _ in range(NTESTS)
         for _ in range(NTESTS)
@@ -416,7 +423,23 @@ def test_get_float_frac(args):
     assert irq == 0
     rtl_tester(inst, data0, data1, res=res)
 
-def test_get_float_int():
+@pytest.mark.parametrize("args", [
+    (BFloat16.random(), BFloat16.random())
+    for _ in range(NTESTS)])
+def test_get_float_int(args):
+    inst = asm.fgetfint()
+    data0 = args[0].reinterpret_as_bv()
+    data1 = args[1].reinterpret_as_bv()
+    out  = int(float(args[0]))
+    #TODO what happens when the int value of the floating point is larger than 16 bits?
+    if out > 2**16-1:
+        pytest.skip()
+    out = Data(out)
+    res, res_p, irq = pe(inst, data0, data1)
+    assert res==out
+    rtl_tester(inst, data0, data1, res=res)
+
+def test_get_float_int_targeted():
     inst = asm.fgetfint()
     data0 = Data(0x4020)
     data1 = Data(0x0000)
@@ -429,7 +452,20 @@ def test_get_float_int():
     assert irq==0
     rtl_tester(inst, data0, data1, res=res)
 
-@pytest.mark.skip("This is broken")
+@pytest.mark.parametrize("args", [
+    (BFloat16.random(), BFloat16.random())
+    for _ in range(NTESTS)])
+def test_get_float_frac(args):
+    inst = asm.fgetffrac()
+    data0 = args[0].reinterpret_as_bv()
+    data1 = args[1].reinterpret_as_bv()
+    #TODO this gold function is slightly wrong
+    out  = float(args[0])-int(float(args[0]))
+    out = Data(int((2**16)*out))
+    res, res_p, irq = pe(inst, data0, data1)
+    assert res==out
+    rtl_tester(inst, data0, data1, res=res)
+
 def test_get_float_frac_targeted():
     inst = asm.fgetffrac()
     data0 = Data(0x4020)
@@ -442,7 +478,6 @@ def test_get_float_frac_targeted():
     assert res_p==0
     assert irq==0
     rtl_tester(inst, data0, data1, res=res)
-
 
 @pytest.mark.parametrize("lut_code", [
     UIntVector.random(8)
