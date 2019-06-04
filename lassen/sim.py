@@ -138,7 +138,7 @@ def gen_alu(family: TypeFamily, datawidth, use_assembler=False):
         elif (alu == ALU.FP_add) | (alu == ALU.FP_sub) | (alu == ALU.FP_cmp):
             #Flip the sign bit of b
             if (alu == ALU.FP_sub) | (alu == ALU.FP_cmp):
-                b = BitVector.concat(b[:-1],~b[-1:])
+                b = BitVector.concat(~b[-1:],b[:-1])
             a = bv2float(a)
             b = bv2float(b)
             res = float2bv(a + b)
