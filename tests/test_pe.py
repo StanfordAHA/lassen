@@ -406,23 +406,6 @@ def test_cnvt_exp_to_float_targeted():
     assert res_p == 0
     assert irq == 0
 
-#@pytest.mark.skip("Not sure the exact op semantics")
-@pytest.mark.parametrize("args", [
-    (random_bfloat(),SIntVector.random(DATAWIDTH)) for _ in range(NTESTS)
-        for _ in range(NTESTS)
-])
-def test_get_float_frac(args):
-    fpdata = args[0]
-    in0 = BFloat(fpdata)
-    in1 = args[1]
-    inst = asm.fgetffrac()
-    res, res_p, irq = pe(inst, in0, in1)
-    #TODO what is the gold function?
-    assert res == Data(fpdata.frac)
-    assert res_p == 0
-    assert irq == 0
-    rtl_tester(inst, data0, data1, res=res)
-
 @pytest.mark.parametrize("args", [
     (BFloat16.random(), BFloat16.random())
     for _ in range(NTESTS)])
@@ -433,7 +416,7 @@ def test_get_float_int(args):
     out  = int(float(args[0]))
     #TODO what happens when the int value of the floating point is larger than 16 bits?
     if out > 2**16-1:
-        pytest.skip()
+        out = 2**16-1
     out = Data(out)
     res, res_p, irq = pe(inst, data0, data1)
     assert res==out
