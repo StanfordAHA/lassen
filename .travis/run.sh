@@ -3,4 +3,4 @@ export PYTEST_ADDOPTS="--color=yes"
 
 cd /lassen
 
-pytest tests/ -vs
+pytest tests/ -v
