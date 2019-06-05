@@ -72,8 +72,8 @@ def test_div():
         golden_res = bfbin2float(test_vector[2])
         actual_res = bfbin2float("{:016b}".format(int(result)))
         delta = math.fabs(golden_res - actual_res)
-        print("div", bfbin2float(test_vector[0]), bfbin2float(test_vector[1]),
-              golden_res,actual_res,delta,max_error)
+        #print("div", bfbin2float(test_vector[0]), bfbin2float(test_vector[1]),
+        #      golden_res,actual_res,delta,max_error)
         assert delta <= max_error
 
 def test_ln():
@@ -106,8 +106,8 @@ def test_ln():
         golden_res = bfbin2float(test_vector[2])
         actual_res = bfbin2float("{:016b}".format(int(result)))
         delta = math.fabs(golden_res - actual_res)
-        print("ln", bfbin2float(test_vector[0]), bfbin2float(test_vector[1]),
-              golden_res,actual_res,delta, max_error)
+        #print("ln", bfbin2float(test_vector[0]), bfbin2float(test_vector[1]),
+        #      golden_res,actual_res,delta, max_error)
 
         assert delta <= max_error
 
@@ -147,12 +147,12 @@ def test_exp():
         max_error = test_vector[3]
 
         exp = EXP()
-        result = exp(op_a, 0, 0) 
+        result = exp(op_a, 0, 0)
         golden_res = bfbin2float(test_vector[2])
         actual_res = bfbin2float("{:016b}".format(int(result)))
         delta = math.fabs(golden_res - actual_res)
-        print("ln", bfbin2float(test_vector[0]), bfbin2float(test_vector[1]),
-              golden_res,actual_res,delta, max_error)
+        #print("ln", bfbin2float(test_vector[0]), bfbin2float(test_vector[1]),
+        #      golden_res,actual_res,delta, max_error)
 
         assert delta <= max_error
 

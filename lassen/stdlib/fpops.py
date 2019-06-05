@@ -3,7 +3,7 @@ from lassen import gen_pe, asm
 from lassen.mem import *
 from peak import Peak
 from lassen.tlut import tlut
-import lassen.mem.asm as mem_asm 
+import lassen.mem.asm as mem_asm
 from lassen.mem.sim import depth
 from lassen.utils import float2bfbin, bfbin2float
 import math
@@ -15,10 +15,10 @@ def gen_fdiv(family):
     TLUT = tlut()
     class fdiv(Peak):
         def __init__(self):
-          self.pe_get_mant  = PE() 
+          self.pe_get_mant  = PE()
           self.rom          = MEM()
-          self.pe_scale_res = PE() 
-          self.pe_mult      = PE() 
+          self.pe_scale_res = PE()
+          self.pe_mult      = PE()
         #result = op_a/op_b;
         def __call__(self,in0 : Data, in1 : Data, in2 : Data):
             inst1 = asm.fgetmant()
@@ -31,8 +31,8 @@ def gen_fdiv(family):
             lookup_result     = self.rom(rom_instr,mant,Data(0))
             scaled_result,_,_ = self.pe_scale_res(inst2, lookup_result, op_b)
             result,_,_        = self.pe_mult(inst3, scaled_result, op_a)
-            return result 
-    return fdiv 
+            return result
+    return fdiv
 
 def gen_fln(family):
     Data = family.BitVector[16]
@@ -42,10 +42,10 @@ def gen_fln(family):
     class fln(Peak):
         def __init__(self):
           self.pe_get_mant = PE()
-          self.pe_get_exp  = PE() 
+          self.pe_get_exp  = PE()
           self.rom         = MEM()
           self.pe_mult     = PE()
-          self.pe_add      = PE() 
+          self.pe_add      = PE()
         #result = ln(op_a)
         def __call__(self,in0 : Data, in1 : Data, in2 : Data):
           inst1 = asm.fgetmant()
@@ -62,7 +62,7 @@ def gen_fln(family):
           lookup_result = self.rom(rom_instr,mant,Data(0))
           mult,_,_      = self.pe_mult(inst3, fexp, const_ln2)
           result,_,_    = self.pe_mult(inst4, lookup_result, mult)
-          return result 
+          return result
     return fln
 
 def gen_fexp(family):
@@ -72,10 +72,10 @@ def gen_fexp(family):
     TLUT = tlut()
     class fexp(Peak):
         def __init__(self):
-          self.pe_get_int = PE() 
-          self.pe_get_frac = PE() 
+          self.pe_get_int = PE()
+          self.pe_get_frac = PE()
           self.pe_rom_idx = PE ()
-          self.rom = MEM() 
+          self.rom = MEM()
           self.pe_incr_exp = PE()
           self.pe_div_mult = PE ()
         #result = ln(op_a)
@@ -102,6 +102,5 @@ def gen_fexp(family):
           idx,_,_       = self.pe_rom_idx(inst4, ffrac, Data(0xFF))
           lookup_result = self.rom(rom_instr,idx,Data(0))
           result,_,_    = self.pe_incr_exp(inst5, lookup_result, fint)
-          print(op_a, const_ln2_inv, div_res, lookup_result, result)
-          return result 
-    return fexp 
+          return result
+    return fexp
