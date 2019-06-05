@@ -93,13 +93,11 @@ def rtl_tester(test_op, data0=None, data1=None, bit0=None, bit1=None, bit2=None,
                       os.path.join(test_dir, filename))
         # Seeing a strange issue where ncsim doesn't always recompile between
         # tests with a new test bench, because we know for every new system
-        # verilog test bench that we'll have a new `_tb` file, we just nuke it
-        # here now to force ncsim to recompile
+        # verilog test bench that we'll have a new `_tb` file, we just nuke the
+        # intermediate file directory
         # See https://github.com/StanfordAHA/lassen/issues/111 for more info
-        tb_file = os.path.join(test_dir, f"{pe_circuit.name}_tb.sv")
-        if os.path.exists(tb_file):
-            print("removing tb file")
-            os.remove(tb_file)
+        intermediate_file_dir = os.path.join(test_dir, f"INCA_libs")
+        shutil.rmtree(intermediate_file_dir, ignore_errors=True)
         tester.compile_and_run(target="system-verilog", simulator="ncsim",
                                directory="tests/build/",
                                include_verilog_libraries=libs,
