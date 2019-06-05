@@ -1,7 +1,8 @@
 from collections import namedtuple
 import lassen.asm as asm
-from lassen.sim import gen_pe
-from lassen.isa import DATAWIDTH
+from lassen.sim import gen_pe, gen_pe_type_family
+from lassen.mode import gen_mode_type
+from lassen.isa import DATAWIDTH, gen_alu_type
 from hwtypes import SIntVector, UIntVector, BitVector, Bit, FPVector, RoundingMode
 import pytest
 import math
@@ -10,6 +11,8 @@ import magma
 import peak
 import fault
 import os
+import random
+import shutil
 from peak.auto_assembler import generate_assembler
 
 
@@ -24,6 +27,8 @@ BFloat16 = FPVector[8,7,RoundingMode.RNE,False]
 
 pe_ = gen_pe(BitVector.get_family())
 pe = pe_()
+sim_family = gen_pe_type_family(BitVector.get_family())
+Mode = gen_mode_type(sim_family)
 
 # create these variables in global space so that we can reuse them easily
 pe_magma = gen_pe(magma.get_family())
@@ -38,33 +43,73 @@ tester = fault.Tester(pe_circuit, clock=pe_circuit.CLK)
 test_dir = "tests/build"
 magma.compile(f"{test_dir}/WrappedPE", pe_circuit, output="coreir-verilog")
 
+# check if we need to use ncsim + cw IP
+cw_dir = "/cad/cadence/GENUS17.21.000.lnx86/share/synth/lib/chipware/sim/verilog/CW/"
+CAD_ENV = shutil.which("ncsim") and os.path.isdir(cw_dir)
 
-def rtl_tester(test_op, data0, data1, bit0=None, res=None, res_p=None):
+def copy_file(src_filename, dst_filename, override=False):
+    if not override and os.path.isfile(dst_filename):
+        return
+    shutil.copy(src_filename, dst_filename)
+
+
+def rtl_tester(test_op, data0=None, data1=None, bit0=None, bit1=None, bit2=None,
+               res=None, res_p=None, delay=0, data0_delay_values=None,
+               data1_delay_values=None):
     tester.clear()
     if hasattr(test_op, "inst"):
         tester.circuit.inst = assembler(test_op.inst)
     else:
         tester.circuit.inst = assembler(test_op)
     tester.circuit.CLK = 0
-    data0 = BitVector[16](data0)
-    data1 = BitVector[16](data1)
-    tester.circuit.data0 = data0
-    tester.circuit.data1 = data1
+    if data0 is not None:
+        data0 = BitVector[16](data0)
+        tester.circuit.data0 = data0
+    if data1 is not None:
+        data1 = BitVector[16](data1)
+        tester.circuit.data1 = data1
     if bit0 is not None:
         tester.circuit.bit0 = BitVector[1](bit0)
+    if bit1 is not None:
+        tester.circuit.bit1 = BitVector[1](bit1)
+    if bit2 is not None:
+        tester.circuit.bit2 = BitVector[1](bit2)
     tester.eval()
+
+    for i in range(delay):
+        tester.step(2)
+        if data0_delay_values is not None:
+            tester.circuit.data0 = data0_delay_values[i]
+        if data1_delay_values is not None:
+            tester.circuit.data1 = data1_delay_values[i]
+
     if res is not None:
         tester.circuit.O0.expect(res)
     if res_p is not None:
         tester.circuit.O1.expect(res_p)
-    # detect if the PE circuit has been built
-    skip_verilator = os.path.isfile(os.path.join(test_dir, "obj_dir",
-                                                 "VWrappedPE__ALL.a"))
-    tester.compile_and_run(target="verilator",
-                           directory=test_dir,
-                           flags=['-Wno-UNUSED', '-Wno-PINNOCONNECT'],
-                           skip_compile=True,
-                           skip_verilator=skip_verilator)
+    if CAD_ENV:
+        # use ncsim
+        libs = ["CW_fp_mult.v", "CW_fp_add.v"]
+        for filename in libs:
+            copy_file(os.path.join(cw_dir, filename),
+                      os.path.join(test_dir, filename))
+        tester.compile_and_run(target="system-verilog", simulator="ncsim",
+                               directory="tests/build/",
+                               include_verilog_libraries=libs,
+                               skip_compile=True)
+    else:
+        libs = ["CW_fp_mult.v", "CW_fp_add.v"]
+        for filename in libs:
+            copy_file(os.path.join("stubs", filename),
+                      os.path.join(test_dir, filename))
+        # detect if the PE circuit has been built
+        skip_verilator = os.path.isfile(os.path.join(test_dir, "obj_dir",
+                                                     "VWrappedPE__ALL.a"))
+        tester.compile_and_run(target="verilator",
+                               directory=test_dir,
+                               flags=['-Wno-UNUSED', '-Wno-PINNOCONNECT'],
+                               skip_compile=True,
+                               skip_verilator=skip_verilator)
 
 
 op = namedtuple("op", ["inst", "func"])
@@ -154,19 +199,23 @@ def test_signed_relation(op, args):
     assert res_p==op.func(x,y)
     rtl_tester(op, x, y, res_p=res_p)
 
-@pytest.mark.parametrize("args", [
-    (UIntVector.random(DATAWIDTH), UIntVector.random(DATAWIDTH))
-        for _ in range(NTESTS)
+@pytest.mark.parametrize("op", [
+    op(asm.sel(),  lambda x, y, d: x if d else y),
+    op(asm.adc(),  lambda x, y, c: x + y + c),
+    op(asm.sbc(),  lambda x, y, c: x - y +c-1),
 ])
-def test_sel(args):
-    inst = asm.sel()
-    x, y = args
-    res, _, _ = pe(inst, Data(x), Data(y), Bit(0))
-    assert res==y
-    rtl_tester(inst, x, y, Bit(0), res=res)
-    res, _, _ = pe(inst, Data(x), Data(y), Bit(1))
-    assert res==x
-    rtl_tester(inst, x, y, Bit(1), res=res)
+@pytest.mark.parametrize("args", [
+    (UIntVector.random(DATAWIDTH), UIntVector.random(DATAWIDTH), Bit(random.choice([1,0])))
+        for _ in range(NTESTS) ]
+)
+def test_ternary(op,args):
+    inst = op.inst
+    d0 = args[0]
+    d1 = args[1]
+    b0 = args[2]
+    res, _, _ = pe(inst, d0,d1,b0)
+    assert res==op.func(d0,d1,b0)
+    rtl_tester(inst, d0, d1, b0, res=res)
 
 @pytest.mark.parametrize("args", [
     (SIntVector.random(DATAWIDTH), SIntVector.random(DATAWIDTH))
@@ -217,41 +266,49 @@ def test_umult(args):
 
 @pytest.mark.parametrize("op", [
     op(asm.fp_add(), lambda x, y: x + y),
-    op(asm.fp_sub(), lambda x, y: x - y),
     op(asm.fp_mult(), lambda x, y: x * y)
 ])
 @pytest.mark.parametrize("args", [
     (BFloat16.random(), BFloat16.random())
     for _ in range(NTESTS)])
 def test_fp_binary_op(op,args):
+    if not CAD_ENV:
+        pytest.skip("Skipping fp op tests because CW primitives are not available")
     inst = op.inst
     in0 = args[0]
     in1 = args[1]
     out = op.func(in0,in1)
-    res, res_p, irq = pe(inst, BFloat16.reinterpret_as_bv(in0), BFloat16.reinterpret_as_bv(in1))
+    data0 = BFloat16.reinterpret_as_bv(in0)
+    data1 = BFloat16.reinterpret_as_bv(in1)
+    res, res_p, irq = pe(inst, data0, data1)
     assert res == BFloat16.reinterpret_as_bv(out)
+    rtl_tester(op, data0, data1, res=res)
 
+#container for a floating point value easily indexed by sign, exp, and frac
 fpdata = namedtuple("fpdata", ["sign", "exp", "frac"])
 
+#Convert fpdata to a BFloat value
 def BFloat(fpdata):
     sign = BitVector[1](fpdata.sign)
     exp = BitVector[8](fpdata.exp)
     frac = BitVector[7](fpdata.frac)
     return BitVector.concat(BitVector.concat(sign,exp),frac)
 
+#Generate random bfloat
+def random_bfloat():
+    return fpdata(BitVector.random(1),BitVector.random(8),BitVector.random(7))
+
 @pytest.mark.parametrize("fpdata", [
-    fpdata(random.choice([0,1]),random.randint(1,2**7-1),random.randint(0,2**8-1))
-    for _ in range(NTESTS)
+    random_bfloat() for _ in range(NTESTS)
 ])
 def test_bfloat_construct(fpdata):
     fp = BFloat(fpdata)
-    assert fp[15] == fpdata.sign
-    assert fp[7:15] == fpdata.exp
+    assert fp[-1] == fpdata.sign
+    assert fp[7:-1] == fpdata.exp
     assert fp[:7] == fpdata.frac
 
 @pytest.mark.parametrize("args", [
-    (fpdata(random.choice([0,1]),random.randint(1,2**8-1),random.randint(0,2**7-1)),SIntVector.random(DATAWIDTH))
-    for _ in range(NTESTS)
+    (random_bfloat(),SIntVector.random(DATAWIDTH)) for _ in range(NTESTS)
 ])
 def test_get_mant(args):
     fpdata = args[0]
@@ -262,100 +319,175 @@ def test_get_mant(args):
     assert res == Data(fpdata.frac)
     assert res_p == 0
     assert irq == 0
+    rtl_tester(inst, in0, in1, res=res)
 
 
 def test_add_exp_imm_targeted():
     inst = asm.faddiexp()
-    res, res_p, irq = pe(inst, Data(0x7F8A), Data(0x0005))
+    data0 = Data(0x7F8A)
+    data1 = Data(0x0005)
+    res, res_p, irq = pe(inst, data0, data1)
     # 7F8A => Sign=0; Exp=0xFF; Mant=0x0A
     # Add 5 to exp => Sign=0; Exp=0x04; Mant=0x0A i.e. float  = 0x020A
     assert res == 0x020A
     assert res_p == 0
     assert irq == 0
 
-@pytest.mark.skip("Not sure what the exact semantics are")
 @pytest.mark.parametrize("args", [
-    (fpdata(random.choice([0,1]),random.randint(1,2**8-1),random.randint(0,2**7-1)),Data(random.randint(0,2**6)))
+    (random_bfloat(),BitVector.random(8))
         for _ in range(NTESTS)
 ])
 def test_add_exp_imm(args):
-    fpdata = args[0]
-    in0 = BFloat(fpdata)
-    in1 = args[1]
+    in0 = BFloat(args[0])
+    in1 = Data(args[1])
+    out = BFloat(fpdata(args[0].sign,args[0].exp+args[1],args[0].frac))
     inst = asm.faddiexp()
     res, res_p, irq = pe(inst, in0, in1)
-    #TODO what is the gold function?
-    assert res == in1 + Data(fpdata.exp)
+    assert res == out
     assert res_p == 0
     assert irq == 0
+    rtl_tester(inst, in0, in1, res=out)
 
-def test_sub_exp():
+@pytest.mark.parametrize("args", [
+    (random_bfloat(),BitVector.random(8))
+        for _ in range(NTESTS)
+])
+def test_sub_exp(args):
+    in0 = BFloat(args[0])
+    in1 = Data(args[1])
+    #TODO what is this gold function?
+    out = BFloat(fpdata(args[0].sign,args[0].exp-args[1],args[0].frac))
+    inst = asm.faddiexp()
+    res, res_p, irq = pe(inst, in0, in1)
+    assert res == out
+    assert res_p == 0
+    assert irq == 0
+    rtl_tester(inst, in0, in1, res=out)
+
+def test_sub_exp_targeted():
     inst = asm.fsubexp()
-    res, res_p, irq = pe(inst, Data(0x7F8A), Data(0x4005))
+    data0 = Data(0x7F8A)
+    data1 = Data(0x4005)
+    res, res_p, irq = pe(inst, data0, data1)
     # 7F8A => Sign=0; Exp=0xFF; Mant=0x0A
     # 4005 => Sign=0; Exp=0x80; Mant=0x05 (0100 0000 0000 0101)
     # res: 7F0A => Sign=0; Exp=0xFE; Mant=0x0A (0111 1111 0000 1010)
-    assert res == 0x7F0A
-    assert res_p == 0
-    assert irq == 0
+    assert res==0x7F0A
+    assert res_p==0
+    assert irq==0
+    rtl_tester(inst, data0, data1, res=res)
 
-@pytest.mark.skip("Not sure the exact op semantics")
+#@pytest.mark.skip("Not sure the exact op semantics")
 @pytest.mark.parametrize("args", [
-    (fpdata(random.choice([0,1]),random.randint(1,2**8-1),random.randint(0,2**7-1)),BitVector.random(DATAWIDTH))
-        for _ in range(NTESTS)
+    (random_bfloat(),SIntVector.random(DATAWIDTH)) for _ in range(NTESTS)
 ])
 def test_cnvt_exp_to_float(args):
     fpdata = args[0]
     in0 = BFloat(fpdata)
     in1 = args[1]
-    inst = asm.faddiexp()
-    res, res_p, irq = pe(inst, in0, in1)
     #TODO what is the gold function?
-    assert res == BFloat16(fpdata.exp).reinterpret_as_bv()
+    out = BFloat16(fpdata.exp).reinterpret_as_bv()
+    inst = asm.faddiexp()
+
+    res, res_p, irq = pe(inst, in0, in1)
+    assert res == out
     assert res_p == 0
     assert irq == 0
 
 def test_cnvt_exp_to_float_targeted():
     inst = asm.fcnvexp2f()
-    res, res_p, irq = pe(inst, Data(0x4005), Data(0x0000))
+    data0 = Data(0x4005)
+    data1 = Data(0x0000)
+    res, res_p, irq = pe(inst, data0, data1)
     # 4005 => Sign=0; Exp=0x80; Mant=0x05 (0100 0000 0000 0101) i.e. unbiased exp = 1
     # res: 3F80 => Sign=0; Exp=0x7F; Mant=0x00 (0011 1111 1000 0000)
     assert res == 0x3F80
     assert res_p == 0
     assert irq == 0
 
-def test_get_float_int():
-    inst = asm.fgetfint()
-    res, res_p, irq = pe(inst, Data(0x4020), Data(0x0000))
-    # 2.5 = 10.1 i.e. exp = 1 with 1.01 # biased exp = 128 i.e 80
-    # float is 0100 0000 0010 0000 i.e. 4020
-    # res: int(2.5) =  2
-    assert res == 0x2
-    assert res_p == 0
-    assert irq == 0
-
-@pytest.mark.skip("Not sure the exact op semantics")
 @pytest.mark.parametrize("args", [
-    (fpdata(random.choice([0,1]),random.randint(1,2**8-1),random.randint(0,2**7-1)),BitVector.random(DATAWIDTH))
-        for _ in range(NTESTS)
-])
+    (BFloat16.random(), BFloat16.random())
+    for _ in range(NTESTS)])
+def test_get_float_int(args):
+    inst = asm.fgetfint()
+    data0 = args[0].reinterpret_as_bv()
+    data1 = args[1].reinterpret_as_bv()
+    out  = int(float(args[0]))
+    #TODO what happens when the int value of the floating point is larger than 16 bits?
+    if out > 2**16-1:
+        out = 2**16-1
+    out = Data(out)
+    res, res_p, irq = pe(inst, data0, data1)
+    assert res==out
+    rtl_tester(inst, data0, data1, res=res)
+
+def test_get_float_int_targeted():
+    inst = asm.fgetfint()
+    data0 = Data(0x4020)
+    data1 = Data(0x0000)
+    res, res_p, irq = pe(inst, data0, data1)
+    #2.5 = 10.1 i.e. exp = 1 with 1.01 # biased exp = 128 i.e 80
+    #float is 0100 0000 0010 0000 i.e. 4020
+    # res: int(2.5) =  2
+    assert res==0x2
+    assert res_p==0
+    assert irq==0
+    rtl_tester(inst, data0, data1, res=res)
+
+@pytest.mark.parametrize("args", [
+    (BFloat16.random(), BFloat16.random())
+    for _ in range(NTESTS)])
 def test_get_float_frac(args):
-    fpdata = args[0]
-    in0 = BFloat(fpdata)
-    in1 = args[1]
     inst = asm.fgetffrac()
-    res, res_p, irq = pe(inst, in0, in1)
-    #TODO what is the gold function?
-    assert res == Data(fpdata.frac)
-    assert res_p == 0
-    assert irq == 0
+    data0 = args[0].reinterpret_as_bv()
+    data1 = args[1].reinterpret_as_bv()
+    #TODO this gold function is slightly wrong
+    out  = float(args[0])-int(float(args[0]))
+    out = Data(int((2**16)*out))
+    res, res_p, irq = pe(inst, data0, data1)
+    assert res==out
+    rtl_tester(inst, data0, data1, res=res)
 
 def test_get_float_frac_targeted():
     inst = asm.fgetffrac()
-    res, res_p, irq = pe(inst, Data(0x4020), Data(0x0000))
-    # 2.5 = 10.1 i.e. exp = 1 with 1.01 # biased exp = 128 i.e 80
-    # float is 0100 0000 0010 0000 i.e. 4020
+    data0 = Data(0x4020)
+    data1 = Data(0x0000)
+    res, res_p, irq = pe(inst, data0, data1)
+    #2.5 = 10.1 i.e. exp = 1 with 1.01 # biased exp = 128 i.e 80
+    #float is 0100 0000 0010 0000 i.e. 4020
     # res: frac(2.5) = 0.5D = 0.1B i.e. 1000 0000
-    assert res == 0x40
-    assert res_p == 0
-    assert irq == 0
+    assert res==0x80
+    assert res_p==0
+    assert irq==0
+    rtl_tester(inst, data0, data1, res=res)
+
+@pytest.mark.parametrize("lut_code", [
+    UIntVector.random(8)
+    for _ in range(NTESTS)])
+def test_lut(lut_code):
+    inst = asm.lut(lut_code)
+    for i in range(0, 8):
+        bit0, bit1, bit2 = magma.bitutils.int2seq(i, 3)
+        expected = (lut_code >> i) & 1
+        rtl_tester(inst, bit0=bit0, bit1=bit1, bit2=bit2, res_p=expected)
+
+
+@pytest.mark.parametrize("args", [
+    (UIntVector.random(DATAWIDTH), UIntVector.random(DATAWIDTH))
+        for _ in range(NTESTS) ] )
+def test_reg_delay(args):
+    data0, data1 = args
+    inst = asm.add(ra_mode=Mode.DELAY, rb_mode=Mode.DELAY)
+    data1_delay_values = [UIntVector.random(DATAWIDTH)]
+    rtl_tester(inst, data0, data1, res=data0 + data1, delay=1,
+               data1_delay_values=data1_delay_values)
+
+
+@pytest.mark.parametrize("args", [
+    (UIntVector.random(DATAWIDTH), UIntVector.random(DATAWIDTH))
+        for _ in range(NTESTS) ] )
+def test_reg_const(args):
+    data0, const1 = args
+    data1 = UIntVector.random(DATAWIDTH)
+    inst = asm.add(rb_mode=Mode.CONST, rb_const=const1)
+    rtl_tester(inst, data0, data1, res=data0 + const1)

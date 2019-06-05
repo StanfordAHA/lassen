@@ -1,6 +1,7 @@
 from hwtypes import TypeFamily
 from peak import Peak, name_outputs
 from peak.auto_assembler import assemble_values_in_func
+from .common import Global
 from .mode import gen_register_mode
 from .lut import gen_lut_type, gen_lut
 from .cond import gen_cond
@@ -71,15 +72,17 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
             abs_pred = a >= 0
             shr = a >> b
 
-        # Negate B and add cin if subtract
         Cin = Bit(0)
-        if alu == ALU.Sub:
+        if (alu == ALU.Sub) | (alu == ALU.Sbc):
             b = ~b
+        if (alu == ALU.Sub):
             Cin = Bit(1)
+        elif (alu == ALU.Adc) | (alu == ALU.Sbc):
+            Cin = d
 
         C = Bit(0)
         V = Bit(0)
-        if (alu == ALU.Add) | (alu == ALU.Sub):
+        if (alu == ALU.Add) | (alu == ALU.Sub) | (alu == ALU.Adc) | (alu == ALU.Sbc):
             res, C = a.adc(b, Cin)
             V = overflow(a, b, res)
             res_p = C
@@ -118,11 +121,6 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
             a = bv2float(a)
             b = bv2float(b)
             res = float2bv(a + b)
-            res_p = Bit(0)
-        elif (alu == ALU.FP_sub):
-            a = bv2float(a)
-            b = bv2float(b)
-            res = float2bv(a - b)
             res_p = Bit(0)
         elif alu == ALU.FP_mult:
             a = bv2float(a)
@@ -237,7 +235,6 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
         else:
             Z = (res == 0)
         N = Bit(res[-1])
-
         return res, res_p, Z, N, C, V
     if family.Bit is m.Bit:
         alu = assemble_values_in_func(assembler, alu, locals(), globals())
@@ -273,10 +270,10 @@ def gen_pe(family, assembler=None):
             self.rege: BitReg = BitReg()
             self.regf: BitReg = BitReg()
 
-        def __call__(self, inst: Inst,
-                     data0: Data, data1: Data = Data(0),
-                     bit0: Bit = Bit(0), bit1: Bit = Bit(0), bit2: Bit = Bit(0)
-                     ) -> (Data, Bit, Bit):
+        def __call__(self, inst: Inst, \
+            data0: Data, data1: Data = Data(0), \
+            bit0: Bit = Bit(0), bit1: Bit = Bit(0), bit2: Bit = Bit(0)
+        ) -> (Data, Bit, Global(Bit)):
             # Simulate one clock cycle
 
             ra = self.rega(inst.rega, inst.data0, data0)
@@ -296,13 +293,13 @@ def gen_pe(family, assembler=None):
             res_p = cond(inst.cond, alu_res_p, lut_res, Z, N, C, V)
 
             # calculate interrupt request
-            irq = Bit(0)  # NYI
+            # TODO(rsetaluri, rdaly): Implement logic to compute irq.
+            irq = Global(Bit)(0)
 
             # return 16-bit result, 1-bit result, irq
             return alu_res, res_p, irq
     if family.Bit is m.Bit:
         PE = m.circuit.sequential(PE)
     else:
-        PE.__call__ = name_outputs(
-            alu_res=Data, res_p=Bit, irq=Bit)(PE.__call__)
+        PE.__call__ = name_outputs(alu_res=Data,res_p=Bit,irq=Global(Bit))(PE.__call__)
     return PE

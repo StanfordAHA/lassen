@@ -4,7 +4,7 @@ from .mode import gen_mode_type
 from .lut import gen_lut_type
 from .isa import *
 from .sim import gen_pe_type_family
-from hwtypes import BitVector
+from hwtypes import BitVector, Bit
 
 sim_family = gen_pe_type_family(BitVector.get_family())
 Mode = gen_mode_type(sim_family)
@@ -16,7 +16,7 @@ DataConst = sim_family.BitVector[DATAWIDTH]
 BitConst = sim_family.Bit
 Cond = gen_cond_type(sim_family)
 
-#Lut Constants 
+#Lut Constants
 B0 = BitVector[8]([0,1,0,1,0,1,0,1])
 B1 = BitVector[8]([0,0,1,1,0,0,1,1])
 B2 = BitVector[8]([0,0,0,0,1,1,1,1])
@@ -40,11 +40,18 @@ def inst(alu, signed=Signed.unsigned, lut=0, cond=Cond.Z,
 
 # helper functions to format configurations
 
-def add(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
-    return inst(ALU.Add, ra_mode=ra_mode, rb_mode=rb_mode)
+def add(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS, ra_const=0, rb_const=0):
+    return inst(ALU.Add, ra_mode=ra_mode, rb_mode=rb_mode, ra_const=ra_const,
+                rb_const=rb_const)
 
 def sub ():
     return inst(ALU.Sub)
+
+def adc ():
+    return inst(ALU.Adc)
+
+def sbc ():
+    return inst(ALU.Sbc)
 
 def neg ():
     return inst(ALU.Sub)
@@ -75,9 +82,6 @@ def fp_add(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
 
 def fp_mult(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
     return inst(ALU.FP_mult, ra_mode=ra_mode, rb_mode=rb_mode)
-
-def fp_sub(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
-    return inst(ALU.FP_sub, ra_mode=ra_mode, rb_mode=rb_mode)
 
 def faddiexp (ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
     return inst(ALU.FAddIExp, ra_mode=ra_mode, rb_mode=rb_mode)
@@ -187,8 +191,4 @@ def lut_not():
 
 def lut_mux():
     return lut((B2&B1)|((~B2)&B0))
-
-
-
-
 
