@@ -96,8 +96,8 @@ def rtl_tester(test_op, data0=None, data1=None, bit0=None, bit1=None, bit2=None,
         # verilog test bench that we'll have a new `_tb` file, we just nuke the
         # intermediate file directory
         # See https://github.com/StanfordAHA/lassen/issues/111 for more info
-        intermediate_file_dir = os.path.join(test_dir, f"INCA_libs")
-        shutil.rmtree(intermediate_file_dir, ignore_errors=True)
+        # intermediate_file_dir = os.path.join(test_dir, f"INCA_libs")
+        # shutil.rmtree(intermediate_file_dir, ignore_errors=True)
         tester.compile_and_run(target="system-verilog", simulator="ncsim",
                                directory="tests/build/",
                                include_verilog_libraries=libs,
