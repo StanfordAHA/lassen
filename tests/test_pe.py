@@ -1,3 +1,4 @@
+import os
 from collections import namedtuple
 import lassen.asm as asm
 from lassen.sim import gen_pe, gen_pe_type_family
@@ -8,11 +9,12 @@ import pytest
 import magma
 import peak
 import fault
+from itertools import product
 import os
 import random
 import shutil
 from peak.auto_assembler import generate_assembler
-
+import random
 
 class HashableDict(dict):
     def __hash__(self):
@@ -23,16 +25,18 @@ Bit = Bit
 Data = BitVector[DATAWIDTH]
 BFloat16 = FPVector[8,7,RoundingMode.RNE,False]
 
+
+
 pe_ = gen_pe(BitVector.get_family())
 pe = pe_()
 sim_family = gen_pe_type_family(BitVector.get_family())
 Mode = gen_mode_type(sim_family)
 
 # create these variables in global space so that we can reuse them easily
-pe_magma = gen_pe(magma.get_family())
 instr_name, inst_type = pe.__call__._peak_isa_
 assembler, disassembler, width, layout = \
             generate_assembler(inst_type)
+pe_magma = gen_pe(magma.get_family(), use_assembler=True)
 instr_magma_type = type(pe_magma.interface.ports[instr_name])
 pe_circuit = peak.wrap_with_disassembler(pe_magma, disassembler, width,
                                          HashableDict(layout),
@@ -112,14 +116,6 @@ def rtl_tester(test_op, data0=None, data1=None, bit0=None, bit1=None, bit2=None,
 
 op = namedtuple("op", ["inst", "func"])
 NTESTS = 16
-
-
-def bfloat16(sign, exponent, mantissa):
-    sign &= 0x1
-    exponent &= 0xff
-    mantissa &= 0x7f
-    return Data((sign << 15) | (exponent << 7) | mantissa)
-
 
 @pytest.mark.parametrize("op", [
     op(asm.and_(),  lambda x, y: x&y),
@@ -264,16 +260,23 @@ def test_umult(args):
 # floating point
 #
 
+def BV(val):
+    return BFloat16(val)
+
+fp_sign_vec = [BV(2.0),BV(-2.0),BV(3.0),BV(-3.0)]
+fp_zero_vec = [BV(0.0),BV('-0.0')]
+fp_inf_vec = [BV('inf'),BV('-inf')]
+
 @pytest.mark.parametrize("op", [
     op(asm.fp_add(), lambda x, y: x + y),
-    op(asm.fp_mult(), lambda x, y: x * y)
+    op(asm.fp_sub(), lambda x, y: x - y),
+    op(asm.fp_mul(), lambda x, y: x * y)
 ])
-@pytest.mark.parametrize("args", [
-    (BFloat16.random(), BFloat16.random())
-    for _ in range(NTESTS)])
+@pytest.mark.parametrize("args",
+    [(BFloat16.random(), BFloat16.random()) for _ in range(NTESTS)] +
+    list(product(fp_sign_vec+fp_zero_vec,fp_sign_vec+fp_zero_vec))
+)
 def test_fp_binary_op(op,args):
-    if not CAD_ENV:
-        pytest.skip("Skipping fp op tests because CW primitives are not available")
     inst = op.inst
     in0 = args[0]
     in1 = args[1]
@@ -282,8 +285,29 @@ def test_fp_binary_op(op,args):
     data1 = BFloat16.reinterpret_as_bv(in1)
     res, res_p, irq = pe(inst, data0, data1)
     assert res == BFloat16.reinterpret_as_bv(out)
-    rtl_tester(op, data0, data1, res=res)
+    if CAD_ENV:
+        rtl_tester(op, data0, data1, res=res)
 
+
+@pytest.mark.parametrize("xy",
+    [(BFloat16.random(), BFloat16.random()) for _ in range(NTESTS)] +
+    list(product(fp_sign_vec+fp_zero_vec+fp_inf_vec,fp_sign_vec+fp_zero_vec+fp_inf_vec)) +
+    list(product(fp_zero_vec+fp_inf_vec,[BFloat16.random() for _ in range(NTESTS)]))
+)
+@pytest.mark.parametrize("op", [
+    op('gt',  lambda x, y: x >  y),
+    op('ge',  lambda x, y: x >= y),
+    op('lt',  lambda x, y: x <  y),
+    op('le',  lambda x, y: x <= y),
+    op('eq',  lambda x, y: x == y),
+    op('neq',  lambda x, y: x != y),
+])
+def test_fp_cmp(xy,op):
+    inst = getattr(asm,f"fp_{op.inst}")()
+    in0,in1 = xy
+    out = op.func(in0,in1)
+    _, res_p, _ = pe(inst, BFloat16.reinterpret_as_bv(in0), BFloat16.reinterpret_as_bv(in1))
+    assert res_p == out
 
 def test_get_mant():
     inst = asm.fgetmant()

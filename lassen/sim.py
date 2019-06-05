@@ -1,6 +1,7 @@
+import hwtypes
 from hwtypes import TypeFamily
 from peak import Peak, name_outputs
-from peak.auto_assembler import assemble_values_in_func
+from peak.auto_assembler import assemble_values_in_func, generate_assembler
 from .common import Global
 from .mode import gen_register_mode
 from .lut import gen_lut_type, gen_lut
@@ -30,7 +31,7 @@ import magma as m
 #   C (carry generated)
 #   V (overflow generated)
 #
-def gen_alu(family: TypeFamily, datawidth, assembler=None):
+def gen_alu(family: TypeFamily, datawidth, use_assembler=False):
     Bit = family.Bit
     BitVector = family.Unsigned
     Data = family.Unsigned[datawidth]
@@ -41,14 +42,31 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
     Signed = gen_signed_type(family)
     BFloat16 = family.BFloat16
 
+    FPExpBV = BitVector[8]
+    FPFracBV = BitVector[7]
+
     def bv2float(bv):
         return BFloat16.reinterpret_from_bv(bv)
 
     def float2bv(bvf):
         return BFloat16.reinterpret_as_bv(bvf)
 
-    def alu(inst:Inst, a:Data, b:Data, d:Bit) -> (Data, Bit, Bit, Bit, Bit,
-                                                  Bit):
+    def fp_get_exp(val : Data):
+        return val[7:15]
+
+    def fp_get_frac(val : Data):
+        return val[:7]
+
+    def fp_is_zero(val : Data):
+        return (fp_get_exp(val) == FPExpBV(0)) & (fp_get_frac(val) == FPFracBV(0))
+
+    def fp_is_inf(val : Data):
+        return (fp_get_exp(val) == FPExpBV(-1)) & (fp_get_frac(val) == FPFracBV(0))
+
+    def fp_is_neg(val : Data):
+        return Bit(val[-1])
+
+    def alu(inst:Inst, a:Data, b:Data, d:Bit) -> (Data, Bit, Bit, Bit, Bit, Bit):
         signed = inst.signed_
         alu = inst.alu
         if signed == Signed.signed:
@@ -67,6 +85,10 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
             lte_pred = a <= b
             abs_pred = a >= 0
             shr = a >> b
+        a_inf = fp_is_inf(a)
+        b_inf = fp_is_inf(b)
+        a_neg = fp_is_neg(a)
+        b_neg = fp_is_neg(b)
 
         Cin = Bit(0)
         if (alu == ALU.Sub) | (alu == ALU.Sbc):
@@ -113,7 +135,10 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
         elif alu == ALU.SHL:
             #res, res_p = a << Data(b[:4]), Bit(0)
             res, res_p = a << b, Bit(0)
-        elif (alu == ALU.FP_add):
+        elif (alu == ALU.FP_add) | (alu == ALU.FP_sub) | (alu == ALU.FP_cmp):
+            #Flip the sign bit of b
+            if (alu == ALU.FP_sub) | (alu == ALU.FP_cmp):
+                b = (Data(1) << (DATAWIDTH-1)) ^ b
             a = bv2float(a)
             b = bv2float(b)
             res = float2bv(a + b)
@@ -209,20 +234,41 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
         #else:
         #    raise NotImplementedError(alu)
 
-        Z = res == 0
         N = Bit(res[-1])
+        if (alu == ALU.FP_sub) | (alu == ALU.FP_add) | (alu == ALU.FP_mult) | (alu==ALU.FP_cmp):
+            Z = fp_is_zero(res)
+        else:
+            Z = (res == 0)
+
+        #Nicely handles infinities for comparisons
+        if (alu == ALU.FP_cmp):
+            if (a_inf & b_inf) & (a_neg == b_neg):
+                Z = Bit(1)
+
         return res, res_p, Z, N, C, V
     if family.Bit is m.Bit:
-        alu = assemble_values_in_func(assembler, alu, locals(), globals())
+        if use_assembler:
+            bv_fam = gen_pe_type_family(hwtypes.BitVector.get_family())
+            bv_alu = gen_alu_type(bv_fam)
+            bv_signed = gen_signed_type(bv_fam)
+            assemblers = {
+                ALU: (bv_alu, generate_assembler(bv_alu)[0]),
+                Signed: (bv_signed, generate_assembler(bv_signed)[0])
+            }
+            alu = assemble_values_in_func(assemblers, alu, locals(), globals())
         alu = m.circuit.combinational(alu)
 
     return alu
 
-def gen_pe(family, assembler=None):
+
+
+
+
+def gen_pe(family, use_assembler=False):
     family = gen_pe_type_family(family)
-    alu = gen_alu(family, DATAWIDTH, assembler)
+    alu = gen_alu(family, DATAWIDTH, use_assembler)
     lut = gen_lut(family)
-    cond = gen_cond(family, assembler)
+    cond = gen_cond(family, use_assembler)
 
     Bit = family.Bit
     Data = family.BitVector[DATAWIDTH]
@@ -266,7 +312,6 @@ def gen_pe(family, assembler=None):
 
             # calculate 1-bit result
             res_p = cond(inst.cond, alu_res_p, lut_res, Z, N, C, V)
-
             # calculate interrupt request
             # TODO(rsetaluri, rdaly): Implement logic to compute irq.
             irq = Global(Bit)(0)
