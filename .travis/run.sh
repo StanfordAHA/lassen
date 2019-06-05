@@ -3,4 +3,4 @@ export PYTEST_ADDOPTS="--color=yes"
 
 cd /lassen
 
-pytest -x -v tests/
+pytest --cov lassen --cov-report term-missing -v tests/
