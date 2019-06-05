@@ -20,13 +20,13 @@ def gen_fdiv(family):
           self.pe_scale_res = PE()
           self.pe_mult      = PE()
         #result = op_a/op_b;
-        def __call__(self,in0 : Data, in1 : Data, in2 : Data):
+        def __call__(self,in0 : Data, in1 : Data):
             inst1 = asm.fgetmant()
             inst2 = asm.fsubexp()
             inst3 = asm.fp_mult()
             rom_instr = mem_asm.rom([TLUT.div_lut(i) for i in range(0,128)]+[0x0000]*(depth - 128))
-            op_a = Data(int(in0))
-            op_b = Data(int(in1))
+            op_a = in0
+            op_b = in1
             mant,_,_          = self.pe_get_mant(inst1, op_b, Data(0))
             lookup_result     = self.rom(rom_instr,mant,Data(0))
             scaled_result,_,_ = self.pe_scale_res(inst2, lookup_result, op_b)
@@ -47,13 +47,13 @@ def gen_fln(family):
           self.pe_mult     = PE()
           self.pe_add      = PE()
         #result = ln(op_a)
-        def __call__(self,in0 : Data, in1 : Data, in2 : Data):
+        def __call__(self,in0 : Data):
           inst1 = asm.fgetmant()
           inst2 = asm.fcnvexp2f()
           inst3 = asm.fp_mult()
           inst4 = asm.fp_add()
           rom_instr = mem_asm.rom([TLUT.ln_lut(i) for i in range(0,128)]+[0x0000]*(depth - 128))
-          op_a = Data(int(in0))
+          op_a = in0
           ln2 = math.log(2)
           ln2_bf = int(float2bfbin(ln2), 2)
           const_ln2 = Data(ln2_bf)
@@ -79,7 +79,7 @@ def gen_fexp(family):
           self.pe_incr_exp = PE()
           self.pe_div_mult = PE ()
         #result = ln(op_a)
-        def __call__(self,in0 : Data, in1 : Data, in2 : Data):
+        def __call__(self,in0 : Data):
           # Perform op_a/ln(2)
           inst1 = asm.fp_mult()
           # Compute 2**op_a
@@ -92,7 +92,7 @@ def gen_fexp(family):
                       [TLUT.exp_lut(i) for i in range(-128,0)]+
                       [0x0000]*(depth - 256)
                       )
-          op_a = Data(int(in0))
+          op_a = in0
           ln2_inv = 1.0/math.log(2)
           ln2_inv_bf = int(float2bfbin(ln2_inv), 2)
           const_ln2_inv = Data(ln2_inv_bf)
