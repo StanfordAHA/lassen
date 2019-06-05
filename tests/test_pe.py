@@ -285,6 +285,16 @@ def test_fp_binary_op(op,args):
     rtl_tester(op, data0, data1, res=res)
 
 
+def test_fp_mul():
+     if not CAD_ENV:
+         pytest.skip("Skipping fp op tests because CW primitives are not available")
+     inst = asm.fp_mult()
+     data0 = Data(0x4040)
+     data1 = Data(0x4049)
+     res, res_p, irq = pe(inst, data0, data1)
+     rtl_tester(inst, data0, data1, res=res)
+
+
 def test_get_mant():
     inst = asm.fgetmant()
     data0 = Data(0x7F8A)
