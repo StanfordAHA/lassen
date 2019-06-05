@@ -2,6 +2,8 @@
 
 <img src="https://avatars1.githubusercontent.com/oa/46194?s=20&v=4"> [![Build Status](https://badge.buildkite.com/ff881d32201c87b9105d613c55df78ac85de68a0e819cf7205.svg)](https://buildkite.com/stanford-aha/lassen)
 
+[![Coverage Status](https://coveralls.io/repos/github/StanfordAHA/lassen/badge.svg?branch=master)](https://coveralls.io/github/StanfordAHA/lassen?branch=master)
+
 # Lassen
 The PE for the second generation CGRA (garnet).
 
