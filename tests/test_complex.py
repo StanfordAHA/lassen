@@ -16,7 +16,7 @@ SData = SIntVector[DATAWIDTH]
 NTESTS=16
 
 FMA = gen_FMA(BitVector.get_family())
-DIV = gen_fdiv(BitVector.get_family()) 
+DIV = gen_fdiv(BitVector.get_family())
 LN  = gen_fln(BitVector.get_family())
 EXP = gen_fexp(BitVector.get_family())
 
@@ -25,7 +25,6 @@ EXP = gen_fexp(BitVector.get_family())
      random.randint(-10,10),
      random.randint(-10,10))
     for _ in range(NTESTS) ] )
-
 def test_fma(args):
     fma = FMA()
     assert SData(args[0]*args[1]+args[2]) == fma(SData(args[0]), SData(args[1]), SData(args[2]))
