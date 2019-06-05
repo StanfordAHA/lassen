@@ -11,6 +11,7 @@ import fault
 import os
 import random
 import shutil
+import time
 from peak.auto_assembler import generate_assembler
 
 
@@ -91,13 +92,7 @@ def rtl_tester(test_op, data0=None, data1=None, bit0=None, bit1=None, bit2=None,
         for filename in libs:
             copy_file(os.path.join(cw_dir, filename),
                       os.path.join(test_dir, filename))
-        # Seeing a strange issue where ncsim doesn't always recompile between
-        # tests with a new test bench, because we know for every new system
-        # verilog test bench that we'll have a new `_tb` file, we just nuke the
-        # intermediate file directory
-        # See https://github.com/StanfordAHA/lassen/issues/111 for more info
-        # intermediate_file_dir = os.path.join(test_dir, f"INCA_libs")
-        # shutil.rmtree(intermediate_file_dir, ignore_errors=True)
+        time.sleep(1)
         tester.compile_and_run(target="system-verilog", simulator="ncsim",
                                directory="tests/build/",
                                include_verilog_libraries=libs,
