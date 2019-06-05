@@ -3,4 +3,4 @@ export PYTEST_ADDOPTS="--color=yes"
 
 cd /lassen
 
-pytest -v -s tests/
+pytest tests/ -k test_fp_mul
