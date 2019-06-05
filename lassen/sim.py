@@ -122,11 +122,6 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
             b = bv2float(b)
             res = float2bv(a + b)
             res_p = Bit(0)
-        elif (alu == ALU.FP_sub):
-            a = bv2float(a)
-            b = bv2float(b)
-            res = float2bv(a - b)
-            res_p = Bit(0)
         elif alu == ALU.FP_mult:
             a = bv2float(a)
             b = bv2float(b)

@@ -83,9 +83,6 @@ def fp_add(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
 def fp_mult(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
     return inst(ALU.FP_mult, ra_mode=ra_mode, rb_mode=rb_mode)
 
-def fp_sub(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
-    return inst(ALU.FP_sub, ra_mode=ra_mode, rb_mode=rb_mode)
-
 def faddiexp (ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
     return inst(ALU.FAddIExp, ra_mode=ra_mode, rb_mode=rb_mode)
 
