@@ -98,6 +98,7 @@ def rtl_tester(test_op, data0=None, data1=None, bit0=None, bit1=None, bit2=None,
         # See https://github.com/StanfordAHA/lassen/issues/111 for more info
         tb_file = os.path.join(test_dir, f"{pe_circuit.name}_tb.sv")
         if os.path.exists(tb_file):
+            print("removing tb file")
             os.remove(tb_file)
         tester.compile_and_run(target="system-verilog", simulator="ncsim",
                                directory="tests/build/",
