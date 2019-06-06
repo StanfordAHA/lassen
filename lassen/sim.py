@@ -153,14 +153,16 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
             manta = BitVector[16]((a & 0x7F))
             res, res_p = ((signa | signb) | exp_shift | manta), Bit(0)
         elif alu == ALU.FCnvExp2F:
-            biased_exp = SInt[8](a[7:15])
-            unbiased_exp = biased_exp - SInt[8](127)
-            if (unbiased_exp < 0):
+            expa0 = BitVector[8](a[7:15])
+            biased_exp0 = SInt[9](expa0.zext(1))
+            unbiased_exp0 = SInt[9](biased_exp0 - SInt[9](127))
+            if (unbiased_exp0 < 0):
                 sign = BitVector[16](0x8000)
-                abs_exp = ~unbiased_exp+1
+                abs_exp0 = -unbiased_exp0
             else:
                 sign = BitVector[16](0x0000)
-                abs_exp = unbiased_exp
+                abs_exp0 = unbiased_exp0
+            abs_exp = BitVector[8](abs_exp0[0:8])
             scale = SInt[16](-127)
             # for bit_pos in range(8):
             #   if (abs_exp[bit_pos]==Bit(1)):
@@ -191,35 +193,37 @@ def gen_alu(family: TypeFamily, datawidth, assembler=None):
                 0xFF << 7)) | normmant), Bit(0)
         elif alu == ALU.FGetFInt:
             signa = BitVector[16]((a & 0x8000))
-            expa = a[7:15]
             manta = BitVector[16]((a & 0x7F)) | 0x80
-
-            unbiased_exp = SInt[8](expa) - SInt[8](127)
-            if (unbiased_exp < 0):
-                manta_shift = BitVector[16](0)
+            expa0 = BitVector[8](a[7:15])
+            biased_exp0 = SInt[9](expa0.zext(1))
+            unbiased_exp0 = SInt[9](biased_exp0 - SInt[9](127))
+            if (unbiased_exp0 < 0):
+                manta_shift0 = BitVector[23](0)
             else:
-                manta_shift = BitVector[16](
-                    manta) << BitVector[16](unbiased_exp)
-            unsigned_res = SInt[16](manta_shift >> 7)
+                manta_shift0 = BitVector[23](
+                    manta) << BitVector[23](unbiased_exp0)
+            unsigned_res0 = BitVector[23](manta_shift0 >> BitVector[23](7))
+            unsigned_res = BitVector[16](unsigned_res0[0:16])
             if (signa == 0x8000):
                 signed_res = SInt[16](-unsigned_res)
             else:
                 signed_res = SInt[16](unsigned_res)
             # We are not checking for overflow when converting to int
-            res, res_p = signed_res, Bit(0)
+            res, res_p, V = signed_res, 0, (expa0 >  BitVector[8](142))
         elif alu == ALU.FGetFFrac:
             signa = BitVector[16]((a & 0x8000))
-            expa = a[7:15]
             manta = BitVector[16]((a & 0x7F)) | 0x80
+            expa0 = BitVector[8](a[7:15])
+            biased_exp0 = SInt[9](expa0.zext(1))
+            unbiased_exp0 = SInt[9](biased_exp0 - SInt[9](127))
 
-            unbiased_exp = SInt[8](expa) - SInt[8](127)
-            if (unbiased_exp < 0):
-                manta_shift = BitVector[16](
-                    manta) >> BitVector[16](-unbiased_exp)
+            if (unbiased_exp0 < 0):
+                manta_shift1 = BitVector[16](
+                    manta) >> BitVector[16](-unbiased_exp0)
             else:
-                manta_shift = BitVector[16](
-                    manta) << BitVector[16](unbiased_exp)
-            unsigned_res = SInt[16]((manta_shift & 0x07F))
+                manta_shift1 = BitVector[16](
+                    manta) << BitVector[16](unbiased_exp0)
+            unsigned_res = BitVector[16]((manta_shift1 & 0x07F))
             if (signa == 0x8000):
                 signed_res = SInt[16](-unsigned_res)
             else:

@@ -129,7 +129,7 @@ def test_exp():
         0), float2bfbin(math.exp(5)), 3])
 
     #Random test vectors    
-    for vector_count in range(50):
+    for vector_count in range(200):
         num = get_random_float(4)
         num_bfloat_str = float2bfbin(num)
         num_bfp = bfbin2float(num_bfloat_str)
