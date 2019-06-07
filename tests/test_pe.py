@@ -295,20 +295,19 @@ def test_fp_binary_op(op,args):
     list(product(fp_zero_vec+fp_inf_vec,[BFloat16.random() for _ in range(NTESTS)]))
 )
 @pytest.mark.parametrize("op", [
-    op('gt',  lambda x, y: x >  y),
-    op('ge',  lambda x, y: x >= y),
-    op('lt',  lambda x, y: x <  y),
-    op('le',  lambda x, y: x <= y),
-    op('eq',  lambda x, y: x == y),
-    op('neq',  lambda x, y: x != y),
+    op(asm.fp_gt(),  lambda x, y: x >  y),
+    op(asm.fp_ge(),  lambda x, y: x >= y),
+    op(asm.fp_lt(),  lambda x, y: x <  y),
+    op(asm.fp_le(),  lambda x, y: x <= y),
+    op(asm.fp_eq(),  lambda x, y: x == y),
+    op(asm.fp_neq(),  lambda x, y: x != y),
 ])
 def test_fp_cmp(xy,op):
-    inst = getattr(asm,f"fp_{op.inst}")()
     in0,in1 = xy
     out = op.func(in0,in1)
     data0 = BFloat16.reinterpret_as_bv(in0)
     data1 = BFloat16.reinterpret_as_bv(in1)
-    _, res_p, _ = pe(inst,data0,data1)
+    _, res_p, _ = pe(op.inst,data0,data1)
     assert res_p == out
     if CAD_ENV:
         rtl_tester(op, data0, data1, res_p=out)
