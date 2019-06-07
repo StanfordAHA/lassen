@@ -71,11 +71,11 @@ def rtl_tester(test_op, data0=None, data1=None, bit0=None, bit1=None, bit2=None,
         data1 = BitVector[16](data1)
         tester.circuit.data1 = data1
     if bit0 is not None:
-        tester.circuit.bit0 = BitVector[1](bit0)
+        tester.circuit.bit0 = Bit(bit0)
     if bit1 is not None:
-        tester.circuit.bit1 = BitVector[1](bit1)
+        tester.circuit.bit1 = Bit(bit1)
     if bit2 is not None:
-        tester.circuit.bit2 = BitVector[1](bit2)
+        tester.circuit.bit2 = Bit(bit2)
     tester.eval()
 
     for i in range(delay):
@@ -390,7 +390,7 @@ def test_lut(lut_code):
     inst = asm.lut(lut_code)
     for i in range(0, 8):
         bit0, bit1, bit2 = magma.bitutils.int2seq(i, 3)
-        expected = (lut_code >> i) & 1
+        expected = (lut_code >> i)[0]
         rtl_tester(inst, bit0=bit0, bit1=bit1, bit2=bit2, res_p=expected)
 
 
