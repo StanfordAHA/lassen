@@ -283,7 +283,7 @@ def test_fp_binary_op(op,args):
     out = op.func(in0,in1)
     data0 = BFloat16.reinterpret_as_bv(in0)
     data1 = BFloat16.reinterpret_as_bv(in1)
-    res, res_p, irq = pe(inst, data0, data1)
+    res, res_p = pe(inst, data0, data1)
     assert res == BFloat16.reinterpret_as_bv(out)
     if CAD_ENV:
         rtl_tester(op, data0, data1, res=res)
@@ -313,73 +313,67 @@ def test_get_mant():
     inst = asm.fgetmant()
     data0 = Data(0x7F8A)
     data1 = Data(0x0000)
-    res, res_p, irq = pe(inst, data0, data1)
+    res, res_p = pe(inst, data0, data1)
     assert res==0xA
     assert res_p==0
-    assert irq==0
     rtl_tester(inst, data0, data1, res=res)
 
 def test_add_exp_imm():
     inst = asm.faddiexp()
     data0 = Data(0x7F8A)
     data1 = Data(0x0005)
-    res, res_p, irq = pe(inst, data0, data1)
+    res, res_p = pe(inst, data0, data1)
     # 7F8A => Sign=0; Exp=0xFF; Mant=0x0A
     # Add 5 to exp => Sign=0; Exp=0x04; Mant=0x0A i.e. float  = 0x020A
     assert res==0x020A
     assert res_p==0
-    assert irq==0
     rtl_tester(inst, data0, data1, res=res)
 
 def test_sub_exp():
     inst = asm.fsubexp()
     data0 = Data(0x7F8A)
     data1 = Data(0x4005)
-    res, res_p, irq = pe(inst, data0, data1)
+    res, res_p = pe(inst, data0, data1)
     # 7F8A => Sign=0; Exp=0xFF; Mant=0x0A
     # 4005 => Sign=0; Exp=0x80; Mant=0x05 (0100 0000 0000 0101)
     # res: 7F0A => Sign=0; Exp=0xFE; Mant=0x0A (0111 1111 0000 1010)
     assert res==0x7F0A
     assert res_p==0
-    assert irq==0
     rtl_tester(inst, data0, data1, res=res)
 
 def test_cnvt_exp_to_float():
     inst = asm.fcnvexp2f()
     data0 = Data(0x4005)
     data1 = Data(0x0000)
-    res, res_p, irq = pe(inst, data0, data1)
+    res, res_p = pe(inst, data0, data1)
     # 4005 => Sign=0; Exp=0x80; Mant=0x05 (0100 0000 0000 0101) i.e. unbiased exp = 1
     # res: 3F80 => Sign=0; Exp=0x7F; Mant=0x00 (0011 1111 1000 0000)
     assert res==0x3F80
     assert res_p==0
-    assert irq==0
     rtl_tester(inst, data0, data1, res=res)
 
 def test_get_float_int():
     inst = asm.fgetfint()
     data0 = Data(0x4020)
     data1 = Data(0x0000)
-    res, res_p, irq = pe(inst, data0, data1)
+    res, res_p = pe(inst, data0, data1)
     #2.5 = 10.1 i.e. exp = 1 with 1.01 # biased exp = 128 i.e 80
     #float is 0100 0000 0010 0000 i.e. 4020
     # res: int(2.5) =  2
     assert res==0x2
     assert res_p==0
-    assert irq==0
     rtl_tester(inst, data0, data1, res=res)
 
 def test_get_float_frac():
     inst = asm.fgetffrac()
     data0 = Data(0x4020)
     data1 = Data(0x0000)
-    res, res_p, irq = pe(inst, data0, data1)
+    res, res_p = pe(inst, data0, data1)
     #2.5 = 10.1 i.e. exp = 1 with 1.01 # biased exp = 128 i.e 80
     #float is 0100 0000 0010 0000 i.e. 4020
     # res: frac(2.5) = 0.5D = 0.1B i.e. 1000 0000
     assert res==0x80
     assert res_p==0
-    assert irq==0
     rtl_tester(inst, data0, data1, res=res)
 
 
