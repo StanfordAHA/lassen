@@ -133,7 +133,7 @@ NTESTS = 16
         for _ in range(NTESTS) ] )
 def test_unsigned_binary(op, args):
     x, y = args
-    res, _, _ = pe(op.inst, Data(x), Data(y))
+    res, _ = pe(op.inst, Data(x), Data(y))
     assert res==op.func(x,y)
     rtl_tester(op, x, y, res=res)
 
@@ -148,7 +148,7 @@ def test_unsigned_binary(op, args):
         for _ in range(NTESTS) ] )
 def test_signed_binary(op, args):
     x, y = args
-    res, _, _ = pe(op.inst, Data(x), Data(y))
+    res, _ = pe(op.inst, Data(x), Data(y))
     assert res==op.func(x,y)
     rtl_tester(op, x, y, res=res)
 
@@ -159,7 +159,7 @@ def test_signed_binary(op, args):
     [SIntVector.random(DATAWIDTH) for _ in range(NTESTS) ] )
 def test_signed_unary(op, args):
     x = args
-    res, _, _ = pe(op.inst, Data(x))
+    res, _ = pe(op.inst, Data(x))
     assert res == op.func(x)
     rtl_tester(op, x, 0, res=res)
 
@@ -176,7 +176,7 @@ def test_signed_unary(op, args):
         for _ in range(NTESTS) ] )
 def test_unsigned_relation(op, args):
     x, y = args
-    _, res_p, _ = pe(op.inst, Data(x), Data(y))
+    _, res_p = pe(op.inst, Data(x), Data(y))
     assert res_p==op.func(x,y)
     rtl_tester(op, x, y, res_p=res_p)
 
@@ -191,7 +191,7 @@ def test_unsigned_relation(op, args):
         for _ in range(NTESTS) ] )
 def test_signed_relation(op, args):
     x, y = args
-    _, res_p, _ = pe(op.inst, Data(x), Data(y))
+    _, res_p = pe(op.inst, Data(x), Data(y))
     assert res_p==op.func(x,y)
     rtl_tester(op, x, y, res_p=res_p)
 
@@ -208,7 +208,7 @@ def test_ternary(op,args):
     d0 = args[0]
     d1 = args[1]
     b0 = args[2]
-    res, _, _ = pe(inst, d0,d1,b0)
+    res, _ = pe(inst, d0,d1,b0)
     assert res==op.func(d0,d1,b0)
     rtl_tester(inst, d0, d1, b0, res=res)
 
@@ -224,13 +224,13 @@ def test_smult(args):
     smult2 = asm.smult2()
     x, y = args
     xy = mul(x,y)
-    res, _, _ = pe(smult0, Data(x), Data(y))
+    res, _ = pe(smult0, Data(x), Data(y))
     assert res == xy[0:DATAWIDTH]
     rtl_tester(smult0, x, y, res=res)
-    res, _, _ = pe(smult1, Data(x), Data(y))
+    res, _ = pe(smult1, Data(x), Data(y))
     assert res == xy[DATAWIDTH//2:DATAWIDTH//2+DATAWIDTH]
     rtl_tester(smult1, x, y, res=res)
-    res, _, _ = pe(smult2, Data(x), Data(y))
+    res, _ = pe(smult2, Data(x), Data(y))
     assert res == xy[DATAWIDTH:]
     rtl_tester(smult2, x, y, res=res)
 
@@ -246,13 +246,13 @@ def test_umult(args):
     umult2 = asm.umult2()
     x, y = args
     xy = mul(x,y)
-    res, _, _ = pe(umult0, Data(x), Data(y))
+    res, _ = pe(umult0, Data(x), Data(y))
     assert res == xy[0:DATAWIDTH]
     rtl_tester(umult0, x, y, res=res)
-    res, _, _ = pe(umult1, Data(x), Data(y))
+    res, _ = pe(umult1, Data(x), Data(y))
     assert res == xy[DATAWIDTH//2:DATAWIDTH//2+DATAWIDTH]
     rtl_tester(umult1, x, y, res=res)
-    res, _, _ = pe(umult2, Data(x), Data(y))
+    res, _ = pe(umult2, Data(x), Data(y))
     assert res == xy[DATAWIDTH:]
     rtl_tester(umult2, x, y, res=res)
 
@@ -306,7 +306,7 @@ def test_fp_cmp(xy,op):
     inst = getattr(asm,f"fp_{op.inst}")()
     in0,in1 = xy
     out = op.func(in0,in1)
-    _, res_p, _ = pe(inst, BFloat16.reinterpret_as_bv(in0), BFloat16.reinterpret_as_bv(in1))
+    _, res_p = pe(inst, BFloat16.reinterpret_as_bv(in0), BFloat16.reinterpret_as_bv(in1))
     assert res_p == out
 
 def test_get_mant():
