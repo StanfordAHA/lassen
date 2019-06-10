@@ -1,4 +1,4 @@
--e git@git://github.com/leonardt/pycoreir@float-fix#egg=pycoreir
+-e git+git://github.com/leonardt/pycoreir@float-fix#egg=pycoreir
 -e git+git://github.com/phanrahan/magma@coreir-libs-opts#egg=magma-lang
 -e git+git://github.com/phanrahan/peak.git#egg=peak
 -e git+git://github.com/rdaly525/MetaMapper.git#egg=metamapper
