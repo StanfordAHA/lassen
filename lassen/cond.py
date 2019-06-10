@@ -1,7 +1,9 @@
+import hwtypes
+from .family import gen_pe_type_family
 from hwtypes.adt import Enum
 import magma as m
 from functools import lru_cache
-from peak.auto_assembler import assemble_values_in_func
+from peak.auto_assembler import assemble_values_in_func, generate_assembler
 
 @lru_cache()
 def gen_cond_type(family):
@@ -13,8 +15,10 @@ def gen_cond_type(family):
         Z_n = 1  # NE
         C = 2    # UGE
         C_n = 3  # ULT
-        N = 4    # <  0
-        N_n = 5  # >= 0
+        # Prefix _N because it clobbers magma's `.N` field used in the array
+        # types
+        _N = 4    # <  0
+        _N_n = 5  # >= 0
         V = 6    # Overflow
         V_n = 7  # No overflow
         EQ = 0
@@ -29,9 +33,15 @@ def gen_cond_type(family):
         SLE = 13
         LUT = 14
         ALU = 15
+        FP_EQ = 0
+        FP_NE = 1
+        FP_GE = 16
+        FP_GT = 17
+        FP_LE = 18
+        FP_LT = 19
     return Cond
 
-def gen_cond(family, assembler=None):
+def gen_cond(family, use_assembler=False):
     #
     # Implement condition code logic
     #
@@ -47,13 +57,13 @@ def gen_cond(family, assembler=None):
             return Z
         elif code == Cond.Z_n:
             return ~Z
-        elif code == Cond.C or code == Cond.UGE:
+        elif (code == Cond.C) | (code == Cond.UGE):
             return C
-        elif code == Cond.C_n or code == Cond.ULT:
+        elif (code == Cond.C_n) | (code == Cond.ULT):
             return ~C
-        elif code == Cond.N:
+        elif code == Cond._N:
             return N
-        elif code == Cond.N_n:
+        elif code == Cond._N_n:
             return ~N
         elif code == Cond.V:
             return V
@@ -75,7 +85,23 @@ def gen_cond(family, assembler=None):
             return alu
         elif code == Cond.LUT:
             return lut
+        elif code == Cond.FP_GE:
+            return ~N | Z
+        elif code == Cond.FP_GT:
+            return ~N & ~Z
+        elif code == Cond.FP_LE:
+            return N | Z
+        elif code == Cond.FP_LT:
+            return N & ~Z
+
     if family.Bit is m.Bit:
-        cond = assemble_values_in_func(assembler, cond, locals(), globals())
+        if use_assembler:
+            bv_fam = gen_pe_type_family(hwtypes.BitVector.get_family())
+            bv_cond = gen_cond_type(bv_fam)
+            assemblers = {
+                Cond: (bv_cond, generate_assembler(bv_cond)[0])
+            }
+            cond = assemble_values_in_func(assemblers, cond, locals(),
+                                           globals())
         cond = m.circuit.combinational(cond)
     return cond

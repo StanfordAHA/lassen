@@ -80,8 +80,33 @@ def fgetmant ():
 def fp_add(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
     return inst(ALU.FP_add, ra_mode=ra_mode, rb_mode=rb_mode)
 
-def fp_mult(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
+def fp_sub(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
+    return inst(ALU.FP_sub, ra_mode=ra_mode, rb_mode=rb_mode)
+
+def fp_mul(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
     return inst(ALU.FP_mult, ra_mode=ra_mode, rb_mode=rb_mode)
+
+def fp_cmp(cond):
+    return inst(ALU.FP_cmp,cond=cond)
+
+def fp_gt():
+    return fp_cmp(Cond.FP_GT)
+
+def fp_ge():
+    return fp_cmp(Cond.FP_GE)
+
+def fp_lt():
+    return fp_cmp(Cond.FP_LT)
+
+def fp_le():
+    return fp_cmp(Cond.FP_LE)
+
+def fp_eq():
+    return fp_cmp(Cond.FP_EQ)
+
+def fp_neq():
+    return fp_cmp(Cond.FP_NE)
+
 
 def faddiexp (ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
     return inst(ALU.FAddIExp, ra_mode=ra_mode, rb_mode=rb_mode)

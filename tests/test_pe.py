@@ -1,3 +1,4 @@
+import os
 from collections import namedtuple
 import lassen.asm as asm
 from lassen.sim import gen_pe, gen_pe_type_family
@@ -10,11 +11,12 @@ import random
 import magma
 import peak
 import fault
+from itertools import product
 import os
 import random
 import shutil
 from peak.auto_assembler import generate_assembler
-
+import random
 
 class HashableDict(dict):
     def __hash__(self):
@@ -25,16 +27,18 @@ Bit = Bit
 Data = BitVector[DATAWIDTH]
 BFloat16 = FPVector[8,7,RoundingMode.RNE,False]
 
+
+
 pe_ = gen_pe(BitVector.get_family())
 pe = pe_()
 sim_family = gen_pe_type_family(BitVector.get_family())
 Mode = gen_mode_type(sim_family)
 
 # create these variables in global space so that we can reuse them easily
-pe_magma = gen_pe(magma.get_family())
 instr_name, inst_type = pe.__call__._peak_isa_
 assembler, disassembler, width, layout = \
             generate_assembler(inst_type)
+pe_magma = gen_pe(magma.get_family(), use_assembler=True)
 instr_magma_type = type(pe_magma.interface.ports[instr_name])
 pe_circuit = peak.wrap_with_disassembler(pe_magma, disassembler, width,
                                          HashableDict(layout),
@@ -69,11 +73,11 @@ def rtl_tester(test_op, data0=None, data1=None, bit0=None, bit1=None, bit2=None,
         data1 = BitVector[16](data1)
         tester.circuit.data1 = data1
     if bit0 is not None:
-        tester.circuit.bit0 = BitVector[1](bit0)
+        tester.circuit.bit0 = Bit(bit0)
     if bit1 is not None:
-        tester.circuit.bit1 = BitVector[1](bit1)
+        tester.circuit.bit1 = Bit(bit1)
     if bit2 is not None:
-        tester.circuit.bit2 = BitVector[1](bit2)
+        tester.circuit.bit2 = Bit(bit2)
     tester.eval()
 
     for i in range(delay):
@@ -132,7 +136,7 @@ NTESTS = 16
 ])
 def test_unsigned_binary(op, args):
     x, y = args
-    res, _, _ = pe(op.inst, Data(x), Data(y))
+    res, _ = pe(op.inst, Data(x), Data(y))
     assert res==op.func(x,y)
     rtl_tester(op, x, y, res=res)
 
@@ -148,7 +152,7 @@ def test_unsigned_binary(op, args):
 )
 def test_signed_binary(op, args):
     x, y = args
-    res, _, _ = pe(op.inst, Data(x), Data(y))
+    res, _ = pe(op.inst, Data(x), Data(y))
     assert res==op.func(x,y)
     rtl_tester(op, x, y, res=res)
 
@@ -160,7 +164,7 @@ def test_signed_binary(op, args):
 )
 def test_signed_unary(op, args):
     x = args
-    res, _, _ = pe(op.inst, Data(x))
+    res, _ = pe(op.inst, Data(x))
     assert res == op.func(x)
     rtl_tester(op, x, 0, res=res)
 
@@ -179,7 +183,7 @@ def test_signed_unary(op, args):
 ])
 def test_unsigned_relation(op, args):
     x, y = args
-    _, res_p, _ = pe(op.inst, Data(x), Data(y))
+    _, res_p = pe(op.inst, Data(x), Data(y))
     assert res_p==op.func(x,y)
     rtl_tester(op, x, y, res_p=res_p)
 
@@ -195,7 +199,7 @@ def test_unsigned_relation(op, args):
 ])
 def test_signed_relation(op, args):
     x, y = args
-    _, res_p, _ = pe(op.inst, Data(x), Data(y))
+    _, res_p = pe(op.inst, Data(x), Data(y))
     assert res_p==op.func(x,y)
     rtl_tester(op, x, y, res_p=res_p)
 
@@ -213,7 +217,7 @@ def test_ternary(op,args):
     d0 = args[0]
     d1 = args[1]
     b0 = args[2]
-    res, _, _ = pe(inst, d0,d1,b0)
+    res, _ = pe(inst, d0,d1,b0)
     assert res==op.func(d0,d1,b0)
     rtl_tester(inst, d0, d1, b0, res=res)
 
@@ -229,14 +233,14 @@ def test_smult(args):
     smult1 = asm.smult1()
     smult2 = asm.smult2()
     x, y = args
-    xy = mul(x, y)
-    res, _, _ = pe(smult0, Data(x), Data(y))
+    xy = mul(x,y)
+    res, _ = pe(smult0, Data(x), Data(y))
     assert res == xy[0:DATAWIDTH]
     rtl_tester(smult0, x, y, res=res)
-    res, _, _ = pe(smult1, Data(x), Data(y))
+    res, _ = pe(smult1, Data(x), Data(y))
     assert res == xy[DATAWIDTH//2:DATAWIDTH//2+DATAWIDTH]
     rtl_tester(smult1, x, y, res=res)
-    res, _, _ = pe(smult2, Data(x), Data(y))
+    res, _ = pe(smult2, Data(x), Data(y))
     assert res == xy[DATAWIDTH:]
     rtl_tester(smult2, x, y, res=res)
 
@@ -253,40 +257,54 @@ def test_umult(args):
     umult1 = asm.umult1()
     umult2 = asm.umult2()
     x, y = args
-    xy = mul(x, y)
-    res, _, _ = pe(umult0, Data(x), Data(y))
+    xy = mul(x,y)
+    res, _ = pe(umult0, Data(x), Data(y))
     assert res == xy[0:DATAWIDTH]
     rtl_tester(umult0, x, y, res=res)
-    res, _, _ = pe(umult1, Data(x), Data(y))
+    res, _ = pe(umult1, Data(x), Data(y))
     assert res == xy[DATAWIDTH//2:DATAWIDTH//2+DATAWIDTH]
     rtl_tester(umult1, x, y, res=res)
-    res, _, _ = pe(umult2, Data(x), Data(y))
+    res, _ = pe(umult2, Data(x), Data(y))
     assert res == xy[DATAWIDTH:]
     rtl_tester(umult2, x, y, res=res)
 
+#
+# floating point
+#
+
+def BV(val):
+    return BFloat16(val)
+
+fp_sign_vec = [BV(2.0),BV(-2.0),BV(3.0),BV(-3.0)]
+fp_zero_vec = [BV(0.0),BV('-0.0')]
+fp_inf_vec = [BV('inf'),BV('-inf')]
+
+>>>>>>> master
 @pytest.mark.parametrize("op", [
     op(asm.fp_add(), lambda x, y: x + y),
-    op(asm.fp_mult(), lambda x, y: x * y)
+    op(asm.fp_sub(), lambda x, y: x - y),
+    op(asm.fp_mul(), lambda x, y: x * y)
 ])
-@pytest.mark.parametrize("args", [
-    (BFloat16.random(), BFloat16.random())
-    for _ in range(NTESTS)])
+@pytest.mark.parametrize("args",
+    [(BFloat16.random(), BFloat16.random()) for _ in range(NTESTS)] +
+    list(product(fp_sign_vec+fp_zero_vec,fp_sign_vec+fp_zero_vec))
+)
 def test_fp_binary_op(op,args):
-    if not CAD_ENV:
-        pytest.skip("Skipping fp op tests because CW primitives are not available")
     inst = op.inst
     in0 = args[0]
     in1 = args[1]
     out = op.func(in0,in1)
     data0 = BFloat16.reinterpret_as_bv(in0)
     data1 = BFloat16.reinterpret_as_bv(in1)
-    res, res_p, irq = pe(inst, data0, data1)
+    res, res_p = pe(inst, data0, data1)
     assert res == BFloat16.reinterpret_as_bv(out)
-    rtl_tester(op, data0, data1, res=res)
+    if CAD_ENV:
+        rtl_tester(op, data0, data1, res=res)
 
 #container for a floating point value easily indexed by sign, exp, and frac
 fpdata = namedtuple("fpdata", ["sign", "exp", "frac"])
 
+<<<<<<< HEAD
 #Convert fpdata to a BFloat value
 def BFloat(fpdata):
     sign = BitVector[1](fpdata.sign)
@@ -297,6 +315,94 @@ def BFloat(fpdata):
 #Generate random bfloat
 def random_bfloat():
     return fpdata(BitVector.random(1),BitVector.random(8),BitVector.random(7))
+=======
+@pytest.mark.parametrize("xy",
+    [(BFloat16.random(), BFloat16.random()) for _ in range(NTESTS)] +
+    list(product(fp_sign_vec+fp_zero_vec+fp_inf_vec,fp_sign_vec+fp_zero_vec+fp_inf_vec)) +
+    list(product(fp_zero_vec+fp_inf_vec,[BFloat16.random() for _ in range(NTESTS)]))
+)
+@pytest.mark.parametrize("op", [
+    op('gt',  lambda x, y: x >  y),
+    op('ge',  lambda x, y: x >= y),
+    op('lt',  lambda x, y: x <  y),
+    op('le',  lambda x, y: x <= y),
+    op('eq',  lambda x, y: x == y),
+    op('neq',  lambda x, y: x != y),
+])
+def test_fp_cmp(xy,op):
+    inst = getattr(asm,f"fp_{op.inst}")()
+    in0,in1 = xy
+    out = op.func(in0,in1)
+    _, res_p = pe(inst, BFloat16.reinterpret_as_bv(in0), BFloat16.reinterpret_as_bv(in1))
+    assert res_p == out
+
+def test_get_mant():
+    inst = asm.fgetmant()
+    data0 = Data(0x7F8A)
+    data1 = Data(0x0000)
+    res, res_p = pe(inst, data0, data1)
+    assert res==0xA
+    assert res_p==0
+    rtl_tester(inst, data0, data1, res=res)
+
+def test_add_exp_imm():
+    inst = asm.faddiexp()
+    data0 = Data(0x7F8A)
+    data1 = Data(0x0005)
+    res, res_p = pe(inst, data0, data1)
+    # 7F8A => Sign=0; Exp=0xFF; Mant=0x0A
+    # Add 5 to exp => Sign=0; Exp=0x04; Mant=0x0A i.e. float  = 0x020A
+    assert res==0x020A
+    assert res_p==0
+    rtl_tester(inst, data0, data1, res=res)
+
+def test_sub_exp():
+    inst = asm.fsubexp()
+    data0 = Data(0x7F8A)
+    data1 = Data(0x4005)
+    res, res_p = pe(inst, data0, data1)
+    # 7F8A => Sign=0; Exp=0xFF; Mant=0x0A
+    # 4005 => Sign=0; Exp=0x80; Mant=0x05 (0100 0000 0000 0101)
+    # res: 7F0A => Sign=0; Exp=0xFE; Mant=0x0A (0111 1111 0000 1010)
+    assert res==0x7F0A
+    assert res_p==0
+    rtl_tester(inst, data0, data1, res=res)
+
+def test_cnvt_exp_to_float():
+    inst = asm.fcnvexp2f()
+    data0 = Data(0x4005)
+    data1 = Data(0x0000)
+    res, res_p = pe(inst, data0, data1)
+    # 4005 => Sign=0; Exp=0x80; Mant=0x05 (0100 0000 0000 0101) i.e. unbiased exp = 1
+    # res: 3F80 => Sign=0; Exp=0x7F; Mant=0x00 (0011 1111 1000 0000)
+    assert res==0x3F80
+    assert res_p==0
+    rtl_tester(inst, data0, data1, res=res)
+
+def test_get_float_int():
+    inst = asm.fgetfint()
+    data0 = Data(0x4020)
+    data1 = Data(0x0000)
+    res, res_p = pe(inst, data0, data1)
+    #2.5 = 10.1 i.e. exp = 1 with 1.01 # biased exp = 128 i.e 80
+    #float is 0100 0000 0010 0000 i.e. 4020
+    # res: int(2.5) =  2
+    assert res==0x2
+    assert res_p==0
+    rtl_tester(inst, data0, data1, res=res)
+
+def test_get_float_frac():
+    inst = asm.fgetffrac()
+    data0 = Data(0x4020)
+    data1 = Data(0x0000)
+    res, res_p = pe(inst, data0, data1)
+    #2.5 = 10.1 i.e. exp = 1 with 1.01 # biased exp = 128 i.e 80
+    #float is 0100 0000 0010 0000 i.e. 4020
+    # res: frac(2.5) = 0.5D = 0.1B i.e. 1000 0000
+    assert res==0x80
+    assert res_p==0
+    rtl_tester(inst, data0, data1, res=res)
+>>>>>>> master
 
 @pytest.mark.parametrize("fpdata", [
     random_bfloat() for _ in range(NTESTS)
@@ -314,7 +420,7 @@ def test_lut(lut_code):
     inst = asm.lut(lut_code)
     for i in range(0, 8):
         bit0, bit1, bit2 = magma.bitutils.int2seq(i, 3)
-        expected = (lut_code >> i) & 1
+        expected = (lut_code >> i)[0]
         rtl_tester(inst, bit0=bit0, bit1=bit1, bit2=bit2, res_p=expected)
 
 

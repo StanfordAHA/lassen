@@ -14,8 +14,8 @@ def gen_Add32(family):
         def __call__(self,in0 : Data32, in1 : Data32):
             inst_lsb = asm.inst(asm.ALU.Add,cond=asm.Cond.C)
             inst_msb = asm.adc()
-            lsb,cout,_ = self.pe_lsb(inst_lsb,data0=in0[:16],data1=in1[:16])
-            msb,_,_ = self.pe_msb(inst_msb,data0=in0[16:],data1=in1[16:],bit0=cout)
+            lsb,cout = self.pe_lsb(inst_lsb,data0=in0[:16],data1=in1[:16])
+            msb,_ = self.pe_msb(inst_msb,data0=in0[16:],data1=in1[16:],bit0=cout)
             return Data32.concat(msb,lsb)
     return Add32
 
@@ -31,7 +31,7 @@ def gen_Sub32(family):
         def __call__(self,in0 : Data32, in1 : Data32):
             inst_lsb = asm.inst(asm.ALU.Sub,cond=asm.Cond.C)
             inst_msb = asm.sbc()
-            lsb,cout,_ = self.pe_lsb(inst_lsb,data0=in0[:16],data1=in1[:16])
-            msb,_,_ = self.pe_msb(inst_msb,data0=in0[16:],data1=in1[16:],bit0=cout)
+            lsb,cout = self.pe_lsb(inst_lsb,data0=in0[:16],data1=in1[:16])
+            msb,_ = self.pe_msb(inst_msb,data0=in0[16:],data1=in1[16:],bit0=cout)
             return Data32.concat(msb,lsb)
     return Sub32
