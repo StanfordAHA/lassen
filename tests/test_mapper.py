@@ -19,7 +19,7 @@ def test_discover():
             inst.rega == type(inst.rega).BYPASS and
             inst.regb == type(inst.regb).BYPASS and
             inst.regd == type(inst.regd).BYPASS and
-            inst.rege == type(inst.rege).BYPASS and 
+            inst.rege == type(inst.rege).BYPASS and
             inst.regf == type(inst.regf).BYPASS and
             (inst.cond == type(inst.cond).Z or inst.cond == type(inst.cond).Z_n)
         )
@@ -138,39 +138,8 @@ def test_float():
 def test_fp_pointwise():
     c = coreir.Context()
     c.load_library("float")
-    mapper = mm.PeakMapper(c,"alu_ns")
-
-    pe = mapper.add_peak_primitive("PE",gen_pe)
-
-    # FADD: Adds a simple "1 to 1" rewrite rule for fadd
-    bfloat_add = c.get_namespace("float").generators['add'](exp_bits=8,frac_bits=7)
-    mapper.add_rewrite_rule(mm.Peak1to1(
-        bfloat_add, #Coreir module
-        pe, #coreir pe
-        asm.fp_add(), #Instruction for PE
-        dict(in0='data0',in1='data1',out="alu_res") #Port Mapping
-    ))
-
-    # FMUL: Adds a simple "1 to 1" rewrite rule for fmul
-    bfloat_mul = c.get_namespace("float").generators['mul'](exp_bits=8,frac_bits=7)
-    mapper.add_rewrite_rule(mm.Peak1to1(
-        bfloat_mul, #Coreir module
-        pe, #coreir pe
-        asm.fp_mult(), #Instruction for PE
-        dict(in0='data0',in1='data1',out="alu_res") #Port Mapping
-    ))
-
-    # CONST: Adds a simple "1 to 1" rewrite rule for const
-    const16 = c.get_namespace("coreir").generators['const'](width=16)
-    def instr_const(inst):
-        return asm.const(inst.config["value"].value)
-
-    mapper.add_rewrite_rule(mm.Peak1to1(
-        const16,
-        pe,
-        instr_const,
-        dict(out="alu_res")
-    ))
+    #mapper = mm.PeakMapper(c,"alu_ns")
+    mapper = LassenMapper(c)
 
     #test the mapper on simple add4 app
     app = c.load_from_file("tests/examples/fp_pointwise.json")
@@ -179,22 +148,6 @@ def test_fp_pointwise():
     assert len(imap) == 2 # expect to see a multiplier and const
     print("instance map",imap)
     app.save_to_file("tests/examples/fp_pointwise.mapped.json")
-
-def test_serialize():
-    c = coreir.Context()
-    mapper = mm.PeakMapper(c,"alu_ns")
-    pe = mapper.add_peak_primitive("PE",gen_pe)
-    with open('rules/simple.json','r') as jfile:
-        rrs = json.load(jfile)
-
-    for rr in rrs:
-        mapper.add_rr_from_description(rr)
-
-    #test the mapper on simple add4 app
-    app = c.load_from_file("tests/examples/add4.json")
-    mapper.map_app(app)
-    imap = mapper.extract_instr_map(app)
-    assert len(imap) == 3
 
 @pytest.mark.parametrize("op", ["and","or","xor"])
 def test_binary_lut(op):
@@ -226,9 +179,9 @@ def test_binary_lut(op):
     imap = mapper.extract_instr_map(app)
     assert len(imap) == 3
 
-def make_single_op_app(c : coreir.Context,namespace : str, op : str):
+def make_single_op_app(c : coreir.Context,namespace : str, op : str,**genargs):
     g = c.global_namespace
-    coreir_op = c.get_namespace(namespace).generators[op](width=16)
+    coreir_op = c.get_namespace(namespace).generators[op](**genargs)
     mod_type = coreir_op.type
     app = g.new_module("app",mod_type)
     mdef = app.new_definition()
@@ -236,14 +189,25 @@ def make_single_op_app(c : coreir.Context,namespace : str, op : str):
     io = mdef.interface
     for pname,ptype in mod_type.items():
         mdef.connect(io.select(pname),op_inst.select(pname))
-
     app.definition = mdef
     return app
+
+@pytest.mark.parametrize("op",["lt","le","gt","ge","eq","neq","add","sub","mul"])
+def test_fp_ops(op):
+    c = coreir.Context()
+    c.load_library("float")
+    app = make_single_op_app(c,"float",op,exp_bits=8,frac_bits=7)
+    mapper = LassenMapper(c)
+    for rule in Rules:
+        mapper.add_rr_from_description(rule)
+    mapper.map_app(app)
+    imap = mapper.extract_instr_map(app)
+    assert len(imap) == 1
 
 @pytest.mark.parametrize("op",["ult","ule","ugt","uge","eq","neq","add","sub","mul","mux"])
 def test_coreir_ops(op):
     c = coreir.Context()
-    app = make_single_op_app(c,"coreir",op)
+    app = make_single_op_app(c,"coreir",op,width=16)
     mapper = LassenMapper(c)
     for rule in Rules:
         mapper.add_rr_from_description(rule)
@@ -257,7 +221,11 @@ def test_rules(rule):
         pytest.skip()
     namespace,op = rule["coreir_prim"]
     c = coreir.Context()
-    app = make_single_op_app(c,namespace,op)
+    if namespace == "coreir":
+        genargs = dict(width=16)
+    elif namespace == "float":
+        genargs = dict(exp_bits=8,frac_bits=7)
+    app = make_single_op_app(c,namespace,op,**genargs)
     app.print_()
     mapper = LassenMapper(c)
     for rule in Rules:

@@ -13,22 +13,22 @@ class LassenMapper(mm.PeakMapper):
         self.PE = self.add_peak_primitive("PE",gen_pe)
 
         #Map constants to Full PE (for now)
-        self.__const16_rr()
+        self._const16_rr()
         #self.const1_rr()
 
         #Map float add/mul
         context.load_library("float")
-        self.__float_add_rr()
-        self.__float_mul_rr()
+        self._float_binary_rr()
+        self._float_cmp_rr()
 
         #Bitwise values
-        self.__bitwise()
+        self._bitwise()
 
         #Map IO to IO tiles
         self.add_io_and_rewrite("io1", 1, "io2f_1", "f2io_1")
         self.add_io_and_rewrite("io16", 16, "io2f_16", "f2io_16")
 
-    def __const16_rr(self):
+    def _const16_rr(self):
 
         const16 = self.context.get_namespace("coreir").generators['const'](width=16)
         def instr_lambda(inst):
@@ -46,29 +46,30 @@ class LassenMapper(mm.PeakMapper):
     def __const1_rr(self):
         raise NotImplemented()
 
-    def __float_add_rr(self):
-        bfloat_add = self.context.get_namespace("float").generators['add'](exp_bits=8,frac_bits=7)
+    def _float_binary_rr(self):
+        for op in ['add','mul','sub']:
+            coreir_op = self.context.get_namespace("float").generators[op](exp_bits=8,frac_bits=7)
+            instr = getattr(asm,f"fp_{op}")()
+            self.add_rewrite_rule(mm.Peak1to1(
+                coreir_op, #Coreir module
+                self.PE, #coreir pe
+                instr, #Instruction for PE
+                dict(in0='data0',in1='data1',out="alu_res") #Port Mapping
+            ))
 
-        self.add_rewrite_rule(mm.Peak1to1(
-            bfloat_add, #Coreir module
-            self.PE, #coreir pe
-            asm.fp_add(), #Instruction for PE
-            dict(in0='data0',in1='data1',out="alu_res") #Port Mapping
-        ))
-
-    def __float_mul_rr(self):
-        bfloat_mul = self.context.get_namespace("float").generators['mul'](exp_bits=8,frac_bits=7)
-
-        self.add_rewrite_rule(mm.Peak1to1(
-            bfloat_mul, #Coreir module
-            self.PE, #coreir pe
-            asm.fp_mult(), #Instruction for PE
-            dict(in0='data0',in1='data1',out="alu_res") #Port Mapping
-        ))
-
+    def _float_cmp_rr(self):
+        for op in ['le','lt','ge','gt','eq','neq']:
+            coreir_op = self.context.get_namespace("float").generators[op](exp_bits=8,frac_bits=7)
+            instr = getattr(asm,f"fp_{op}")()
+            self.add_rewrite_rule(mm.Peak1to1(
+                coreir_op, #Coreir module
+                self.PE, #coreir pe
+                instr, #Instruction for PE
+                dict(in0='data0',in1='data1',out="res_p") #Port Mapping
+            ))
 
     #This should convert all the bitwise operators into LUTS
-    def __bitwise(self):
+    def _bitwise(self):
 
         #Do the binary
         for op in ("and","or","xor"):

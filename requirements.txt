@@ -5,4 +5,4 @@
 -e git+git://github.com/leonardt/fault#egg=fault
 -e git+git://github.com/phanrahan/mantle#egg=mantle
 cosa
-hwtypes
+-e git+git://github.com/leonardt/hwtypes@fprepr#egg=hwtypes
