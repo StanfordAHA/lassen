@@ -39,7 +39,8 @@ pe_circuit = peak.wrap_with_disassembler(pe_magma, disassembler, width,
                                          instr_magma_type)
 tester = fault.Tester(pe_circuit, clock=pe_circuit.CLK)
 test_dir = "tests/build"
-magma.compile(f"{test_dir}/WrappedPE", pe_circuit, output="coreir-verilog")
+magma.compile(f"{test_dir}/WrappedPE", pe_circuit, output="coreir-verilog",
+              coreir_libs={"float_CW"})
 
 # check if we need to use ncsim + cw IP
 cw_dir = "/cad/cadence/GENUS17.21.000.lnx86/share/synth/lib/chipware/sim/verilog/CW/"
