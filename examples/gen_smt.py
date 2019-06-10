@@ -231,3 +231,15 @@ smt_expression = PE()(
 )
 
 print(smt_expression)
+
+smt_expression = PE()(
+    inst=add(),
+    data0=SMTBitVector[16](0xDE),
+    data1=SMTBitVector[16](0xBE),
+    bit0=SMTBit(),
+    bit1=SMTBit(),
+    bit2=SMTBit()
+)
+
+print(smt_expression)
+print(f"0xDE + 0xBE = {0xDE + 0xBE}")
