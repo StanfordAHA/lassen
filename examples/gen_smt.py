@@ -230,7 +230,18 @@ smt_expression = PE()(
     bit2=SMTBit()
 )
 
+print()
+print("======" * 5)
+print()
+
 print(smt_expression)
+
+print(smt_expression[0]._value)
+print(smt_expression[0]._value.serialize())
+
+print()
+print("======" * 5)
+print()
 
 smt_expression = PE()(
     inst=add(),
@@ -243,3 +254,10 @@ smt_expression = PE()(
 
 print(smt_expression)
 print(f"0xDE + 0xBE = {0xDE + 0xBE}")
+
+print(smt_expression[0]._value)
+print(smt_expression[0]._value.serialize())
+
+print()
+print("======" * 5)
+print()
