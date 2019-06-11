@@ -3,7 +3,7 @@ from collections import namedtuple
 import lassen.asm as asm
 from lassen.sim import gen_pe, gen_pe_type_family
 from lassen.mode import gen_mode_type
-from lassen.isa import DATAWIDTH, gen_alu_type
+from lassen.isa import DATAWIDTH, gen_alu_type, DATA01_ADDR, BIT012_ADDR
 from hwtypes import SIntVector, UIntVector, BitVector, Bit, FPVector, RoundingMode
 import pytest
 import magma
@@ -22,6 +22,7 @@ class HashableDict(dict):
 
 Bit = Bit
 Data = BitVector[DATAWIDTH]
+Data32 = BitVector[32]
 BFloat16 = FPVector[8, 7,RoundingMode.RNE,False]
 
 pe_ = gen_pe(BitVector.get_family())
@@ -120,7 +121,11 @@ NTESTS = 16
 #    (UIntVector.random(DATAWIDTH), UIntVector.random(DATAWIDTH))
 #        for _ in range(NTESTS) ] )
 def test_config():
-    x, y = args
+
+    #Test writing
+    confg_addr = Data32(DATA01_ADDR)
+    config_data = 
+
     res, _ = pe(op.inst, Data(x), Data(y))
     assert res==op.func(x,y)
     rtl_tester(op, x, y, res=res)

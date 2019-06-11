@@ -6,6 +6,8 @@ from .lut import gen_lut_type
 import magma as m
 from functools import lru_cache
 
+DATA01_ADDR = 3
+BIT012_ADDR = 4
 
 @lru_cache()
 def gen_alu_type(family):

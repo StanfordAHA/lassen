@@ -299,8 +299,8 @@ def gen_pe(family, use_assembler=False):
         ) -> (Data, Bit, Config(Data32)):
             # Simulate one clock cycle
 
-            data01_addr = (config_addr[:3] == family.BitVector[3](3))
-            bit012_addr = (config_addr[:3] == family.BitVector[3](4))
+            data01_addr = (config_addr[:3] == family.BitVector[3](DATA01_ADDR))
+            bit012_addr = (config_addr[:3] == family.BitVector[3](BIT012_ADDR))
 
             #ra
             ra_we = (data01_addr & config_en)
