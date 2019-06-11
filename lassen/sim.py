@@ -11,6 +11,8 @@ from .family import gen_pe_type_family
 from .common import Global
 import numpy as np
 import magma as m
+from functools import reduce
+from itertools import chain
 
 # simulate the PE ALU
 #
@@ -271,7 +273,7 @@ def gen_pe(family, use_assembler=False):
     BV1 = family.BitVector[1]
     Data = family.BitVector[DATAWIDTH]
     Data32 = family.BitVector[32]
-    ConfigData32 = Config(Data32)
+    ConfigData32 = Config(family.BitVector)[32]
     DataReg = gen_register_mode(Data)
     BitReg = gen_register_mode(Bit)
 
@@ -297,7 +299,7 @@ def gen_pe(family, use_assembler=False):
             config_addr : Config(Data32) = Data32(0), \
             config_data : Config(Data32) = Data32(0), \
             config_en : Config(Bit) = Bit(0) \
-        ) -> (Data, Bit, Data32):
+        ) -> (Data, Bit, ConfigData32):
             # Simulate one clock cycle
 
             data01_addr = (config_addr[:3] == family.BitVector[3](DATA01_ADDR))
@@ -331,9 +333,10 @@ def gen_pe(family, use_assembler=False):
             rf, rf_rdata = self.regf(inst.regf, inst.bit2, bit2, clk_en, rf_we, rf_config_wdata)
 
             #Calculate read_config_data
-            read_config_data = BitVector.concat(ra_rdata,rb_rdata)
+            read_config_data = ConfigData32(ra_rdata.concat(rb_rdata))
             if bit012_addr:
-                read_config_data = BitVector.concat(BitVector.concat(BitVector.concat(BV1(rd_rdata),BV1(re_rdata)),BV1(rf_rdata)),BitVector[32-3](0))
+                read_config_data = BV1(rd_rdata).concat(BV1(re_rdata)).concat(BV1(rf_rdata)).concat(BitVector[32-3](0))
+                read_config_data = ConfigData32(read_config_data)
 
 
             # calculate alu results
@@ -350,5 +353,5 @@ def gen_pe(family, use_assembler=False):
     if family.Bit is m.Bit:
         PE = m.circuit.sequential(PE)
     else:
-        PE.__call__ = name_outputs(alu_res=Data,res_p=Bit,read_config_data=Data32)(PE.__call__)
+        PE.__call__ = name_outputs(alu_res=Data,res_p=Bit,read_config_data=ConfigData32)(PE.__call__)
     return PE
