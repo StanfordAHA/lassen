@@ -296,7 +296,7 @@ def test_fp_mul():
      inst = asm.fp_mul()
      data0 = Data(0x4040)
      data1 = Data(0x4049)
-     res, res_p, irq = pe(inst, data0, data1)
+     res, res_p = pe(inst, data0, data1)
      rtl_tester(inst, data0, data1, res=res)
 
 
