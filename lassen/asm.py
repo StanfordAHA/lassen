@@ -123,8 +123,11 @@ def fgetfint (ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
 def fgetffrac (ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
     return inst(ALU.FGetFFrac, ra_mode=ra_mode, rb_mode=rb_mode)
 
-def fcnvint2f (ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
-    return inst(ALU.FCnvInt2F, ra_mode=ra_mode, rb_mode=rb_mode)
+def fcnvsint2f (ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
+    return inst(ALU.FCnvInt2F, ra_mode=ra_mode, rb_mode=rb_mode, signed=Signed.signed)
+
+def fcnvuint2f (ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
+    return inst(ALU.FCnvInt2F, ra_mode=ra_mode, rb_mode=rb_mode, signed=Signed.unsigned)
 
 
 def and_(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):

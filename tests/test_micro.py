@@ -311,13 +311,25 @@ def test_get_float_frac_targeted():
     assert res==0x40
     rtl_tester(inst, data0, data1, res=res)
 
+
 @pytest.mark.parametrize("args", [
-    (random.randint(-100,100),BitVector.random(DATAWIDTH))
+    (random.randint(-2**8,2**8),BitVector.random(DATAWIDTH))
     for _ in range(NTESTS)
 ])
-def test_int_to_float(args):
-        in0 = SIntVector[16](args[0])
+def test_sint_to_float(args):
+    in0 = SIntVector[16](args[0])
+    in1 = args[1]
+    correct = BFloat16(float(args[0])).reinterpret_as_bv()
+    res, _ = pe(asm.fcnvsint2f(),in0,in1)
+    assert correct == res
+
+@pytest.mark.parametrize("args", [
+    (random.randint(0,2**8),BitVector.random(DATAWIDTH))
+    for _ in range(NTESTS)
+])
+def test_uint_to_float(args):
+        in0 = UIntVector[16](args[0])
         in1 = args[1]
         correct = BFloat16(float(args[0])).reinterpret_as_bv()
-        res, _ = pe(asm.fcnvint2f(),in0,in1)
+        res, _ = pe(asm.fcnvuint2f(),in0,in1)
         assert correct == res
