@@ -273,7 +273,9 @@ def gen_pe(family, use_assembler=False):
     BV1 = family.BitVector[1]
     Data = family.BitVector[DATAWIDTH]
     Data32 = family.BitVector[32]
+    Data8 = family.BitVector[32]
     ConfigData32 = Config(family.BitVector)[32]
+    ConfigData8 = Config(family.BitVector)[8]
     DataReg = gen_register_mode(Data)
     BitReg = gen_register_mode(Bit)
 
@@ -296,7 +298,7 @@ def gen_pe(family, use_assembler=False):
             data0: Data, data1: Data = Data(0), \
             bit0: Bit = Bit(0), bit1: Bit = Bit(0), bit2: Bit = Bit(0), \
             clk_en: Global(Bit) = Bit(1), \
-            config_addr : Config(Data32) = Data32(0), \
+            config_addr : Config(Data8) = Data8(0), \
             config_data : Config(Data32) = Data32(0), \
             config_en : Config(Bit) = Bit(0) \
         ) -> (Data, Bit, ConfigData32):

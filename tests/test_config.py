@@ -23,6 +23,7 @@ class HashableDict(dict):
 Bit = Bit
 Data = BitVector[DATAWIDTH]
 Data32 = BitVector[32]
+Data8 = BitVector[32]
 BFloat16 = FPVector[8, 7,RoundingMode.RNE,False]
 
 pe_ = gen_pe(BitVector.get_family())
@@ -122,20 +123,20 @@ NTESTS = 16
 
 def write_data01(pe,data0 : Data, data1 : Data):
     instr = asm.add()
-    config_addr = Data32(DATA01_ADDR)
+    config_addr = Data8(DATA01_ADDR)
     config_data = BitVector.concat(data0,data1)
     config_en = Bit(1)
     return pe(instr,data0=Data(0),config_addr=config_addr,config_data=config_data,config_en=config_en)
 
 def read_data0(pe):
     instr = asm.add()
-    config_addr = Data32(DATA01_ADDR)
+    config_addr = Data8(DATA01_ADDR)
     _,_,config_read = pe(instr,Data(0),config_addr=config_addr)
     return config_read[DATA0_START:DATA0_START+DATA0_WIDTH]
 
 def read_data1(pe):
     instr = asm.add()
-    config_addr = Data32(DATA01_ADDR)
+    config_addr = Data8(DATA01_ADDR)
     _,_,config_read = pe(instr,Data(0),config_addr=config_addr)
     return config_read[DATA1_START:DATA1_START+DATA1_WIDTH]
 
@@ -151,26 +152,26 @@ def test_config_data01(args):
 def write_bit012(pe,bit0 : Bit, bit1 : Bit, bit2 : Bit):
     instr = asm.add()
     BV1 = BitVector[1]
-    config_addr = Data32(BIT012_ADDR)
+    config_addr = Data8(BIT012_ADDR)
     config_data = BitVector.concat(BitVector.concat(BitVector.concat(BV1(bit0),BV1(bit1)),BV1(bit2)),BitVector[29](0))
     config_en = Bit(1)
     return pe(instr,data0=Data(0),config_addr=config_addr,config_data=config_data,config_en=config_en)
 
 def read_bit0(pe):
     instr = asm.add()
-    config_addr = Data32(BIT012_ADDR)
+    config_addr = Data8(BIT012_ADDR)
     _,_,config_read = pe(instr,Data(0),config_addr=config_addr)
     return config_read[BIT0_START]
 
 def read_bit1(pe):
     instr = asm.add()
-    config_addr = Data32(BIT012_ADDR)
+    config_addr = Data8(BIT012_ADDR)
     _,_,config_read = pe(instr,Data(0),config_addr=config_addr)
     return config_read[BIT1_START]
 
 def read_bit2(pe):
     instr = asm.add()
-    config_addr = Data32(BIT012_ADDR)
+    config_addr = Data8(BIT012_ADDR)
     _,_,config_read = pe(instr,Data(0),config_addr=config_addr)
     return config_read[BIT2_START]
 
