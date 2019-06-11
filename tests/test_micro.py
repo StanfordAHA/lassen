@@ -317,19 +317,23 @@ def test_get_float_frac_targeted():
     for _ in range(NTESTS)
 ])
 def test_sint_to_float(args):
+    inst = asm.fcnvsint2f()
     in0 = SIntVector[16](args[0])
     in1 = args[1]
     correct = BFloat16(float(args[0])).reinterpret_as_bv()
-    res, _ = pe(asm.fcnvsint2f(),in0,in1)
+    res, _ = pe(inst,in0,in1)
     assert correct == res
+    rtl_tester(inst, in0, in1, res=correct)
 
 @pytest.mark.parametrize("args", [
     (random.randint(0,2**8),BitVector.random(DATAWIDTH))
     for _ in range(NTESTS)
 ])
 def test_uint_to_float(args):
-        in0 = UIntVector[16](args[0])
-        in1 = args[1]
-        correct = BFloat16(float(args[0])).reinterpret_as_bv()
-        res, _ = pe(asm.fcnvuint2f(),in0,in1)
-        assert correct == res
+    inst = asm.fcnvuint2f()
+    in0 = UIntVector[16](args[0])
+    in1 = args[1]
+    correct = BFloat16(float(args[0])).reinterpret_as_bv()
+    res, _ = pe(inst,in0,in1)
+    assert correct == res
+    rtl_tester(inst, in0, in1, res=correct)
