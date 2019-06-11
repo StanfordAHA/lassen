@@ -26,16 +26,10 @@ def gen_alu_type(family):
         Or = 0x12
         And = 0x13
         XOr = 0x14
-<<<<<<< HEAD
-        FP_mult = 0x15
-        FP_add = 0x16
-        FP_sub = 0x17 #one bit from FP_add
-=======
         FP_add = 0x16
         FP_sub = 0x17
         FP_cmp = 0x18
         FP_mult = 0x19
->>>>>>> master
         FGetMant = 0x92
         FAddIExp = 0x93
         FSubExp = 0x94

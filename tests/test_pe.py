@@ -279,7 +279,6 @@ fp_sign_vec = [BV(2.0),BV(-2.0),BV(3.0),BV(-3.0)]
 fp_zero_vec = [BV(0.0),BV('-0.0')]
 fp_inf_vec = [BV('inf'),BV('-inf')]
 
->>>>>>> master
 @pytest.mark.parametrize("op", [
     op(asm.fp_add(), lambda x, y: x + y),
     op(asm.fp_sub(), lambda x, y: x - y),
@@ -304,7 +303,6 @@ def test_fp_binary_op(op,args):
 #container for a floating point value easily indexed by sign, exp, and frac
 fpdata = namedtuple("fpdata", ["sign", "exp", "frac"])
 
-<<<<<<< HEAD
 #Convert fpdata to a BFloat value
 def BFloat(fpdata):
     sign = BitVector[1](fpdata.sign)
@@ -315,7 +313,7 @@ def BFloat(fpdata):
 #Generate random bfloat
 def random_bfloat():
     return fpdata(BitVector.random(1),BitVector.random(8),BitVector.random(7))
-=======
+
 @pytest.mark.parametrize("xy",
     [(BFloat16.random(), BFloat16.random()) for _ in range(NTESTS)] +
     list(product(fp_sign_vec+fp_zero_vec+fp_inf_vec,fp_sign_vec+fp_zero_vec+fp_inf_vec)) +
@@ -402,7 +400,6 @@ def test_get_float_frac():
     assert res==0x80
     assert res_p==0
     rtl_tester(inst, data0, data1, res=res)
->>>>>>> master
 
 @pytest.mark.parametrize("fpdata", [
     random_bfloat() for _ in range(NTESTS)

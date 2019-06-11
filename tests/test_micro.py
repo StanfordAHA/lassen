@@ -147,7 +147,7 @@ def test_get_mant(args):
     #pytest.skip("SKIP");
     fp0 = args[0]
     in0 = BFloat(fp0)
-    in1 = 0 
+    in1 = 0
     inst = asm.fgetmant()
     res, res_p, irq = pe(inst, in0, in1)
     assert res == Data(fp0.frac)
