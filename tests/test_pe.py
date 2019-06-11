@@ -45,7 +45,13 @@ pe_circuit = peak.wrap_with_disassembler(pe_magma, disassembler, width,
                                          instr_magma_type)
 tester = fault.Tester(pe_circuit, clock=pe_circuit.CLK)
 test_dir = "tests/build"
-magma.compile(f"{test_dir}/WrappedPE", pe_circuit, output="coreir-verilog")
+
+# Explicitly load `float_CW` lib so we get technology specific mapping with
+# special code for BFloat rounding, for more info:
+# * https://github.com/rdaly525/coreir/pull/753
+# * https://github.com/StanfordAHA/lassen/issues/111
+magma.compile(f"{test_dir}/WrappedPE", pe_circuit, output="coreir-verilog",
+              coreir_libs={"float_CW"})
 
 # check if we need to use ncsim + cw IP
 cw_dir = "/cad/cadence/GENUS17.21.000.lnx86/share/synth/lib/chipware/sim/verilog/CW/"
@@ -313,6 +319,17 @@ def BFloat(fpdata):
 #Generate random bfloat
 def random_bfloat():
     return fpdata(BitVector.random(1),BitVector.random(8),BitVector.random(7))
+
+def test_fp_mul():
+    # Regression test for https://github.com/StanfordAHA/lassen/issues/111
+    if not CAD_ENV:
+        pytest.skip("Skipping fp op tests because CW primitives are not available")
+    inst = asm.fp_mul()
+    data0 = Data(0x4040)
+    data1 = Data(0x4049)
+    res, res_p = pe(inst, data0, data1)
+    rtl_tester(inst, data0, data1, res=res)
+
 
 @pytest.mark.parametrize("xy",
     [(BFloat16.random(), BFloat16.random()) for _ in range(NTESTS)] +
