@@ -47,91 +47,84 @@ assembler, disassembler, width, layout = \
 ## check if we need to use ncsim + cw IP
 #cw_dir = "/cad/cadence/GENUS17.21.000.lnx86/share/synth/lib/chipware/sim/verilog/CW/"   # noqa
 #CAD_ENV = shutil.which("ncsim") and os.path.isdir(cw_dir)
-#
-#
-#def copy_file(src_filename, dst_filename, override=False):
-#    if not override and os.path.isfile(dst_filename):
-#        return
-#    shutil.copy(src_filename, dst_filename)
-#
-#
-#def rtl_tester(test_op, data0=None, data1=None, bit0=None, bit1=None, bit2=None,
-#               res=None, res_p=None, clk_en=1, delay=0,
-#               data0_delay_values=None, data1_delay_values=None):
-#    tester.clear()
-#    if hasattr(test_op, "inst"):
-#        tester.circuit.inst = assembler(test_op.inst)
-#    else:
-#        tester.circuit.inst = assembler(test_op)
-#    tester.circuit.CLK = 0
-#    tester.circuit.clk_en = clk_en
-#    if data0 is not None:
-#        data0 = BitVector[16](data0)
-#        tester.circuit.data0 = data0
-#    if data1 is not None:
-#        data1 = BitVector[16](data1)
-#        tester.circuit.data1 = data1
-#    if bit0 is not None:
-#        tester.circuit.bit0 = Bit(bit0)
-#    if bit1 is not None:
-#        tester.circuit.bit1 = Bit(bit1)
-#    if bit2 is not None:
-#        tester.circuit.bit2 = Bit(bit2)
-#    tester.eval()
-#
-#    for i in range(delay):
-#        tester.step(2)
-#        if data0_delay_values is not None:
-#            tester.circuit.data0 = data0_delay_values[i]
-#        if data1_delay_values is not None:
-#            tester.circuit.data1 = data1_delay_values[i]
-#
-#    if res is not None:
-#        tester.circuit.O0.expect(res)
-#    if res_p is not None:
-#        tester.circuit.O1.expect(res_p)
-#    if CAD_ENV:
-#        # use ncsim
-#        libs = ["CW_fp_mult.v", "CW_fp_add.v"]
-#        for filename in libs:
-#            copy_file(os.path.join(cw_dir, filename),
-#                      os.path.join(test_dir, filename))
-#        tester.compile_and_run(target="system-verilog", simulator="ncsim",
-#                               directory="tests/build/",
-#                               include_verilog_libraries=libs,
-#                               skip_compile=True)
-#    else:
-#        libs = ["CW_fp_mult.v", "CW_fp_add.v"]
-#        for filename in libs:
-#            copy_file(os.path.join("stubs", filename),
-#                      os.path.join(test_dir, filename))
-#        # detect if the PE circuit has been built
-#        skip_verilator = os.path.isfile(os.path.join(test_dir, "obj_dir",
-#                                                     "VWrappedPE__ALL.a"))
-#        tester.compile_and_run(target="verilator",
-#                               directory=test_dir,
-#                               flags=['-Wno-UNUSED', '-Wno-PINNOCONNECT'],
-#                               skip_compile=True,
-#                               skip_verilator=skip_verilator)
-#
+
+def copy_file(src_filename, dst_filename, override=False):
+    if not override and os.path.isfile(dst_filename):
+        return
+    shutil.copy(src_filename, dst_filename)
+
+
+def rtl_tester(test_op, data0=None, data1=None, bit0=None, bit1=None, bit2=None,
+               res=None, res_p=None, clk_en=1, delay=0,
+               data0_delay_values=None, data1_delay_values=None):
+    tester.clear()
+    if hasattr(test_op, "inst"):
+        tester.circuit.inst = assembler(test_op.inst)
+    else:
+        tester.circuit.inst = assembler(test_op)
+    tester.circuit.CLK = 0
+    tester.circuit.clk_en = clk_en
+    if data0 is not None:
+        data0 = BitVector[16](data0)
+        tester.circuit.data0 = data0
+    if data1 is not None:
+        data1 = BitVector[16](data1)
+        tester.circuit.data1 = data1
+    if bit0 is not None:
+        tester.circuit.bit0 = Bit(bit0)
+    if bit1 is not None:
+        tester.circuit.bit1 = Bit(bit1)
+    if bit2 is not None:
+        tester.circuit.bit2 = Bit(bit2)
+    tester.eval()
+
+    for i in range(delay):
+        tester.step(2)
+        if data0_delay_values is not None:
+            tester.circuit.data0 = data0_delay_values[i]
+        if data1_delay_values is not None:
+            tester.circuit.data1 = data1_delay_values[i]
+
+    if res is not None:
+        tester.circuit.O0.expect(res)
+    if res_p is not None:
+        tester.circuit.O1.expect(res_p)
+    if CAD_ENV:
+        # use ncsim
+        libs = ["CW_fp_mult.v", "CW_fp_add.v"]
+        for filename in libs:
+            copy_file(os.path.join(cw_dir, filename),
+                      os.path.join(test_dir, filename))
+        tester.compile_and_run(target="system-verilog", simulator="ncsim",
+                               directory="tests/build/",
+                               include_verilog_libraries=libs,
+                               skip_compile=True)
+    else:
+        libs = ["CW_fp_mult.v", "CW_fp_add.v"]
+        for filename in libs:
+            copy_file(os.path.join("stubs", filename),
+                      os.path.join(test_dir, filename))
+        # detect if the PE circuit has been built
+        skip_verilator = os.path.isfile(os.path.join(test_dir, "obj_dir",
+                                                     "VWrappedPE__ALL.a"))
+        tester.compile_and_run(target="verilator",
+                               directory=test_dir,
+                               flags=['-Wno-UNUSED', '-Wno-PINNOCONNECT'],
+                               skip_compile=True,
+                               skip_verilator=skip_verilator)
+
 
 NTESTS = 16
 
-#@pytest.mark.parametrize("args", [
-#    (UIntVector.random(DATAWIDTH), UIntVector.random(DATAWIDTH))
-#        for _ in range(NTESTS) ] )
-
-def write_data01(pe,data0 : Data, data1 : Data):
-    instr = asm.add()
+def write_data01(pe,data0 : Data, data1 : Data,instr=asm.add(),ra=Data(0)):
     config_addr = Data8(DATA01_ADDR)
     config_data = BitVector.concat(data0,data1)
     config_en = Bit(1)
-    return pe(instr,data0=Data(0),config_addr=config_addr,config_data=config_data,config_en=config_en)
+    return pe(instr,data0=ra,config_addr=config_addr,config_data=config_data,config_en=config_en)
 
-def read_data0(pe):
-    instr = asm.add()
+def read_data0(pe,instr=asm.add(),ra=Data(0)):
     config_addr = Data8(DATA01_ADDR)
-    _,_,config_read = pe(instr,Data(0),config_addr=config_addr)
+    _,_,config_read = pe(instr,data0=ra,config_addr=config_addr)
     return config_read[DATA0_START:DATA0_START+DATA0_WIDTH]
 
 def read_data1(pe):
@@ -149,8 +142,7 @@ def test_config_data01(args):
     assert args[0] == read_data0(pe)
     assert args[1] == read_data1(pe)
 
-def write_bit012(pe,bit0 : Bit, bit1 : Bit, bit2 : Bit):
-    instr = asm.add()
+def write_bit012(pe,bit0 : Bit, bit1 : Bit, bit2 : Bit, instr=asm.add()):
     BV1 = BitVector[1]
     config_addr = Data8(BIT012_ADDR)
     config_data = BitVector.concat(BitVector.concat(BitVector.concat(BV1(bit0),BV1(bit1)),BV1(bit2)),BitVector[29](0))
@@ -188,7 +180,22 @@ def test_config_bit012(args):
     assert args[2] == read_bit2(pe)
 
 
-
-
+#Properties that must hold, config_en has higher priority over the input
+@pytest.mark.parametrize("args",[
+    (BitVector.random(DATAWIDTH),
+     BitVector.random(DATAWIDTH),
+     BitVector.random(DATAWIDTH))
+        for _ in range(NTESTS)
+])
+def test_write_priority_data0(args):
+    instr = asm.add(ra_mode=Mode.DELAY)
+    write_data01(pe,data0=args[0],data1=args[1],instr=instr,ra=args[2])
+    #The config takes prioirty over the ra input
+    assert args[0] == read_data0(pe,instr=instr,ra=args[2])
+    #Now data0 register should contain args[2] (from delay)
+    assert args[2] == read_data0(pe,instr=instr,ra=args[1])
+    assert args[1] == read_data0(pe,instr=instr)
+    #data1 should still contain args[1] from the first write_data01
+    assert args[1] == read_data1(pe)
 
 
