@@ -125,7 +125,7 @@ def BFloat(fpdata):
     sign = BitVector[1](fpdata.sign)
     exp = BitVector[8](fpdata.exp)
     frac = BitVector[7](fpdata.frac)
-    return BitVector.concat(BitVector.concat(sign,exp),frac)
+    return BitVector.concat(BitVector.concat(frac,exp),sign)
 
 #Generate random bfloat
 def random_bfloat():
