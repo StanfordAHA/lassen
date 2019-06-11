@@ -292,7 +292,7 @@ def gen_pe(family, use_assembler=False):
             data0: Data, data1: Data = Data(0), \
             bit0: Bit = Bit(0), bit1: Bit = Bit(0), bit2: Bit = Bit(0),
             clk_en: Global(Bit) = Bit(1)
-        ) -> (Data, Bit, Global(Bit)):
+        ) -> (Data, Bit):
             # Simulate one clock cycle
 
             ra = self.rega(inst.rega, inst.data0, data0, clk_en)
@@ -310,14 +310,11 @@ def gen_pe(family, use_assembler=False):
 
             # calculate 1-bit result
             res_p = cond(inst.cond, alu_res_p, lut_res, Z, N, C, V)
-            # calculate interrupt request
-            # TODO(rsetaluri, rdaly): Implement logic to compute irq.
-            irq = Global(Bit)(0)
 
-            # return 16-bit result, 1-bit result, irq
-            return alu_res, res_p, irq
+            # return 16-bit result, 1-bit result
+            return alu_res, res_p
     if family.Bit is m.Bit:
         PE = m.circuit.sequential(PE)
     else:
-        PE.__call__ = name_outputs(alu_res=Data,res_p=Bit,irq=Global(Bit))(PE.__call__)
+        PE.__call__ = name_outputs(alu_res=Data,res_p=Bit)(PE.__call__)
     return PE
