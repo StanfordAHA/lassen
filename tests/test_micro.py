@@ -260,7 +260,7 @@ def test_get_float_int(args):
        out_overflow = 0
     else:
        out_overflow = 1
-    res, res_p, V = pe(inst, in0, in1)
+    res, res_p = pe(inst, in0, in1)
     #assert V==out_overflow
     if (out_overflow==0):
       assert res==out
@@ -277,7 +277,6 @@ def test_get_float_int_targeted():
     # res: int(2.5) =  2
     assert res==0x2
     assert res_p==0
-    assert irq==0
     rtl_tester(inst, data0, data1, res=0x2)
 
 @pytest.mark.parametrize("args", [
