@@ -145,7 +145,6 @@ def test_bfloat_construct(fpdata):
 ])
 def test_get_mant(args):
     #output = input.mantissa (7 bit)
-    #pytest.skip("SKIP");
     fp0 = args[0]
     in0 = BFloat(fp0)
     in1 = args[1]
@@ -156,7 +155,6 @@ def test_get_mant(args):
 
 
 def test_add_exp_imm_targeted():
-    #pytest.skip("SKIP");
     inst = asm.faddiexp()
     data0 = Data(0x7F8A)
     data1 = Data(0x0005)
@@ -172,7 +170,6 @@ def test_add_exp_imm_targeted():
 ])
 def test_add_exp_imm(args):
     #input[0].exponent += input[1] (SIGNED)
-    #pytest.skip("SKIP");
     fp0 = args[0]
     sint1 = args[1]
     in0 = Data(BFloat(fp0))
@@ -188,7 +185,6 @@ def test_add_exp_imm(args):
         for _ in range(NTESTS)
 ])
 def test_sub_exp(args):
-    #pytest.skip("SKIP");
     fp0 = args[0]
     fp1 = args[1]
     in0 = Data(BFloat(fp0))
@@ -201,7 +197,6 @@ def test_sub_exp(args):
     rtl_tester(inst, in0, in1, res=BFloat(out))
 
 def test_sub_exp_targeted():
-    #pytest.skip("SKIP");
     inst = asm.fsubexp()
     data0 = Data(0x7F8A)
     data1 = Data(0x4005)
@@ -217,7 +212,6 @@ def test_sub_exp_targeted():
     (random_bfloat(),SIntVector.random(DATAWIDTH)) for _ in range(NTESTS)
 ])
 def test_cnvt_exp_to_float(args):
-    #pytest.skip("SKIP");
     fp0 = args[0]
     in0 = BFloat(fp0)
     in1 = args[1]
@@ -231,7 +225,6 @@ def test_cnvt_exp_to_float(args):
     rtl_tester(inst, in0, in1, res=out)
 
 def test_cnvt_exp_to_float_targeted():
-    #pytest.skip("SKIP");
     inst = asm.fcnvexp2f()
     #data0 = Data(0x4005)
     data0 = Data(65525)
@@ -247,7 +240,6 @@ def test_cnvt_exp_to_float_targeted():
     (random_bfloat(), SIntVector.random(DATAWIDTH))
     for _ in range(NTESTS)])
 def test_get_float_int(args):
-    #pytest.skip("SKIP");
     fp0 = args[0]
     in0 = BFloat(fp0)
     in1 = Data(args[1])
@@ -284,7 +276,6 @@ def test_get_float_int_targeted():
     (random_bfloat(), SIntVector.random(DATAWIDTH))
     for _ in range(NTESTS)])
 def test_get_float_frac(args):
-    #pytest.skip("SKIP");
     fp0 = args[0]
     in0 = BFloat(fp0)
     in1 = Data(args[1])
