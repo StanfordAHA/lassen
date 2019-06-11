@@ -16,7 +16,7 @@ def gen_Add32(family):
             inst_msb = asm.adc()
             lsb,cout = self.pe_lsb(inst_lsb,data0=in0[:16],data1=in1[:16])
             msb,_ = self.pe_msb(inst_msb,data0=in0[16:],data1=in1[16:],bit0=cout)
-            return Data32.concat(msb,lsb)
+            return Data32.concat(lsb,msb)
     return Add32
 
 def gen_Sub32(family):
@@ -33,5 +33,5 @@ def gen_Sub32(family):
             inst_msb = asm.sbc()
             lsb,cout = self.pe_lsb(inst_lsb,data0=in0[:16],data1=in1[:16])
             msb,_ = self.pe_msb(inst_msb,data0=in0[16:],data1=in1[16:],bit0=cout)
-            return Data32.concat(msb,lsb)
+            return Data32.concat(lsb,msb)
     return Sub32
