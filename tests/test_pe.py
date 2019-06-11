@@ -43,6 +43,11 @@ pe_circuit = peak.wrap_with_disassembler(pe_magma, disassembler, width,
                                          instr_magma_type)
 tester = fault.Tester(pe_circuit, clock=pe_circuit.CLK)
 test_dir = "tests/build"
+
+# Explicitly load `float_CW` lib so we get technology specific mapping with
+# special code for BFloat rounding, for more info:
+# * https://github.com/rdaly525/coreir/pull/753
+# * https://github.com/StanfordAHA/lassen/issues/111
 magma.compile(f"{test_dir}/WrappedPE", pe_circuit, output="coreir-verilog",
               coreir_libs={"float_CW"})
 
