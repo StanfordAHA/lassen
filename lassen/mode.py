@@ -28,16 +28,21 @@ def gen_register_mode(T, init=None):
         def __init__(self):
             self.register: Reg = Reg()
 
+        #Outputs <based on mode>, register_value
         def __call__(self, mode: Mode, const_: T, value: T,
-                     clk_en: family.Bit) -> T:
-            if mode == Mode.CONST:
-                self.register(value, Bit(False))
-                return const_
+                clk_en: family.Bit, config_we : Bit, config_data : T) -> (T,T):
+            if config_we==Bit(1):
+                reg_val = self.register(config_data,Bit(1))
+                return reg_val,reg_val
+            elif mode == Mode.CONST:
+                reg_val = self.register(value, Bit(False))
+                return const_, reg_val
             elif mode == Mode.BYPASS:
-                self.register(value, Bit(False))
-                return value
+                reg_val = self.register(value, Bit(False))
+                return value, reg_val
             elif mode == Mode.DELAY:
-                return self.register(value, clk_en)
+                reg_val = self.register(value, clk_en)
+                return reg_val, reg_val
             #else:
             #    raise PeakNotImplementedError(mode)
 
