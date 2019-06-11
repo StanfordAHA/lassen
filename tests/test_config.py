@@ -116,10 +116,10 @@ def rtl_tester(test_op, data0=None, data1=None, bit0=None, bit1=None, bit2=None,
 op = namedtuple("op", ["inst", "func"])
 NTESTS = 16
 
-@pytest.mark.parametrize("args", [
-    (UIntVector.random(DATAWIDTH), UIntVector.random(DATAWIDTH))
-        for _ in range(NTESTS) ] )
-def test_unsigned_binary(op, args):
+#@pytest.mark.parametrize("args", [
+#    (UIntVector.random(DATAWIDTH), UIntVector.random(DATAWIDTH))
+#        for _ in range(NTESTS) ] )
+def test_config():
     x, y = args
     res, _ = pe(op.inst, Data(x), Data(y))
     assert res==op.func(x,y)
