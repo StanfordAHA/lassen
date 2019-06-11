@@ -11,8 +11,6 @@ from .family import gen_pe_type_family
 from .common import Global
 import numpy as np
 import magma as m
-from functools import reduce
-from itertools import chain
 
 # simulate the PE ALU
 #

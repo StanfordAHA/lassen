@@ -24,7 +24,7 @@ Bit = Bit
 Data = BitVector[DATAWIDTH]
 Data32 = BitVector[32]
 Data8 = BitVector[32]
-BFloat16 = FPVector[8, 7,RoundingMode.RNE,False]
+BFloat16 = FPVector[8,7,RoundingMode.RNE,False]
 
 pe_ = gen_pe(BitVector.get_family())
 pe = pe_()
