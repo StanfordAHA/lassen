@@ -39,7 +39,6 @@ def gen_alu_type(family):
         FCnvInt2F = 0x98
     return ALU
 
-
 @lru_cache()
 def gen_signed_type(family):
     """
@@ -53,7 +52,6 @@ def gen_signed_type(family):
 
 # Current PE has 16-bit data path
 DATAWIDTH = 16
-
 
 @lru_cache()
 def gen_inst_type(family):

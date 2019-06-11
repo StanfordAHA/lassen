@@ -310,3 +310,14 @@ def test_get_float_frac_targeted():
     # res: frac(2.5) = 0.5D = 0.1B i.e. 100 0000
     assert res==0x40
     rtl_tester(inst, data0, data1, res=res)
+
+@pytest.mark.parametrize("args", [
+    (random.randint(-100,100),BitVector.random(DATAWIDTH))
+    for _ in range(NTESTS)
+])
+def test_int_to_float(args):
+        in0 = SIntVector[16](args[0])
+        in1 = args[1]
+        correct = BFloat16(float(args[0])).reinterpret_as_bv()
+        res, _ = pe(asm.fcnvint2f(),in0,in1)
+        assert correct == res
