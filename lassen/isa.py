@@ -52,8 +52,8 @@ def gen_alu_type(family):
         FCnvExp2F = 0x95
         FGetFInt = 0x96
         FGetFFrac = 0x97
+        FCnvInt2F = 0x98
     return ALU
-
 
 @lru_cache()
 def gen_signed_type(family):
@@ -64,8 +64,6 @@ def gen_signed_type(family):
         unsigned = 0
         signed = 1
     return Signed
-
-
 
 @lru_cache()
 def gen_inst_type(family):

@@ -1,6 +1,17 @@
-from hwtypes import BitVector
+from hwtypes import BitVector, FPVector
 import struct
 import numpy as np
+
+BFloat16 = FPVector[7,8,RoundingMode.RNE,False]
+
+
+#Constructor that returns a BitVector[16]
+def BFloat(val):
+    if isinstance(val,float):
+        return BFloat16(val)
+    elif isinstance(val,list):
+
+
 
 def _bv_to_bfloat(a: BitVector):
     assert (a.num_bits == 16)

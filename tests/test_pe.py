@@ -6,6 +6,8 @@ from lassen.mode import gen_mode_type
 from lassen.isa import DATAWIDTH, gen_alu_type
 from hwtypes import SIntVector, UIntVector, BitVector, Bit, FPVector, RoundingMode
 import pytest
+import math
+import random
 import magma
 import peak
 import fault
@@ -125,19 +127,20 @@ op = namedtuple("op", ["inst", "func"])
 NTESTS = 16
 
 @pytest.mark.parametrize("op", [
-    op(asm.and_(),  lambda x, y: x&y),
-    op(asm.or_(),   lambda x, y: x|y),
-    op(asm.xor(),   lambda x, y: x^y),
-    op(asm.add(),   lambda x, y: x+y),
-    op(asm.sub(),   lambda x, y: x-y),
-    op(asm.lsl(),   lambda x, y: x << y),
-    op(asm.lsr(),   lambda x, y: x >> y),
-    op(asm.umin(),  lambda x, y: (x < y).ite(x, y)),
-    op(asm.umax(),  lambda x, y: (x > y).ite(x, y))
+    op(asm.and_(), lambda x, y: x & y),
+    op(asm.or_(), lambda x, y: x | y),
+    op(asm.xor(), lambda x, y: x ^ y),
+    op(asm.add(), lambda x, y: x+y),
+    op(asm.sub(), lambda x, y: x-y),
+    op(asm.lsl(), lambda x, y: x << y),
+    op(asm.lsr(), lambda x, y: x >> y),
+    op(asm.umin(), lambda x, y: (x < y).ite(x, y)),
+    op(asm.umax(), lambda x, y: (x > y).ite(x, y))
 ])
 @pytest.mark.parametrize("args", [
     (UIntVector.random(DATAWIDTH), UIntVector.random(DATAWIDTH))
-        for _ in range(NTESTS) ] )
+        for _ in range(NTESTS)
+])
 def test_unsigned_binary(op, args):
     x, y = args
     res, _, _ = pe(op.inst, Data(x), Data(y))
@@ -145,14 +148,15 @@ def test_unsigned_binary(op, args):
     rtl_tester(op, x, y, res=res)
 
 @pytest.mark.parametrize("op", [
-    op(asm.lsl(),   lambda x, y: x << y),
-    op(asm.asr(),   lambda x, y: x >> y),
-    op(asm.smin(),  lambda x, y: (x < y).ite(x, y)),
-    op(asm.smax(),  lambda x, y: (x > y).ite(x, y)),
+    op(asm.lsl(), lambda x, y: x << y),
+    op(asm.asr(), lambda x, y: x >> y),
+    op(asm.smin(), lambda x, y: (x < y).ite(x, y)),
+    op(asm.smax(), lambda x, y: (x > y).ite(x, y)),
 ])
 @pytest.mark.parametrize("args", [
     (SIntVector.random(DATAWIDTH), SIntVector.random(DATAWIDTH))
-        for _ in range(NTESTS) ] )
+        for _ in range(NTESTS) ]
+)
 def test_signed_binary(op, args):
     x, y = args
     res, _, _ = pe(op.inst, Data(x), Data(y))
@@ -160,27 +164,30 @@ def test_signed_binary(op, args):
     rtl_tester(op, x, y, res=res)
 
 @pytest.mark.parametrize("op", [
-    op(asm.abs(),  lambda x: x if x > 0 else -x),
+    op(asm.abs(), lambda x: x if x > 0 else -x),
 ])
 @pytest.mark.parametrize("args",
-    [SIntVector.random(DATAWIDTH) for _ in range(NTESTS) ] )
+    [SIntVector.random(DATAWIDTH) for _ in range(NTESTS) ]
+)
 def test_signed_unary(op, args):
     x = args
     res, _, _ = pe(op.inst, Data(x))
     assert res == op.func(x)
     rtl_tester(op, x, 0, res=res)
 
+
 @pytest.mark.parametrize("op", [
-    op(asm.eq(),   lambda x, y: x == y),
-    op(asm.ne(),   lambda x, y: x != y),
-    op(asm.ugt(),  lambda x, y: x >  y),
-    op(asm.uge(),  lambda x, y: x >= y),
-    op(asm.ult(),  lambda x, y: x <  y),
-    op(asm.ule(),  lambda x, y: x <= y),
+    op(asm.eq(), lambda x, y: x == y),
+    op(asm.ne(), lambda x, y: x != y),
+    op(asm.ugt(), lambda x, y: x > y),
+    op(asm.uge(), lambda x, y: x >= y),
+    op(asm.ult(), lambda x, y: x < y),
+    op(asm.ule(), lambda x, y: x <= y),
 ])
 @pytest.mark.parametrize("args", [
     (UIntVector.random(DATAWIDTH), UIntVector.random(DATAWIDTH))
-        for _ in range(NTESTS) ] )
+        for _ in range(NTESTS)
+])
 def test_unsigned_relation(op, args):
     x, y = args
     _, res_p, _ = pe(op.inst, Data(x), Data(y))
@@ -188,14 +195,15 @@ def test_unsigned_relation(op, args):
     rtl_tester(op, x, y, res_p=res_p)
 
 @pytest.mark.parametrize("op", [
-    op(asm.sgt(),  lambda x, y: x >  y),
-    op(asm.sge(),  lambda x, y: x >= y),
-    op(asm.slt(),  lambda x, y: x <  y),
-    op(asm.sle(),  lambda x, y: x <= y),
+    op(asm.sgt(), lambda x, y: x > y),
+    op(asm.sge(), lambda x, y: x >= y),
+    op(asm.slt(), lambda x, y: x < y),
+    op(asm.sle(), lambda x, y: x <= y),
 ])
 @pytest.mark.parametrize("args", [
     (SIntVector.random(DATAWIDTH), SIntVector.random(DATAWIDTH))
-        for _ in range(NTESTS) ] )
+        for _ in range(NTESTS)
+])
 def test_signed_relation(op, args):
     x, y = args
     _, res_p, _ = pe(op.inst, Data(x), Data(y))
@@ -209,7 +217,8 @@ def test_signed_relation(op, args):
 ])
 @pytest.mark.parametrize("args", [
     (UIntVector.random(DATAWIDTH), UIntVector.random(DATAWIDTH), Bit(random.choice([1,0])))
-        for _ in range(NTESTS) ] )
+        for _ in range(NTESTS) ]
+)
 def test_ternary(op,args):
     inst = op.inst
     d0 = args[0]
@@ -221,9 +230,10 @@ def test_ternary(op,args):
 
 @pytest.mark.parametrize("args", [
     (SIntVector.random(DATAWIDTH), SIntVector.random(DATAWIDTH))
-        for _ in range(NTESTS) ] )
+        for _ in range(NTESTS)
+])
 def test_smult(args):
-    def mul(x,y):
+    def mul(x, y):
         mulx, muly = x.sext(DATAWIDTH), y.sext(DATAWIDTH)
         return mulx * muly
     smult0 = asm.smult0()
@@ -241,11 +251,13 @@ def test_smult(args):
     assert res == xy[DATAWIDTH:]
     rtl_tester(smult2, x, y, res=res)
 
+
 @pytest.mark.parametrize("args", [
     (UIntVector.random(DATAWIDTH), UIntVector.random(DATAWIDTH))
-        for _ in range(NTESTS) ] )
+        for _ in range(NTESTS)
+])
 def test_umult(args):
-    def mul(x,y):
+    def mul(x, y):
         mulx, muly = x.zext(DATAWIDTH), y.zext(DATAWIDTH)
         return mulx * muly
     umult0 = asm.umult0()
@@ -295,6 +307,19 @@ def test_fp_binary_op(op,args):
     if CAD_ENV:
         rtl_tester(op, data0, data1, res=res)
 
+#container for a floating point value easily indexed by sign, exp, and frac
+fpdata = namedtuple("fpdata", ["sign", "exp", "frac"])
+
+#Convert fpdata to a BFloat value
+def BFloat(fpdata):
+    sign = BitVector[1](fpdata.sign)
+    exp = BitVector[8](fpdata.exp)
+    frac = BitVector[7](fpdata.frac)
+    return BitVector.concat(BitVector.concat(sign,exp),frac)
+
+#Generate random bfloat
+def random_bfloat():
+    return fpdata(BitVector.random(1),BitVector.random(8),BitVector.random(7))
 
 def test_fp_mul():
     # Regression test for https://github.com/StanfordAHA/lassen/issues/111
@@ -327,74 +352,6 @@ def test_fp_cmp(xy,op):
     _, res_p, _ = pe(inst, BFloat16.reinterpret_as_bv(in0), BFloat16.reinterpret_as_bv(in1))
     assert res_p == out
 
-def test_get_mant():
-    inst = asm.fgetmant()
-    data0 = Data(0x7F8A)
-    data1 = Data(0x0000)
-    res, res_p, _ = pe(inst, data0, data1)
-    assert res==0xA
-    assert res_p==0
-    rtl_tester(inst, data0, data1, res=res)
-
-def test_add_exp_imm():
-    inst = asm.faddiexp()
-    data0 = Data(0x7F8A)
-    data1 = Data(0x0005)
-    res, res_p, _ = pe(inst, data0, data1)
-    # 7F8A => Sign=0; Exp=0xFF; Mant=0x0A
-    # Add 5 to exp => Sign=0; Exp=0x04; Mant=0x0A i.e. float  = 0x020A
-    assert res==0x020A
-    assert res_p==0
-    rtl_tester(inst, data0, data1, res=res)
-
-def test_sub_exp():
-    inst = asm.fsubexp()
-    data0 = Data(0x7F8A)
-    data1 = Data(0x4005)
-    res, res_p, _ = pe(inst, data0, data1)
-    # 7F8A => Sign=0; Exp=0xFF; Mant=0x0A
-    # 4005 => Sign=0; Exp=0x80; Mant=0x05 (0100 0000 0000 0101)
-    # res: 7F0A => Sign=0; Exp=0xFE; Mant=0x0A (0111 1111 0000 1010)
-    assert res==0x7F0A
-    assert res_p==0
-    rtl_tester(inst, data0, data1, res=res)
-
-def test_cnvt_exp_to_float():
-    inst = asm.fcnvexp2f()
-    data0 = Data(0x4005)
-    data1 = Data(0x0000)
-    res, res_p, _ = pe(inst, data0, data1)
-    # 4005 => Sign=0; Exp=0x80; Mant=0x05 (0100 0000 0000 0101) i.e. unbiased exp = 1
-    # res: 3F80 => Sign=0; Exp=0x7F; Mant=0x00 (0011 1111 1000 0000)
-    assert res==0x3F80
-    assert res_p==0
-    rtl_tester(inst, data0, data1, res=res)
-
-def test_get_float_int():
-    inst = asm.fgetfint()
-    data0 = Data(0x4020)
-    data1 = Data(0x0000)
-    res, res_p, _ = pe(inst, data0, data1)
-    #2.5 = 10.1 i.e. exp = 1 with 1.01 # biased exp = 128 i.e 80
-    #float is 0100 0000 0010 0000 i.e. 4020
-    # res: int(2.5) =  2
-    assert res==0x2
-    assert res_p==0
-    rtl_tester(inst, data0, data1, res=res)
-
-def test_get_float_frac():
-    inst = asm.fgetffrac()
-    data0 = Data(0x4020)
-    data1 = Data(0x0000)
-    res, res_p, _ = pe(inst, data0, data1)
-    #2.5 = 10.1 i.e. exp = 1 with 1.01 # biased exp = 128 i.e 80
-    #float is 0100 0000 0010 0000 i.e. 4020
-    # res: frac(2.5) = 0.5D = 0.1B i.e. 1000 0000
-    assert res==0x80
-    assert res_p==0
-    rtl_tester(inst, data0, data1, res=res)
-
-
 @pytest.mark.parametrize("lut_code", [
     UIntVector.random(8)
     for _ in range(NTESTS)])
@@ -405,7 +362,6 @@ def test_lut(lut_code):
         expected = (lut_code >> i)[0]
         rtl_tester(inst, bit0=bit0, bit1=bit1, bit2=bit2, res_p=expected)
 
-
 @pytest.mark.parametrize("args", [
     (UIntVector.random(DATAWIDTH), UIntVector.random(DATAWIDTH))
         for _ in range(NTESTS) ] )
@@ -415,7 +371,6 @@ def test_reg_delay(args):
     data1_delay_values = [UIntVector.random(DATAWIDTH)]
     rtl_tester(inst, data0, data1, res=data0 + data1, delay=1,
                data1_delay_values=data1_delay_values)
-
 
 @pytest.mark.parametrize("args", [
     (UIntVector.random(DATAWIDTH), UIntVector.random(DATAWIDTH))
