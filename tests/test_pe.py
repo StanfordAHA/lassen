@@ -49,6 +49,7 @@ test_dir = "tests/build"
 # special code for BFloat rounding, for more info:
 # * https://github.com/rdaly525/coreir/pull/753
 # * https://github.com/StanfordAHA/lassen/issues/111
+magma.backend.coreir_.__reset_context()
 magma.compile(f"{test_dir}/WrappedPE", pe_circuit, output="coreir-verilog",
               coreir_libs={"float_CW"})
 
