@@ -54,16 +54,19 @@ def copy_file(src_filename, dst_filename, override=False):
     shutil.copy(src_filename, dst_filename)
 
 
-def rtl_tester(test_op, data0=None, data1=None, bit0=None, bit1=None, bit2=None,
-               res=None, res_p=None, clk_en=1, delay=0,
-               data0_delay_values=None, data1_delay_values=None):
+def rtl_tester(cycles : int
+    data0 : list, data1 : list,
+    bit0 : list, bit1 : list, bit2 : list,
+    res : list, res_p : list
+):
+
     tester.clear()
     if hasattr(test_op, "inst"):
         tester.circuit.inst = assembler(test_op.inst)
     else:
         tester.circuit.inst = assembler(test_op)
     tester.circuit.CLK = 0
-    tester.circuit.clk_en = clk_en
+    tester.circuit.clk_en = Bit(1)
     if data0 is not None:
         data0 = BitVector[16](data0)
         tester.circuit.data0 = data0
