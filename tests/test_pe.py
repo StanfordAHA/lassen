@@ -45,15 +45,12 @@ pe_circuit = peak.wrap_with_disassembler(pe_magma, disassembler, width,
 tester = fault.Tester(pe_circuit, clock=pe_circuit.CLK)
 test_dir = "tests/build"
 
-# Explicitly load `float_CW` lib so we get technology specific mapping with
-# special code for BFloat rounding, for more info:
-# * https://github.com/rdaly525/coreir/pull/753
-# * https://github.com/StanfordAHA/lassen/issues/111
+# Explicitly load `float_DW` lib so we get technology specific mapping with
 magma.compile(f"{test_dir}/WrappedPE", pe_circuit, output="coreir-verilog",
-              coreir_libs={"float_CW"})
+              coreir_libs={"float_DW"})
 
 # check if we need to use ncsim + cw IP
-cw_dir = "/cad/cadence/GENUS17.21.000.lnx86/share/synth/lib/chipware/sim/verilog/CW/"   # noqa
+cw_dir = "/hw/cad/synopsys/dc_shell/J-2014.09-SP3/dw/sim_ver/"   # noqa
 CAD_ENV = shutil.which("ncsim") and os.path.isdir(cw_dir)
 
 
