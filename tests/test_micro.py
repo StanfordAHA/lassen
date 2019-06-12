@@ -42,6 +42,8 @@ pe_circuit = peak.wrap_with_disassembler(pe_magma, disassembler, width,
                                          instr_magma_type)
 tester = fault.Tester(pe_circuit, clock=pe_circuit.CLK)
 test_dir = "tests/build"
+# We reset the context because tests/test_pe.py calls compile and pollutes the
+# coreir context causing a "redefinition of module" error
 magma.backend.coreir_.__reset_context()
 magma.compile(f"{test_dir}/WrappedPE", pe_circuit, output="coreir-verilog",
               coreir_libs={"float_CW"})
