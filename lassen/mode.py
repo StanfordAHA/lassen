@@ -1,5 +1,4 @@
 from peak import Peak, gen_register
-from hwtypes.adt import Enum
 from .family import gen_pe_type_family
 import magma as m
 from functools import lru_cache
@@ -29,7 +28,8 @@ def gen_register_mode(T, init=None):
         def __init__(self):
             self.register: Reg = Reg()
 
-        def __call__(self, mode: Mode, const_: T, value: T) -> T:
+        def __call__(self, mode: Mode, const_: T, value: T,
+                     clk_en: family.Bit) -> T:
             if mode == Mode.CONST:
                 self.register(value, Bit(False))
                 return const_
@@ -37,7 +37,7 @@ def gen_register_mode(T, init=None):
                 self.register(value, Bit(False))
                 return value
             elif mode == Mode.DELAY:
-                return self.register(value, Bit(True))
+                return self.register(value, clk_en)
             #else:
             #    raise PeakNotImplementedError(mode)
 

@@ -8,7 +8,7 @@ from .lut import gen_lut_type, gen_lut
 from .cond import gen_cond
 from .isa import *
 from .family import gen_pe_type_family
-import struct
+from .common import Global
 import numpy as np
 import magma as m
 
@@ -335,6 +335,7 @@ def gen_alu(family: TypeFamily, datawidth, use_assembler=False):
 
     return alu
 
+
 def gen_pe(family, use_assembler=False):
     family = gen_pe_type_family(family)
     alu = gen_alu(family, DATAWIDTH, use_assembler)
@@ -364,16 +365,17 @@ def gen_pe(family, use_assembler=False):
 
         def __call__(self, inst: Inst, \
             data0: Data, data1: Data = Data(0), \
-            bit0: Bit = Bit(0), bit1: Bit = Bit(0), bit2: Bit = Bit(0)
+            bit0: Bit = Bit(0), bit1: Bit = Bit(0), bit2: Bit = Bit(0),
+            clk_en: Global(Bit) = Bit(1)
         ) -> (Data, Bit):
             # Simulate one clock cycle
 
-            ra = self.rega(inst.rega, inst.data0, data0)
-            rb = self.regb(inst.regb, inst.data1, data1)
+            ra = self.rega(inst.rega, inst.data0, data0, clk_en)
+            rb = self.regb(inst.regb, inst.data1, data1, clk_en)
 
-            rd = self.regd(inst.regd, inst.bit0, bit0)
-            re = self.rege(inst.rege, inst.bit1, bit1)
-            rf = self.regf(inst.regf, inst.bit2, bit2)
+            rd = self.regd(inst.regd, inst.bit0, bit0, clk_en)
+            re = self.rege(inst.rege, inst.bit1, bit1, clk_en)
+            rf = self.regf(inst.regf, inst.bit2, bit2, clk_en)
 
             # calculate alu results
             alu_res, alu_res_p, Z, N, C, V = alu(inst, ra, rb, rd)

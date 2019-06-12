@@ -25,8 +25,7 @@ class HashableDict(dict):
 
 Bit = Bit
 Data = BitVector[DATAWIDTH]
-BFloat16 = FPVector[8,7,RoundingMode.RNE,False]
-
+BFloat16 = FPVector[8, 7,RoundingMode.RNE,False]
 
 
 pe_ = gen_pe(BitVector.get_family())
@@ -54,8 +53,9 @@ magma.compile(f"{test_dir}/WrappedPE", pe_circuit, output="coreir-verilog",
               coreir_libs={"float_CW"})
 
 # check if we need to use ncsim + cw IP
-cw_dir = "/cad/cadence/GENUS17.21.000.lnx86/share/synth/lib/chipware/sim/verilog/CW/"
+cw_dir = "/cad/cadence/GENUS17.21.000.lnx86/share/synth/lib/chipware/sim/verilog/CW/"   # noqa
 CAD_ENV = shutil.which("ncsim") and os.path.isdir(cw_dir)
+
 
 def copy_file(src_filename, dst_filename, override=False):
     if not override and os.path.isfile(dst_filename):
@@ -64,14 +64,15 @@ def copy_file(src_filename, dst_filename, override=False):
 
 
 def rtl_tester(test_op, data0=None, data1=None, bit0=None, bit1=None, bit2=None,
-               res=None, res_p=None, delay=0, data0_delay_values=None,
-               data1_delay_values=None):
+               res=None, res_p=None, clk_en=1, delay=0,
+               data0_delay_values=None, data1_delay_values=None):
     tester.clear()
     if hasattr(test_op, "inst"):
         tester.circuit.inst = assembler(test_op.inst)
     else:
         tester.circuit.inst = assembler(test_op)
     tester.circuit.CLK = 0
+    tester.circuit.clk_en = clk_en
     if data0 is not None:
         data0 = BitVector[16](data0)
         tester.circuit.data0 = data0
@@ -382,3 +383,14 @@ def test_reg_const(args):
     data1 = UIntVector.random(DATAWIDTH)
     inst = asm.add(rb_mode=Mode.CONST, rb_const=const1)
     rtl_tester(inst, data0, data1, res=data0 + const1)
+
+
+@pytest.mark.parametrize("args", [
+    (UIntVector.random(DATAWIDTH), UIntVector.random(DATAWIDTH))
+        for _ in range(NTESTS) ] )
+def test_stall(args):
+    data0, data1 = args
+    inst = asm.add(ra_mode=Mode.BYPASS, rb_mode=Mode.DELAY)
+    data1_delay_values = [UIntVector.random(DATAWIDTH)]
+    rtl_tester(inst, data0, data1, res=data0, clk_en=0,
+               data1_delay_values=data1_delay_values)
