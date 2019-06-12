@@ -97,7 +97,7 @@ def rtl_tester(test_op, data0=None, data1=None, bit0=None, bit1=None, bit2=None,
         tester.circuit.O1.expect(res_p)
     if CAD_ENV:
         # use ncsim
-        libs = ["CW_fp_mult.v", "CW_fp_add.v"]
+        libs = ["DW_fp_mult.v", "DW_fp_add.v", "DW_fp_addsub.v"]
         for filename in libs:
             copy_file(os.path.join(cw_dir, filename),
                       os.path.join(test_dir, filename))
@@ -106,7 +106,7 @@ def rtl_tester(test_op, data0=None, data1=None, bit0=None, bit1=None, bit2=None,
                                include_verilog_libraries=libs,
                                skip_compile=True)
     else:
-        libs = ["CW_fp_mult.v", "CW_fp_add.v"]
+        libs = ["DW_fp_mult.v", "DW_fp_add.v"]
         for filename in libs:
             copy_file(os.path.join("stubs", filename),
                       os.path.join(test_dir, filename))
