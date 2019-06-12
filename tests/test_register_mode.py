@@ -26,7 +26,8 @@ def test_register_mode_const():
     tester.circuit.const_ = 0xBEEF
     tester.eval()
     tester.circuit.O0.expect(0xBEEF)
-    tester.compile_and_run("verilator", flags=["-Wno-UNUSED"], directory="tests/build")
+    tester.compile_and_run("verilator", flags=["-Wno-UNUSED"],
+                           directory="tests/build")
 
 
 def test_register_mode_bypass():
@@ -49,4 +50,31 @@ def test_register_mode_bypass():
     tester.circuit.value = 0xBEEF
     tester.eval()
     tester.circuit.O0.expect(0xBEEF)
-    tester.compile_and_run("verilator", flags=["-Wno-UNUSED"], directory="tests/build")
+    tester.compile_and_run("verilator", flags=["-Wno-UNUSED"],
+                           directory="tests/build")
+
+
+def test_register_mode_delay():
+    Reg = gen_register_mode(m.Bits[16])
+    Mode = gen_mode_type(gen_pe_type_family(hwtypes.BitVector.get_family()))
+
+    tester = fault.Tester(Reg, Reg.CLK)
+
+    tester.circuit.mode = Mode.DELAY
+    tester.circuit.value = 2
+    tester.circuit.clk_en = 0
+    tester.circuit.config_we = 0
+    tester.circuit.config_data = 4
+    tester.circuit.const_ = 0xDEAD
+    tester.step(2)
+    tester.circuit.O0.expect(0)
+    tester.circuit.value = 0xDEAD
+    tester.step(2)
+    tester.circuit.O0.expect(2)
+    tester.circuit.value = 0xBEEF
+    tester.step(2)
+    tester.circuit.O0.expect(0xDEAD)
+    tester.step(2)
+    tester.circuit.O0.expect(0xBEEF)
+    tester.compile_and_run("verilator", flags=["-Wno-UNUSED"],
+                           directory="tests/build")
