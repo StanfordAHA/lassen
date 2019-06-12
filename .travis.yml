@@ -3,6 +3,7 @@ language: minimal
 service: docker
 
 install:
+
     - docker pull keyiz/garnet-flow
     - docker run -d -it --name lassen keyiz/garnet-flow bash
     - docker cp ../lassen lassen:/
