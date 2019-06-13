@@ -16,15 +16,14 @@ import random
 import shutil
 from peak.auto_assembler import generate_assembler
 
-
 class HashableDict(dict):
     def __hash__(self):
         return hash(tuple(sorted(self.keys())))
 
-
 Bit = Bit
 Data = BitVector[DATAWIDTH]
-BFloat16 = FPVector[8,7,RoundingMode.RNE,False]
+BFloat16 = FPVector[8, 7,RoundingMode.RNE,False]
+
 
 pe_ = gen_pe(BitVector.get_family())
 pe = pe_()
@@ -32,25 +31,28 @@ sim_family = gen_pe_type_family(BitVector.get_family())
 Mode = gen_mode_type(sim_family)
 
 # create these variables in global space so that we can reuse them easily
-pe_magma = gen_pe(magma.get_family())
 instr_name, inst_type = pe.__call__._peak_isa_
 assembler, disassembler, width, layout = \
             generate_assembler(inst_type)
+pe_magma = gen_pe(magma.get_family(), use_assembler=True)
 instr_magma_type = type(pe_magma.interface.ports[instr_name])
 pe_circuit = peak.wrap_with_disassembler(pe_magma, disassembler, width,
                                          HashableDict(layout),
                                          instr_magma_type)
 tester = fault.Tester(pe_circuit, clock=pe_circuit.CLK)
 test_dir = "tests/build"
+
+# Explicitly load `float_DW` lib so we get technology specific mapping with
 # We reset the context because tests/test_pe.py calls compile and pollutes the
 # coreir context causing a "redefinition of module" error
 magma.backend.coreir_.__reset_context()
 magma.compile(f"{test_dir}/WrappedPE", pe_circuit, output="coreir-verilog",
-              coreir_libs={"float_CW"})
+              coreir_libs={"float_DW"})
 
 # check if we need to use ncsim + cw IP
-cw_dir = "/cad/cadence/GENUS17.21.000.lnx86/share/synth/lib/chipware/sim/verilog/CW/"
+cw_dir = "/cad/synopsys/dc_shell/J-2014.09-SP3/dw/sim_ver/"   # noqa
 CAD_ENV = shutil.which("ncsim") and os.path.isdir(cw_dir)
+
 
 def copy_file(src_filename, dst_filename, override=False):
     if not override and os.path.isfile(dst_filename):
@@ -59,14 +61,15 @@ def copy_file(src_filename, dst_filename, override=False):
 
 
 def rtl_tester(test_op, data0=None, data1=None, bit0=None, bit1=None, bit2=None,
-               res=None, res_p=None, delay=0, data0_delay_values=None,
-               data1_delay_values=None):
+               res=None, res_p=None, clk_en=1, delay=0,
+               data0_delay_values=None, data1_delay_values=None):
     tester.clear()
     if hasattr(test_op, "inst"):
         tester.circuit.inst = assembler(test_op.inst)
     else:
         tester.circuit.inst = assembler(test_op)
     tester.circuit.CLK = 0
+    tester.circuit.clk_en = clk_en
     if data0 is not None:
         data0 = BitVector[16](data0)
         tester.circuit.data0 = data0
@@ -74,11 +77,11 @@ def rtl_tester(test_op, data0=None, data1=None, bit0=None, bit1=None, bit2=None,
         data1 = BitVector[16](data1)
         tester.circuit.data1 = data1
     if bit0 is not None:
-        tester.circuit.bit0 = BitVector[1](bit0)
+        tester.circuit.bit0 = Bit(bit0)
     if bit1 is not None:
-        tester.circuit.bit1 = BitVector[1](bit1)
+        tester.circuit.bit1 = Bit(bit1)
     if bit2 is not None:
-        tester.circuit.bit2 = BitVector[1](bit2)
+        tester.circuit.bit2 = Bit(bit2)
     tester.eval()
 
     for i in range(delay):
@@ -94,7 +97,7 @@ def rtl_tester(test_op, data0=None, data1=None, bit0=None, bit1=None, bit2=None,
         tester.circuit.O1.expect(res_p)
     if CAD_ENV:
         # use ncsim
-        libs = ["CW_fp_mult.v", "CW_fp_add.v"]
+        libs = ["DW_fp_mult.v", "DW_fp_add.v", "DW_fp_addsub.v"]
         for filename in libs:
             copy_file(os.path.join(cw_dir, filename),
                       os.path.join(test_dir, filename))
@@ -103,7 +106,7 @@ def rtl_tester(test_op, data0=None, data1=None, bit0=None, bit1=None, bit2=None,
                                include_verilog_libraries=libs,
                                skip_compile=True)
     else:
-        libs = ["CW_fp_mult.v", "CW_fp_add.v"]
+        libs = ["DW_fp_mult.v", "DW_fp_add.v"]
         for filename in libs:
             copy_file(os.path.join("stubs", filename),
                       os.path.join(test_dir, filename))
@@ -115,6 +118,7 @@ def rtl_tester(test_op, data0=None, data1=None, bit0=None, bit1=None, bit2=None,
                                flags=['-Wno-UNUSED', '-Wno-PINNOCONNECT'],
                                skip_compile=True,
                                skip_verilator=skip_verilator)
+
 
 
 op = namedtuple("op", ["inst", "func"])
