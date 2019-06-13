@@ -46,6 +46,12 @@ tester = fault.Tester(pe_circuit, clock=pe_circuit.CLK)
 test_dir = "tests/build"
 
 # Explicitly load `float_DW` lib so we get technology specific mapping with
+# special code for BFloat rounding, for more info:
+# * https://github.com/rdaly525/coreir/pull/753
+# * https://github.com/StanfordAHA/lassen/issues/111
+# We reset the context because tests/test_micro.py calls compile and pollutes
+# the coreir context causing a "redefinition of module" error
+magma.backend.coreir_.__reset_context()
 magma.compile(f"{test_dir}/WrappedPE", pe_circuit, output="coreir-verilog",
               coreir_libs={"float_DW"})
 
