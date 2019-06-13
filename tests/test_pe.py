@@ -311,6 +311,8 @@ def test_fp_binary_op(op,args):
     assert res == BFloat16.reinterpret_as_bv(out)
     if CAD_ENV:
         rtl_tester(op, data0, data1, res=res)
+    else:
+        pytest.skip("Skipping since DW not available")
 
 #container for a floating point value easily indexed by sign, exp, and frac
 fpdata = namedtuple("fpdata", ["sign", "exp", "frac"])
@@ -328,13 +330,14 @@ def random_bfloat():
 
 def test_fp_mul():
     # Regression test for https://github.com/StanfordAHA/lassen/issues/111
-    if not CAD_ENV:
-        pytest.skip("Skipping fp op tests because CW primitives are not available")
     inst = asm.fp_mul()
     data0 = Data(0x4040)
     data1 = Data(0x4049)
     res, res_p, _ = pe(inst, data0, data1)
-    rtl_tester(inst, data0, data1, res=res)
+    if CAD_ENV:
+        rtl_tester(inst, data0, data1, res=res)
+    else:
+        pytest.skip("Skipping since DW not available")
 
 
 @pytest.mark.parametrize("xy",
@@ -359,6 +362,8 @@ def test_fp_cmp(xy,op):
     assert res_p == out
     if CAD_ENV:
         rtl_tester(op, data0, data1, res_p=out)
+    else:
+        pytest.skip("Skipping since DW not available")
 
 @pytest.mark.parametrize("lut_code", [
     UIntVector.random(8)
