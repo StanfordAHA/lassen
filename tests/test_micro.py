@@ -225,10 +225,11 @@ def test_sub_exp_targeted():
 ])
 def test_cnvt_exp_to_float(args):
 
+
+    fp0 = args[0]
     if is_nan_or_inf(fp0):
         pytest.skip("skipping nan")
 
-    fp0 = args[0]
     in0 = BFloat(fp0)
     in1 = args[1]
     #output = (float)(input1.exp) (UNBIASED)
