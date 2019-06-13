@@ -123,6 +123,9 @@ NTESTS = 16
 #container for a floating point value easily indexed by sign, exp, and frac
 fpdata = namedtuple("fpdata", ["sign", "exp", "frac"])
 
+def is_nan_or_inf(fpdata):
+    return fpdata.exp==BitVector[8](-1)
+
 #Convert fpdata to a BFloat value
 def BFloat(fpdata):
     sign = BitVector[1](fpdata.sign)
@@ -172,6 +175,8 @@ def test_add_exp_imm_targeted():
         for _ in range(NTESTS)
 ])
 def test_add_exp_imm(args):
+    if is_nan_or_inf(args[0]):
+        pytest.skip("skipping nan")
     #input[0].exponent += input[1] (SIGNED)
     fp0 = args[0]
     sint1 = args[1]
@@ -188,8 +193,12 @@ def test_add_exp_imm(args):
         for _ in range(NTESTS)
 ])
 def test_sub_exp(args):
+
     fp0 = args[0]
     fp1 = args[1]
+    if is_nan_or_inf(fp0) or is_nan_or_inf(fp1):
+        pytest.skip("skipping nan")
+
     in0 = Data(BFloat(fp0))
     in1 = Data(BFloat(fp1))
     #input[0].exponent -= input[1].exponent AND or sign bits
@@ -215,6 +224,10 @@ def test_sub_exp_targeted():
     (random_bfloat(),SIntVector.random(DATAWIDTH)) for _ in range(NTESTS)
 ])
 def test_cnvt_exp_to_float(args):
+
+    if is_nan_or_inf(fp0):
+        pytest.skip("skipping nan")
+
     fp0 = args[0]
     in0 = BFloat(fp0)
     in1 = args[1]
@@ -244,6 +257,9 @@ def test_cnvt_exp_to_float_targeted():
     for _ in range(NTESTS)])
 def test_get_float_int(args):
     fp0 = args[0]
+    if is_nan_or_inf(fp0):
+        pytest.skip("skipping nan")
+
     in0 = BFloat(fp0)
     in1 = Data(args[1])
     #output = int(input1) SIGNED, VALID for input1<256.0
@@ -279,7 +295,11 @@ def test_get_float_int_targeted():
     (random_bfloat(), SIntVector.random(DATAWIDTH))
     for _ in range(NTESTS)])
 def test_get_float_frac(args):
+
     fp0 = args[0]
+    if is_nan_or_inf(fp0):
+        pytest.skip("skipping nan")
+
     in0 = BFloat(fp0)
     in1 = Data(args[1])
     #output = frac(input1) SIGNED
