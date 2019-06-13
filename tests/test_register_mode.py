@@ -30,7 +30,7 @@ def test_register_mode_const():
     tester.circuit.O1.expect(0)
     tester.circuit.config_we = 1
     tester.step(2)
-    tester.circuit.O0.expect(4)
+    tester.circuit.O0.expect(0xBEEF)
     tester.circuit.O1.expect(4)
     tester.compile_and_run("verilator", flags=["-Wno-UNUSED"],
                            directory="tests/build")
@@ -61,7 +61,7 @@ def test_register_mode_bypass():
     tester.circuit.O1.expect(0)
     tester.circuit.config_we = 1
     tester.step(2)
-    tester.circuit.O0.expect(4)
+    tester.circuit.O0.expect(0xBEEF)
     tester.circuit.O1.expect(4)
     tester.compile_and_run("verilator", flags=["-Wno-UNUSED"],
                            directory="tests/build")
