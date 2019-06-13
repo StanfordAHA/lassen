@@ -88,6 +88,8 @@ def rtl_tester(test_op, data0=None, data1=None, bit0=None, bit1=None, bit2=None,
         tester.circuit.bit1 = Bit(bit1)
     if bit2 is not None:
         tester.circuit.bit2 = Bit(bit2)
+    #make sure config_en is off
+    tester.circuit.config_en = Bit(0)
     tester.eval()
 
     for i in range(delay):
@@ -146,7 +148,7 @@ NTESTS = 16
 ])
 def test_unsigned_binary(op, args):
     x, y = args
-    res, _ = pe(op.inst, Data(x), Data(y))
+    res, _, _ = pe(op.inst, Data(x), Data(y))
     assert res==op.func(x,y)
     rtl_tester(op, x, y, res=res)
 
@@ -162,7 +164,7 @@ def test_unsigned_binary(op, args):
 )
 def test_signed_binary(op, args):
     x, y = args
-    res, _ = pe(op.inst, Data(x), Data(y))
+    res, _, _ = pe(op.inst, Data(x), Data(y))
     assert res==op.func(x,y)
     rtl_tester(op, x, y, res=res)
 
@@ -174,7 +176,7 @@ def test_signed_binary(op, args):
 )
 def test_signed_unary(op, args):
     x = args
-    res, _ = pe(op.inst, Data(x))
+    res, _, _ = pe(op.inst, Data(x))
     assert res == op.func(x)
     rtl_tester(op, x, 0, res=res)
 
@@ -193,7 +195,7 @@ def test_signed_unary(op, args):
 ])
 def test_unsigned_relation(op, args):
     x, y = args
-    _, res_p = pe(op.inst, Data(x), Data(y))
+    _, res_p, _ = pe(op.inst, Data(x), Data(y))
     assert res_p==op.func(x,y)
     rtl_tester(op, x, y, res_p=res_p)
 
@@ -209,7 +211,7 @@ def test_unsigned_relation(op, args):
 ])
 def test_signed_relation(op, args):
     x, y = args
-    _, res_p = pe(op.inst, Data(x), Data(y))
+    _, res_p, _ = pe(op.inst, Data(x), Data(y))
     assert res_p==op.func(x,y)
     rtl_tester(op, x, y, res_p=res_p)
 
@@ -227,7 +229,7 @@ def test_ternary(op,args):
     d0 = args[0]
     d1 = args[1]
     b0 = args[2]
-    res, _ = pe(inst, d0,d1,b0)
+    res, _, _ = pe(inst, d0,d1,b0)
     assert res==op.func(d0,d1,b0)
     rtl_tester(inst, d0, d1, b0, res=res)
 
@@ -244,13 +246,13 @@ def test_smult(args):
     smult2 = asm.smult2()
     x, y = args
     xy = mul(x,y)
-    res, _ = pe(smult0, Data(x), Data(y))
+    res, _, _ = pe(smult0, Data(x), Data(y))
     assert res == xy[0:DATAWIDTH]
     rtl_tester(smult0, x, y, res=res)
-    res, _ = pe(smult1, Data(x), Data(y))
+    res, _, _ = pe(smult1, Data(x), Data(y))
     assert res == xy[DATAWIDTH//2:DATAWIDTH//2+DATAWIDTH]
     rtl_tester(smult1, x, y, res=res)
-    res, _ = pe(smult2, Data(x), Data(y))
+    res, _, _ = pe(smult2, Data(x), Data(y))
     assert res == xy[DATAWIDTH:]
     rtl_tester(smult2, x, y, res=res)
 
@@ -268,13 +270,13 @@ def test_umult(args):
     umult2 = asm.umult2()
     x, y = args
     xy = mul(x,y)
-    res, _ = pe(umult0, Data(x), Data(y))
+    res, _, _ = pe(umult0, Data(x), Data(y))
     assert res == xy[0:DATAWIDTH]
     rtl_tester(umult0, x, y, res=res)
-    res, _ = pe(umult1, Data(x), Data(y))
+    res, _, _ = pe(umult1, Data(x), Data(y))
     assert res == xy[DATAWIDTH//2:DATAWIDTH//2+DATAWIDTH]
     rtl_tester(umult1, x, y, res=res)
-    res, _ = pe(umult2, Data(x), Data(y))
+    res, _, _ = pe(umult2, Data(x), Data(y))
     assert res == xy[DATAWIDTH:]
     rtl_tester(umult2, x, y, res=res)
 
@@ -305,7 +307,7 @@ def test_fp_binary_op(op,args):
     out = op.func(in0,in1)
     data0 = BFloat16.reinterpret_as_bv(in0)
     data1 = BFloat16.reinterpret_as_bv(in1)
-    res, res_p = pe(inst, data0, data1)
+    res, res_p, _ = pe(inst, data0, data1)
     assert res == BFloat16.reinterpret_as_bv(out)
     if CAD_ENV:
         rtl_tester(op, data0, data1, res=res)
@@ -331,7 +333,7 @@ def test_fp_mul():
     inst = asm.fp_mul()
     data0 = Data(0x4040)
     data1 = Data(0x4049)
-    res, res_p = pe(inst, data0, data1)
+    res, res_p, _ = pe(inst, data0, data1)
     rtl_tester(inst, data0, data1, res=res)
 
 
@@ -352,9 +354,8 @@ def test_fp_cmp(xy,op):
     inst = getattr(asm,f"fp_{op.inst}")()
     in0,in1 = xy
     out = op.func(in0,in1)
-    _, res_p = pe(inst, BFloat16.reinterpret_as_bv(in0), BFloat16.reinterpret_as_bv(in1))
+    _, res_p, _ = pe(inst, BFloat16.reinterpret_as_bv(in0), BFloat16.reinterpret_as_bv(in1))
     assert res_p == out
-
 
 @pytest.mark.parametrize("lut_code", [
     UIntVector.random(8)
@@ -366,7 +367,6 @@ def test_lut(lut_code):
         expected = (lut_code >> i)[0]
         rtl_tester(inst, bit0=bit0, bit1=bit1, bit2=bit2, res_p=expected)
 
-
 @pytest.mark.parametrize("args", [
     (UIntVector.random(DATAWIDTH), UIntVector.random(DATAWIDTH))
         for _ in range(NTESTS) ] )
@@ -376,7 +376,6 @@ def test_reg_delay(args):
     data1_delay_values = [UIntVector.random(DATAWIDTH)]
     rtl_tester(inst, data0, data1, res=data0 + data1, delay=1,
                data1_delay_values=data1_delay_values)
-
 
 @pytest.mark.parametrize("args", [
     (UIntVector.random(DATAWIDTH), UIntVector.random(DATAWIDTH))
