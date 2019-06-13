@@ -50,7 +50,7 @@ magma.compile(f"{test_dir}/WrappedPE", pe_circuit, output="coreir-verilog",
               coreir_libs={"float_DW"})
 
 # check if we need to use ncsim + cw IP
-cw_dir = "/hw/cad/synopsys/dc_shell/J-2014.09-SP3/dw/sim_ver/"   # noqa
+cw_dir = "/cad/synopsys/dc_shell/J-2014.09-SP3/dw/sim_ver/"   # noqa
 CAD_ENV = shutil.which("ncsim") and os.path.isdir(cw_dir)
 
 
