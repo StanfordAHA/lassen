@@ -23,9 +23,15 @@ def test_register_mode_const():
     tester.circuit.const_ = 0xDEAD
     tester.eval()
     tester.circuit.O0.expect(0xDEAD)
+    tester.circuit.O1.expect(0)
     tester.circuit.const_ = 0xBEEF
     tester.eval()
     tester.circuit.O0.expect(0xBEEF)
+    tester.circuit.O1.expect(0)
+    tester.circuit.config_we = 1
+    tester.step(2)
+    tester.circuit.O0.expect(4)
+    tester.circuit.O1.expect(4)
     tester.compile_and_run("verilator", flags=["-Wno-UNUSED"],
                            directory="tests/build")
 
@@ -44,12 +50,19 @@ def test_register_mode_bypass():
     tester.circuit.const_ = 0xDEAD
     tester.eval()
     tester.circuit.O0.expect(2)
+    tester.circuit.O1.expect(0)
     tester.circuit.value = 0xDEAD
     tester.eval()
     tester.circuit.O0.expect(0xDEAD)
+    tester.circuit.O1.expect(0)
     tester.circuit.value = 0xBEEF
     tester.eval()
     tester.circuit.O0.expect(0xBEEF)
+    tester.circuit.O1.expect(0)
+    tester.circuit.config_we = 1
+    tester.step(2)
+    tester.circuit.O0.expect(4)
+    tester.circuit.O1.expect(4)
     tester.compile_and_run("verilator", flags=["-Wno-UNUSED"],
                            directory="tests/build")
 
@@ -62,19 +75,24 @@ def test_register_mode_delay():
 
     tester.circuit.mode = Mode.DELAY
     tester.circuit.value = 2
-    tester.circuit.clk_en = 0
+    tester.circuit.clk_en = 1
     tester.circuit.config_we = 0
     tester.circuit.config_data = 4
     tester.circuit.const_ = 0xDEAD
     tester.step(2)
-    tester.circuit.O0.expect(0)
+    tester.circuit.O0.expect(2)
+    tester.circuit.O1.expect(2)
     tester.circuit.value = 0xDEAD
     tester.step(2)
-    tester.circuit.O0.expect(2)
+    tester.circuit.O0.expect(0xDEAD)
+    tester.circuit.O1.expect(0xDEAD)
     tester.circuit.value = 0xBEEF
     tester.step(2)
-    tester.circuit.O0.expect(0xDEAD)
-    tester.step(2)
     tester.circuit.O0.expect(0xBEEF)
+    tester.circuit.O1.expect(0xBEEF)
+    tester.circuit.config_we = 1
+    tester.step(2)
+    tester.circuit.O0.expect(4)
+    tester.circuit.O1.expect(4)
     tester.compile_and_run("verilator", flags=["-Wno-UNUSED"],
                            directory="tests/build")
