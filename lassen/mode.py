@@ -33,16 +33,18 @@ def gen_register_mode(T, init=None):
                 clk_en: family.Bit, config_we : Bit, config_data : T) -> (T,T):
             if config_we==Bit(1):
                 reg_val = self.register(config_data,Bit(1))
-                return reg_val,reg_val
-            elif mode == Mode.CONST:
-                reg_val = self.register(value, Bit(False))
-                return const_, reg_val
-            elif mode == Mode.BYPASS:
-                reg_val = self.register(value, Bit(False))
-                return value, reg_val
             elif mode == Mode.DELAY:
                 reg_val = self.register(value, clk_en)
+            else:
+                reg_val = self.register(value, Bit(0))
+
+            if mode == Mode.CONST:
+                return const_, reg_val
+            elif mode == Mode.BYPASS:
+                return value, reg_val
+            elif mode == Mode.DELAY:
                 return reg_val, reg_val
+
             #else:
             #    raise PeakNotImplementedError(mode)
 
