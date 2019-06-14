@@ -73,18 +73,17 @@ def gen_alu(family: TypeFamily, datawidth, use_assembler=False):
             a = SInt[datawidth](a)
             b = SInt[datawidth](b)
             mula, mulb = a.sext(16), b.sext(16)
-            mul = mula * mulb
             gte_pred = a >= b
             lte_pred = a <= b
             abs_pred = a >= 0
             shr = a >> b
         elif signed == Signed.unsigned:
             mula, mulb = Data(a).zext(16), Data(b).zext(16)
-            mul = mula * mulb
             gte_pred = a >= b
             lte_pred = a <= b
             abs_pred = a >= 0
             shr = a >> b
+        mul = mula * mulb
         a_inf = fp_is_inf(a)
         b_inf = fp_is_inf(b)
         a_neg = fp_is_neg(a)
