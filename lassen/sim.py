@@ -171,18 +171,19 @@ def gen_alu(family: TypeFamily, datawidth, use_assembler=False):
             normmant_mul_left = SInt[16](abs_input)
             normmant_mul_right = (SInt[16](1) << (SInt[16](15)-scale))
             normmant_mask = SInt[16](0x7f00)
-        if (scale >= 0):
-            normmant = BitVector[16](
-                (normmant_mul_left * normmant_mul_right) & normmant_mask)
-        else:
-            normmant = BitVector[16](0)
+        elif (alu == ALU.FCnvInt2F) | (alu == ALU.FCnvExp2F):
+            if (scale >= 0):
+                normmant = BitVector[16](
+                    (normmant_mul_left * normmant_mul_right) & normmant_mask)
+            else:
+                normmant = BitVector[16](0)
 
-        if alu == ALU.FCnvInt2F:
-            normmant = BitVector[16](normmant) >> 8
+            if alu == ALU.FCnvInt2F:
+                normmant = BitVector[16](normmant) >> 8
 
-        biased_scale = scale + 127
-        to_float_result = (sign | ((BitVector[16](biased_scale) << 7) & (
-                0xFF << 7)) | normmant)
+            biased_scale = scale + 127
+            to_float_result = (sign | ((BitVector[16](biased_scale) << 7) & (
+                    0xFF << 7)) | normmant)
 
         Cin = Bit(0)
         if (alu == ALU.Sub) | (alu == ALU.Sbc):
