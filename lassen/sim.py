@@ -177,6 +177,13 @@ def gen_alu(family: TypeFamily, datawidth, use_assembler=False):
         else:
             normmant = BitVector[16](0)
 
+        if alu == ALU.FCnvInt2F:
+            normmant = BitVector[16](normmant) >> 8
+
+        biased_scale = scale + 127
+        to_float_result = (sign | ((BitVector[16](biased_scale) << 7) & (
+                0xFF << 7)) | normmant)
+
         Cin = Bit(0)
         if (alu == ALU.Sub) | (alu == ALU.Sbc):
             b = ~b
@@ -261,9 +268,7 @@ def gen_alu(family: TypeFamily, datawidth, use_assembler=False):
             manta = BitVector[16]((a & 0x7F))
             res, res_p = ((signa | signb) | exp_shift | manta), Bit(0)
         elif alu == ALU.FCnvExp2F:
-            biased_scale = scale + 127
-            res, res_p = (sign | ((BitVector[16](biased_scale) << 7) & (
-                0xFF << 7)) | normmant), Bit(0)
+            res, res_p = to_float_result, Bit(0)
         elif alu == ALU.FGetFInt:
             signa = BitVector[16]((a & 0x8000))
             manta = BitVector[16]((a & 0x7F)) | 0x80
@@ -305,9 +310,7 @@ def gen_alu(family: TypeFamily, datawidth, use_assembler=False):
             # We are not checking for overflow when converting to int
             res, res_p = signed_res, Bit(0)
         elif alu == ALU.FCnvInt2F:
-            biased_scale = scale + 127
-            res, res_p = (sign | ((BitVector[16](biased_scale) << 7) & (
-                0xFF << 7)) | (BitVector[16](normmant) >> 8), Bit(0))
+            res, res_p = to_float_result, Bit(0)
 
         # else:
         #    raise NotImplementedError(alu)
