@@ -378,11 +378,12 @@ def gen_pe(family, use_assembler=False):
             data0: Data, data1: Data = Data(0), \
             bit0: Bit = Bit(0), bit1: Bit = Bit(0), bit2: Bit = Bit(0), \
             clk_en: Global(Bit) = Bit(1), \
-            config_addr : Config(Data8) = Data8(0), \
-            config_data : Config(Data32) = Data32(0), \
+            config_addr : ConfigData8 = ConfigData8(0), \
+            config_data : ConfigData32 = ConfigData32(0), \
             config_en : Config(Bit) = Bit(0) \
         ) -> (Data, Bit, ConfigData32):
             # Simulate one clock cycle
+
 
             data01_addr = (config_addr[:3] == family.BitVector[3](DATA01_ADDR))
             bit012_addr = (config_addr[:3] == family.BitVector[3](BIT012_ADDR))
@@ -415,10 +416,10 @@ def gen_pe(family, use_assembler=False):
             rf, rf_rdata = self.regf(inst.regf, inst.bit2, bit2, clk_en, rf_we, rf_config_wdata)
 
             #Calculate read_config_data
-            read_config_data = ConfigData32(ra_rdata.concat(rb_rdata))
-            if bit012_addr:
-                read_config_data = BV1(rd_rdata).concat(BV1(re_rdata)).concat(BV1(rf_rdata)).concat(BitVector[32-3](0))
-                read_config_data = ConfigData32(read_config_data)
+            read_config_data = bit012_addr.ite(
+                ConfigData32(BV1(rd_rdata).concat(BV1(re_rdata)).concat(BV1(rf_rdata)).concat(family.BitVector[32-3](0))),
+                ConfigData32(ra_rdata.concat(rb_rdata))
+            )
 
 
             # calculate alu results
