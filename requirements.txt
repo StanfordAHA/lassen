@@ -1,6 +1,6 @@
 -e git+git://github.com/leonardt/pycoreir#egg=coreir
 -e git+git://github.com/phanrahan/magma@sequential-async-reset#egg=magma-lang
--e git+git://github.com/phanrahan/peak.git@mapper-debug#egg=peak
+-e git+git://github.com/phanrahan/peak.git#egg=peak
 -e git+git://github.com/rdaly525/MetaMapper.git#egg=metamapper
 -e git+git://github.com/leonardt/fault#egg=fault
 -e git+git://github.com/phanrahan/mantle#egg=mantle
