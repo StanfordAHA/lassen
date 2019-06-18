@@ -1,3 +1,5 @@
+import logging
+logging.basicConfig(level=logging.DEBUG)
 import os
 from collections import namedtuple
 import lassen.asm as asm
@@ -404,3 +406,32 @@ def test_stall(args):
     data1_delay_values = [UIntVector.random(DATAWIDTH)]
     rtl_tester(inst, data0, data1, res=data0, clk_en=0,
                data1_delay_values=data1_delay_values)
+
+
+def test_equiv():
+    tester.circuit.inst = 0x601F802C720A00916
+    tester.circuit.data0 = 0x4720
+    tester.circuit.data1 = 0x8000
+    tester.circuit.config_en = 0
+    tester.circuit.config_data = 0x7
+    tester.circuit.config_addr = 0x7
+    tester.circuit.clk_en = 0
+    tester.circuit.bit0 = 1
+    tester.circuit.bit1 = 1
+    tester.circuit.bit2 = 1
+    tester.circuit.CLK = 0
+    tester.circuit.ASYNCRESET = 0
+    tester.eval()
+    tester.print("O0=%x\n", tester._circuit.O0)
+    tester.print("O1=%x\n", tester._circuit.O1)
+    tester.print("O2=%x\n", tester._circuit.O2)
+    libs = ["DW_fp_mult.v", "DW_fp_add.v"]
+    for filename in libs:
+        copy_file(os.path.join("stubs", filename),
+                  os.path.join(test_dir, filename))
+    # detect if the PE circuit has been built
+    skip_verilator = os.path.isfile(os.path.join(test_dir, "obj_dir",
+                                                 "VWrappedPE__ALL.a"))
+    tester.compile_and_run(target="verilator",
+                           directory=test_dir,
+                           flags=['-Wno-UNUSED', '-Wno-PINNOCONNECT'])
