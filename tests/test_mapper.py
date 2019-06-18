@@ -21,7 +21,8 @@ def test_discover():
             inst.regd == type(inst.regd).BYPASS and
             inst.rege == type(inst.rege).BYPASS and
             inst.regf == type(inst.regf).BYPASS and
-            (inst.cond == type(inst.cond).Z or inst.cond == type(inst.cond).Z_n)
+            (inst.cond == type(inst.cond).Z or inst.cond == type(inst.cond).Z_n) and
+            inst.alu.name[0] != 'F'
         )
     mapper.add_discover_constraint(bypass_mode)
 
@@ -32,7 +33,7 @@ def test_discover():
     imap = mapper.extract_instr_map(app)
     assert len(imap) == 3
 
-@pytest.mark.skip("Broken due to addition of mapper ports")
+#@pytest.mark.skip("Broken due to addition of mapper ports")
 def test_const():
     c = coreir.Context()
     mapper = mm.PeakMapper(c,"pe_ns")
@@ -59,7 +60,7 @@ def test_const():
             inst.rega == type(inst.rega).BYPASS and
             inst.regb == type(inst.regb).BYPASS and
             inst.regd == type(inst.regd).BYPASS and
-            inst.rege == type(inst.rege).BYPASS and 
+            inst.rege == type(inst.rege).BYPASS and
             inst.regf == type(inst.regf).BYPASS and
             inst.cond == type(inst.cond).Z
         )
@@ -78,11 +79,11 @@ def test_const():
     #This should have the c1$inst op attached with the ALUOP metadata
 
 
-@pytest.mark.skip("Broken due to addition of mapper ports")
+#@pytest.mark.skip("Broken due to addition of mapper ports")
 def test_io():
     c = coreir.Context()
     mapper = mm.PeakMapper(c,"alu_ns")
-    #This adds a peak primitive 
+    #This adds a peak primitive
     io16 = mapper.add_io_primitive("io16",16,"tofab","fromfab")
     mapper.add_rewrite_rule(mm.PeakIO(
         width=16,
@@ -100,7 +101,7 @@ def test_io():
             inst.rega == type(inst.rega).BYPASS and
             inst.regb == type(inst.regb).BYPASS and
             inst.regd == type(inst.regd).BYPASS and
-            inst.rege == type(inst.rege).BYPASS and 
+            inst.rege == type(inst.rege).BYPASS and
             inst.regf == type(inst.regf).BYPASS and
             inst.cond == type(inst.cond).Z
         )

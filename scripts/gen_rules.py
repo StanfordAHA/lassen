@@ -19,10 +19,11 @@ def discover(file_name):
             inst.regd == type(inst.regd).BYPASS and
             inst.rege == type(inst.rege).BYPASS and
             inst.regf == type(inst.regf).BYPASS and
-            inst.alu.name[0] != 'F'
+            inst.alu.name[0] != 'F' and
+            inst.cond.name[0] != 'F'
         )
     mapper.add_discover_constraint(bypass_mode)
-    rrs = mapper.discover_peak_rewrite_rules(width=16,serialize=True,verbose=True)
+    rrs = mapper.discover_peak_rewrite_rules(width=16,serialize=True,verbose=1)
     print(rrs)
 
     with open(file_name,'w') as jfile:
