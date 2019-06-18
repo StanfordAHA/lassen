@@ -429,9 +429,15 @@ def test_equiv():
     for filename in libs:
         copy_file(os.path.join("stubs", filename),
                   os.path.join(test_dir, filename))
-    # detect if the PE circuit has been built
-    skip_verilator = os.path.isfile(os.path.join(test_dir, "obj_dir",
-                                                 "VWrappedPE__ALL.a"))
     tester.compile_and_run(target="verilator",
                            directory=test_dir,
-                           flags=['-Wno-UNUSED', '-Wno-PINNOCONNECT'])
+                           flags=['-Wno-UNUSED', '-Wno-PINNOCONNECT'],
+                           skip_compile=True)
+    libs = ["DW_fp_mult.v", "DW_fp_add.v", "DW_fp_addsub.v"]
+    for filename in libs:
+        copy_file(os.path.join(cw_dir, filename),
+                  os.path.join(test_dir, filename))
+    tester.compile_and_run(target="system-verilog", simulator="ncsim",
+                           directory=test_dir,
+                           include_verilog_libraries=libs,
+                           skip_compile=True)
