@@ -44,7 +44,6 @@ pe_circuit = peak.wrap_with_disassembler(pe_magma, disassembler, width,
                                          instr_magma_type)
 tester = fault.Tester(pe_circuit, clock=pe_circuit.CLK)
 
-precompile_tester(tester)
 
 # Explicitly load `float_DW` lib so we get technology specific mapping with
 # We reset the context because tests/test_pe.py calls compile and pollutes the
@@ -52,6 +51,7 @@ precompile_tester(tester)
 magma.backend.coreir_.CoreIRContextSingleton().reset_instance()
 magma.compile(f"{base_compile_dir}/WrappedPE", pe_circuit, output="coreir-verilog",
               coreir_libs={"float_DW"})
+precompile_tester(tester)
 
 
 op = namedtuple("op", ["inst", "func"])
