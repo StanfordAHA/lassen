@@ -2,6 +2,9 @@ from hwtypes import BitVector, Bit
 import tempfile
 import os
 import shutil
+import logging
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
 
 # check if we need to use ncsim + cw IP
 cw_dir = "/cad/synopsys/dc_shell/J-2014.09-SP3/dw/sim_ver/"   # noqa
