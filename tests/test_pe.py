@@ -1,3 +1,4 @@
+import tempfile
 import os
 from collections import namedtuple
 import lassen.asm as asm
@@ -43,7 +44,14 @@ pe_circuit = peak.wrap_with_disassembler(pe_magma, disassembler, width,
                                          HashableDict(layout),
                                          instr_magma_type)
 tester = fault.Tester(pe_circuit, clock=pe_circuit.CLK)
-test_dir = "tests/build"
+
+base_compile_dir = "tests/build"
+
+# run once to compile verilator object
+tester.compile_and_run(target="verilator",
+                       directory=base_compile_dir,
+                       flags=['-Wno-UNUSED', '-Wno-PINNOCONNECT'],
+                       skip_compile=True)
 
 # Explicitly load `float_DW` lib so we get technology specific mapping with
 # special code for BFloat rounding, for more info:
@@ -52,7 +60,7 @@ test_dir = "tests/build"
 # We reset the context because tests/test_micro.py calls compile and pollutes
 # the coreir context causing a "redefinition of module" error
 magma.backend.coreir_.CoreIRContextSingleton().reset_instance()
-magma.compile(f"{test_dir}/WrappedPE", pe_circuit, output="coreir-verilog",
+magma.compile(f"{base_compile_dir}/WrappedPE", pe_circuit, output="coreir-verilog",
               coreir_libs={"float_DW"})
 
 # check if we need to use ncsim + cw IP
@@ -103,29 +111,36 @@ def rtl_tester(test_op, data0=None, data1=None, bit0=None, bit1=None, bit2=None,
         tester.circuit.O0.expect(res)
     if res_p is not None:
         tester.circuit.O1.expect(res_p)
-    if CAD_ENV:
-        # use ncsim
-        libs = ["DW_fp_mult.v", "DW_fp_add.v", "DW_fp_addsub.v"]
-        for filename in libs:
-            copy_file(os.path.join(cw_dir, filename),
-                      os.path.join(test_dir, filename))
-        tester.compile_and_run(target="system-verilog", simulator="ncsim",
-                               directory="tests/build/",
-                               include_verilog_libraries=libs,
-                               skip_compile=True)
-    else:
-        libs = ["DW_fp_mult.v", "DW_fp_add.v"]
-        for filename in libs:
-            copy_file(os.path.join("stubs", filename),
-                      os.path.join(test_dir, filename))
-        # detect if the PE circuit has been built
-        skip_verilator = os.path.isfile(os.path.join(test_dir, "obj_dir",
-                                                     "VWrappedPE__ALL.a"))
-        tester.compile_and_run(target="verilator",
-                               directory=test_dir,
-                               flags=['-Wno-UNUSED', '-Wno-PINNOCONNECT'],
-                               skip_compile=True,
-                               skip_verilator=skip_verilator)
+    test_dir = tempfile.mkdtemp()
+    try:
+        shutil.copy(f"{base_compile_dir}/WrappedPE.v",
+                    f"{test_dir}/WrappedPE.v")
+        if CAD_ENV:
+            # use ncsim
+            libs = ["DW_fp_mult.v", "DW_fp_add.v", "DW_fp_addsub.v"]
+            for filename in libs:
+                copy_file(os.path.join(cw_dir, filename),
+                          os.path.join(test_dir, filename))
+            tester.compile_and_run(target="system-verilog", simulator="ncsim",
+                                   directory=test_dir,
+                                   include_verilog_libraries=libs,
+                                   skip_compile=True)
+        else:
+            libs = ["DW_fp_mult.v", "DW_fp_add.v"]
+            for filename in libs:
+                copy_file(os.path.join("stubs", filename),
+                          os.path.join(test_dir, filename))
+            shutil.copytree(os.path.join(base_compile_dir, "obj_dir"),
+                            os.path.join(test_dir, "obj_dir"))
+            tester.compile_and_run(target="verilator",
+                                   directory=test_dir,
+                                   flags=['-Wno-UNUSED', '-Wno-PINNOCONNECT'],
+                                   skip_compile=True,
+                                   skip_verilator=True)
+        shutil.rmtree(test_dir)
+    except AssertionError as e:
+        print("Test failed, see directory: {test_dir}")
+        raise e
 
 
 op = namedtuple("op", ["inst", "func"])
