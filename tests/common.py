@@ -81,8 +81,8 @@ def rtl_tester(tester, assembler, test_op, data0=None, data1=None, bit0=None,
             for filename in libs:
                 copy_file(os.path.join(cw_dir, filename),
                           os.path.join(test_dir, filename))
-            shutil.copytree(os.path.join(base_compile_dir, "INCA_LIBS"),
-                            os.path.join(test_dir, "INCA_LIBS"))
+            shutil.copytree(os.path.join(base_compile_dir, "INCA_libs"),
+                            os.path.join(test_dir, "INCA_libs"))
             tester.compile_and_run(target="system-verilog", simulator="ncsim",
                                    directory=test_dir,
                                    include_verilog_libraries=libs,
