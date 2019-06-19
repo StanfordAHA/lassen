@@ -108,5 +108,5 @@ def rtl_tester(tester, assembler, test_op, data0=None, data1=None, bit0=None,
                                    skip_verilator=True)
         shutil.rmtree(test_dir)
     except AssertionError as e:
-        print("Test failed, see directory: {test_dir}")
+        print(f"Test failed, see directory: {test_dir}")
         raise e
