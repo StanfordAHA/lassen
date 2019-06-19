@@ -45,7 +45,7 @@ test_dir = "tests/build"
 # Explicitly load `float_DW` lib so we get technology specific mapping with
 # We reset the context because tests/test_pe.py calls compile and pollutes the
 # coreir context causing a "redefinition of module" error
-magma.backend.coreir_.__reset_context()
+magma.backend.coreir_.CoreIRContextSingleton().reset_instance()
 magma.compile(f"{test_dir}/WrappedPE", pe_circuit, output="coreir-verilog",
               coreir_libs={"float_DW"})
 
