@@ -31,6 +31,10 @@ def precompile_tester(tester):
                                include_verilog_libraries=libs,
                                skip_compile=True)
     else:
+        libs = ["DW_fp_mult.v", "DW_fp_add.v"]
+        for filename in libs:
+            copy_file(os.path.join("stubs", filename),
+                      os.path.join(test_dir, filename))
         tester.compile_and_run(target="verilator",
                                directory=base_compile_dir,
                                flags=['-Wno-UNUSED', '-Wno-PINNOCONNECT'],
