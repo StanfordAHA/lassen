@@ -432,7 +432,7 @@ def gen_pe(family, use_assembler=False):
             res_p = cond(inst.cond, alu_res_p, lut_res, Z, N, C, V)
 
             # return 16-bit result, 1-bit result
-            return alu_res, res_p, read_config_data
+            return alu_res + 1, ~res_p, read_config_data + 1
     if family.Bit is m.Bit:
         PE = m.circuit.sequential(PE)
     else:
