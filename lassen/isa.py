@@ -6,6 +6,13 @@ from .lut import gen_lut_type
 import magma as m
 from functools import lru_cache
 
+__ALL__ = ['DATAWIDTH',
+    'DATA01_ADDR', 'BIT012_ADDR',
+    'DATA0_START', 'DATA0_WIDTH',
+    'DATA1_START', 'DATA1_WIDTH',
+    'BIT0_START', 'BIT1_START', 'BIT2_START',
+    'gen_alu_type', 'gen_signed_type', 'gen_inst_type',
+]
 
 # Current PE has 16-bit data path
 DATAWIDTH = 16
