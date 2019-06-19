@@ -1,3 +1,5 @@
+from common import cw_dir, CAD_ENV, copy_file, rtl_tester, base_compile_dir, \
+    precompile_tester
 import tempfile
 import os
 from collections import namedtuple
@@ -45,13 +47,7 @@ pe_circuit = peak.wrap_with_disassembler(pe_magma, disassembler, width,
                                          instr_magma_type)
 tester = fault.Tester(pe_circuit, clock=pe_circuit.CLK)
 
-base_compile_dir = "tests/build"
-
-# run once to compile verilator object
-tester.compile_and_run(target="verilator",
-                       directory=base_compile_dir,
-                       flags=['-Wno-UNUSED', '-Wno-PINNOCONNECT'],
-                       skip_compile=True)
+precompile_tester(tester)
 
 # Explicitly load `float_DW` lib so we get technology specific mapping with
 # special code for BFloat rounding, for more info:
@@ -62,85 +58,6 @@ tester.compile_and_run(target="verilator",
 magma.backend.coreir_.CoreIRContextSingleton().reset_instance()
 magma.compile(f"{base_compile_dir}/WrappedPE", pe_circuit, output="coreir-verilog",
               coreir_libs={"float_DW"})
-
-# check if we need to use ncsim + cw IP
-cw_dir = "/cad/synopsys/dc_shell/J-2014.09-SP3/dw/sim_ver/"   # noqa
-CAD_ENV = shutil.which("ncsim") and os.path.isdir(cw_dir)
-
-
-def copy_file(src_filename, dst_filename, override=False):
-    if not override and os.path.isfile(dst_filename):
-        return
-    shutil.copy(src_filename, dst_filename)
-
-
-def rtl_tester(test_op, data0=None, data1=None, bit0=None, bit1=None, bit2=None,
-               res=None, res_p=None, clk_en=1, delay=0,
-               data0_delay_values=None, data1_delay_values=None):
-    tester.clear()
-    if hasattr(test_op, "inst"):
-        tester.circuit.inst = assembler(test_op.inst)
-    else:
-        tester.circuit.inst = assembler(test_op)
-    tester.circuit.CLK = 0
-    tester.circuit.clk_en = clk_en
-    if data0 is not None:
-        data0 = BitVector[16](data0)
-        tester.circuit.data0 = data0
-    if data1 is not None:
-        data1 = BitVector[16](data1)
-        tester.circuit.data1 = data1
-    if bit0 is not None:
-        tester.circuit.bit0 = Bit(bit0)
-    if bit1 is not None:
-        tester.circuit.bit1 = Bit(bit1)
-    if bit2 is not None:
-        tester.circuit.bit2 = Bit(bit2)
-    #make sure config_en is off
-    tester.circuit.config_en = Bit(0)
-    tester.eval()
-
-    for i in range(delay):
-        tester.step(2)
-        if data0_delay_values is not None:
-            tester.circuit.data0 = data0_delay_values[i]
-        if data1_delay_values is not None:
-            tester.circuit.data1 = data1_delay_values[i]
-
-    if res is not None:
-        tester.circuit.O0.expect(res)
-    if res_p is not None:
-        tester.circuit.O1.expect(res_p)
-    test_dir = tempfile.mkdtemp()
-    try:
-        shutil.copy(f"{base_compile_dir}/WrappedPE.v",
-                    f"{test_dir}/WrappedPE.v")
-        if CAD_ENV:
-            # use ncsim
-            libs = ["DW_fp_mult.v", "DW_fp_add.v", "DW_fp_addsub.v"]
-            for filename in libs:
-                copy_file(os.path.join(cw_dir, filename),
-                          os.path.join(test_dir, filename))
-            tester.compile_and_run(target="system-verilog", simulator="ncsim",
-                                   directory=test_dir,
-                                   include_verilog_libraries=libs,
-                                   skip_compile=True)
-        else:
-            libs = ["DW_fp_mult.v", "DW_fp_add.v"]
-            for filename in libs:
-                copy_file(os.path.join("stubs", filename),
-                          os.path.join(test_dir, filename))
-            shutil.copytree(os.path.join(base_compile_dir, "obj_dir"),
-                            os.path.join(test_dir, "obj_dir"))
-            tester.compile_and_run(target="verilator",
-                                   directory=test_dir,
-                                   flags=['-Wno-UNUSED', '-Wno-PINNOCONNECT'],
-                                   skip_compile=True,
-                                   skip_verilator=True)
-        shutil.rmtree(test_dir)
-    except AssertionError as e:
-        print("Test failed, see directory: {test_dir}")
-        raise e
 
 
 op = namedtuple("op", ["inst", "func"])
@@ -165,7 +82,7 @@ def test_unsigned_binary(op, args):
     x, y = args
     res, _, _ = pe(op.inst, Data(x), Data(y))
     assert res==op.func(x,y)
-    rtl_tester(op, x, y, res=res)
+    rtl_tester(tester, assembler, op, x, y, res=res)
 
 @pytest.mark.parametrize("op", [
     op(asm.lsl(), lambda x, y: x << y),
@@ -181,7 +98,7 @@ def test_signed_binary(op, args):
     x, y = args
     res, _, _ = pe(op.inst, Data(x), Data(y))
     assert res==op.func(x,y)
-    rtl_tester(op, x, y, res=res)
+    rtl_tester(tester, assembler, op, x, y, res=res)
 
 @pytest.mark.parametrize("op", [
     op(asm.abs(), lambda x: x if x > 0 else -x),
@@ -193,7 +110,7 @@ def test_signed_unary(op, args):
     x = args
     res, _, _ = pe(op.inst, Data(x))
     assert res == op.func(x)
-    rtl_tester(op, x, 0, res=res)
+    rtl_tester(tester, assembler, op, x, 0, res=res)
 
 
 @pytest.mark.parametrize("op", [
@@ -212,7 +129,7 @@ def test_unsigned_relation(op, args):
     x, y = args
     _, res_p, _ = pe(op.inst, Data(x), Data(y))
     assert res_p==op.func(x,y)
-    rtl_tester(op, x, y, res_p=res_p)
+    rtl_tester(tester, assembler, op, x, y, res_p=res_p)
 
 @pytest.mark.parametrize("op", [
     op(asm.sgt(), lambda x, y: x > y),
@@ -228,7 +145,7 @@ def test_signed_relation(op, args):
     x, y = args
     _, res_p, _ = pe(op.inst, Data(x), Data(y))
     assert res_p==op.func(x,y)
-    rtl_tester(op, x, y, res_p=res_p)
+    rtl_tester(tester, assembler, op, x, y, res_p=res_p)
 
 @pytest.mark.parametrize("op", [
     op(asm.sel(),  lambda x, y, d: x if d else y),
@@ -246,7 +163,7 @@ def test_ternary(op,args):
     b0 = args[2]
     res, _, _ = pe(inst, d0,d1,b0)
     assert res==op.func(d0,d1,b0)
-    rtl_tester(inst, d0, d1, b0, res=res)
+    rtl_tester(tester, assembler, inst, d0, d1, b0, res=res)
 
 @pytest.mark.parametrize("args", [
     (SIntVector.random(DATAWIDTH), SIntVector.random(DATAWIDTH))
@@ -263,13 +180,13 @@ def test_smult(args):
     xy = mul(x,y)
     res, _, _ = pe(smult0, Data(x), Data(y))
     assert res == xy[0:DATAWIDTH]
-    rtl_tester(smult0, x, y, res=res)
+    rtl_tester(tester, assembler, smult0, x, y, res=res)
     res, _, _ = pe(smult1, Data(x), Data(y))
     assert res == xy[DATAWIDTH//2:DATAWIDTH//2+DATAWIDTH]
-    rtl_tester(smult1, x, y, res=res)
+    rtl_tester(tester, assembler, smult1, x, y, res=res)
     res, _, _ = pe(smult2, Data(x), Data(y))
     assert res == xy[DATAWIDTH:]
-    rtl_tester(smult2, x, y, res=res)
+    rtl_tester(tester, assembler, smult2, x, y, res=res)
 
 
 @pytest.mark.parametrize("args", [
@@ -287,13 +204,13 @@ def test_umult(args):
     xy = mul(x,y)
     res, _, _ = pe(umult0, Data(x), Data(y))
     assert res == xy[0:DATAWIDTH]
-    rtl_tester(umult0, x, y, res=res)
+    rtl_tester(tester, assembler, umult0, x, y, res=res)
     res, _, _ = pe(umult1, Data(x), Data(y))
     assert res == xy[DATAWIDTH//2:DATAWIDTH//2+DATAWIDTH]
-    rtl_tester(umult1, x, y, res=res)
+    rtl_tester(tester, assembler, umult1, x, y, res=res)
     res, _, _ = pe(umult2, Data(x), Data(y))
     assert res == xy[DATAWIDTH:]
-    rtl_tester(umult2, x, y, res=res)
+    rtl_tester(tester, assembler, umult2, x, y, res=res)
 
 #
 # floating point
@@ -325,7 +242,7 @@ def test_fp_binary_op(op,args):
     res, res_p, _ = pe(inst, data0, data1)
     assert res == BFloat16.reinterpret_as_bv(out)
     if CAD_ENV:
-        rtl_tester(op, data0, data1, res=res)
+        rtl_tester(tester, assembler, op, data0, data1, res=res)
     else:
         pytest.skip("Skipping since DW not available")
 
@@ -350,7 +267,7 @@ def test_fp_mul():
     data1 = Data(0x4049)
     res, res_p, _ = pe(inst, data0, data1)
     if CAD_ENV:
-        rtl_tester(inst, data0, data1, res=res)
+        rtl_tester(tester, assembler, inst, data0, data1, res=res)
     else:
         pytest.skip("Skipping since DW not available")
 
@@ -376,7 +293,7 @@ def test_fp_cmp(xy,op):
     _, res_p, _ = pe(op.inst,data0,data1)
     assert res_p == out
     if CAD_ENV:
-        rtl_tester(op, data0, data1, res_p=out)
+        rtl_tester(tester, assembler, op, data0, data1, res_p=out)
     else:
         pytest.skip("Skipping since DW not available")
 
@@ -388,7 +305,7 @@ def test_lut(lut_code):
     for i in range(0, 8):
         bit0, bit1, bit2 = magma.bitutils.int2seq(i, 3)
         expected = (lut_code >> i)[0]
-        rtl_tester(inst, bit0=bit0, bit1=bit1, bit2=bit2, res_p=expected)
+        rtl_tester(tester, assembler, inst, bit0=bit0, bit1=bit1, bit2=bit2, res_p=expected)
 
 @pytest.mark.parametrize("args", [
     (UIntVector.random(DATAWIDTH), UIntVector.random(DATAWIDTH))
@@ -397,7 +314,7 @@ def test_reg_delay(args):
     data0, data1 = args
     inst = asm.add(ra_mode=Mode.DELAY, rb_mode=Mode.DELAY)
     data1_delay_values = [UIntVector.random(DATAWIDTH)]
-    rtl_tester(inst, data0, data1, res=data0 + data1, delay=1,
+    rtl_tester(tester, assembler, inst, data0, data1, res=data0 + data1, delay=1,
                data1_delay_values=data1_delay_values)
 
 @pytest.mark.parametrize("args", [
@@ -407,7 +324,7 @@ def test_reg_const(args):
     data0, const1 = args
     data1 = UIntVector.random(DATAWIDTH)
     inst = asm.add(rb_mode=Mode.CONST, rb_const=const1)
-    rtl_tester(inst, data0, data1, res=data0 + const1)
+    rtl_tester(tester, assembler, inst, data0, data1, res=data0 + const1)
 
 
 @pytest.mark.parametrize("args", [
@@ -417,5 +334,5 @@ def test_stall(args):
     data0, data1 = args
     inst = asm.add(ra_mode=Mode.BYPASS, rb_mode=Mode.DELAY)
     data1_delay_values = [UIntVector.random(DATAWIDTH)]
-    rtl_tester(inst, data0, data1, res=data0, clk_en=0,
+    rtl_tester(tester, assembler, inst, data0, data1, res=data0, clk_en=0,
                data1_delay_values=data1_delay_values)
