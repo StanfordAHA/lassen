@@ -40,164 +40,160 @@ def inst(alu, signed=Signed.unsigned, lut=0, cond=Cond.Z,
 
 # helper functions to format configurations
 
-def add(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS, ra_const=0, rb_const=0):
-    return inst(ALU.Add, ra_mode=ra_mode, rb_mode=rb_mode, ra_const=ra_const,
-                rb_const=rb_const)
+def add(**kwargs):
+    return inst(ALU.Add, **kwargs)
 
-def sub ():
-    return inst(ALU.Sub)
+def sub(**kwargs):
+    return inst(ALU.Sub, **kwargs)
 
-def adc ():
-    return inst(ALU.Adc)
+def adc(**kwargs):
+    return inst(ALU.Adc, **kwargs)
 
-def sbc ():
-    return inst(ALU.Sbc)
+def sbc(**kwargs):
+    return inst(ALU.Sbc, **kwargs)
 
-def neg ():
-    return inst(ALU.Sub)
+def neg(**kwargs):
+    return inst(ALU.Sub, **kwargs)
 
-def umult0 ():
-    return inst(ALU.Mult0)
+def umult0(**kwargs):
+    return inst(ALU.Mult0, **kwargs)
 
-def umult1 ():
-    return inst(ALU.Mult1)
+def umult1(**kwargs):
+    return inst(ALU.Mult1, **kwargs)
 
-def umult2 ():
-    return inst(ALU.Mult2)
+def umult2(**kwargs):
+    return inst(ALU.Mult2, **kwargs)
 
-def smult0 ():
-    return inst(ALU.Mult0, signed=Signed.signed)
+def smult0(**kwargs):
+    return inst(ALU.Mult0, signed=Signed.signed, **kwargs)
 
-def smult1 ():
-    return inst(ALU.Mult1, signed=Signed.signed)
+def smult1(**kwargs):
+    return inst(ALU.Mult1, signed=Signed.signed, **kwargs)
 
-def smult2 ():
-    return inst(ALU.Mult2, signed=Signed.signed)
+def smult2(**kwargs):
+    return inst(ALU.Mult2, signed=Signed.signed, **kwargs)
 
-def fgetmant ():
-    return inst(ALU.FGetMant)
+def fgetmant(**kwargs):
+    return inst(ALU.FGetMant, **kwargs)
 
-def fp_add(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
-    return inst(ALU.FP_add, ra_mode=ra_mode, rb_mode=rb_mode)
+def fp_add(**kwargs):
+    return inst(ALU.FP_add, **kwargs)
 
-def fp_sub(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
-    return inst(ALU.FP_sub, ra_mode=ra_mode, rb_mode=rb_mode)
+def fp_sub(**kwargs):
+    return inst(ALU.FP_sub, **kwargs)
 
-def fp_mul(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
-    return inst(ALU.FP_mult, ra_mode=ra_mode, rb_mode=rb_mode)
+def fp_mul(**kwargs):
+    return inst(ALU.FP_mult, **kwargs)
 
-def fp_cmp(cond):
-    return inst(ALU.FP_cmp,cond=cond)
+def fp_cmp(cond, **kwargs):
+    return inst(ALU.FP_cmp, cond=cond, **kwargs)
 
-def fp_gt():
-    return fp_cmp(Cond.FP_GT)
+def fp_gt(**kwargs):
+    return fp_cmp(Cond.FP_GT, **kwargs)
 
-def fp_ge():
-    return fp_cmp(Cond.FP_GE)
+def fp_ge(**kwargs):
+    return fp_cmp(Cond.FP_GE, **kwargs)
 
-def fp_lt():
-    return fp_cmp(Cond.FP_LT)
+def fp_lt(**kwargs):
+    return fp_cmp(Cond.FP_LT, **kwargs)
 
-def fp_le():
-    return fp_cmp(Cond.FP_LE)
+def fp_le(**kwargs):
+    return fp_cmp(Cond.FP_LE, **kwargs)
 
-def fp_eq():
-    return fp_cmp(Cond.FP_EQ)
+def fp_eq(**kwargs):
+    return fp_cmp(Cond.FP_EQ, **kwargs)
 
-def fp_neq():
-    return fp_cmp(Cond.FP_NE)
-
-
-def faddiexp (ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
-    return inst(ALU.FAddIExp, ra_mode=ra_mode, rb_mode=rb_mode)
-
-def fsubexp (ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
-    return inst(ALU.FSubExp, ra_mode=ra_mode, rb_mode=rb_mode)
-
-def fcnvexp2f (ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
-    return inst(ALU.FCnvExp2F, ra_mode=ra_mode, rb_mode=rb_mode)
-
-def fgetfint (ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
-    return inst(ALU.FGetFInt, ra_mode=ra_mode, rb_mode=rb_mode)
-
-def fgetffrac (ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
-    return inst(ALU.FGetFFrac, ra_mode=ra_mode, rb_mode=rb_mode)
-
-def fcnvsint2f (ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
-    return inst(ALU.FCnvInt2F, ra_mode=ra_mode, rb_mode=rb_mode, signed=Signed.signed)
-
-def fcnvuint2f (ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
-    return inst(ALU.FCnvInt2F, ra_mode=ra_mode, rb_mode=rb_mode, signed=Signed.unsigned)
+def fp_neq(**kwargs):
+    return fp_cmp(Cond.FP_NE, **kwargs)
 
 
-def and_(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
-    return inst(ALU.And, ra_mode=ra_mode, rb_mode=rb_mode)
+def faddiexp(**kwargs):
+    return inst(ALU.FAddIExp, **kwargs)
 
-def or_(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
-    return inst(ALU.Or, ra_mode=ra_mode, rb_mode=rb_mode)
+def fsubexp(**kwargs):
+    return inst(ALU.FSubExp, **kwargs)
 
-def xor(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
-    return inst(ALU.XOr, ra_mode=ra_mode, rb_mode=rb_mode)
+def fcnvexp2f(**kwargs):
+    return inst(ALU.FCnvExp2F, **kwargs)
 
-def lsl():
-    return inst(ALU.SHL)
+def fgetfint(**kwargs):
+    return inst(ALU.FGetFInt, **kwargs)
 
-def lsr():
-    return inst(ALU.SHR)
+def fgetffrac(**kwargs):
+    return inst(ALU.FGetFFrac, **kwargs)
 
-def asr(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
-    return inst(ALU.SHR, ra_mode=ra_mode, rb_mode=rb_mode,
-                signed=Signed.signed)
+def fcnvsint2f(**kwargs):
+    return inst(ALU.FCnvInt2F, signed=Signed.signed, **kwargs)
 
-def sel():
-    return inst(ALU.Sel)
+def fcnvuint2f(**kwargs):
+    return inst(ALU.FCnvInt2F, signed=Signed.unsigned, **kwargs)
 
-def abs():
-    return inst(ALU.Abs, signed=Signed.signed)
 
-def umin():
-    return inst(ALU.LTE_Min, cond=Cond.ALU)
+def and_(**kwargs):
+    return inst(ALU.And, **kwargs)
 
-def umax():
-    return inst(ALU.GTE_Max, cond=Cond.ALU)
+def or_(**kwargs):
+    return inst(ALU.Or, **kwargs)
 
-def smin(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
-    return inst(ALU.LTE_Min, signed=Signed.signed, cond=Cond.ALU,
-                ra_mode=ra_mode, rb_mode=rb_mode)
+def xor(**kwargs):
+    return inst(ALU.XOr, **kwargs)
 
-def smax(ra_mode=Mode.BYPASS, rb_mode=Mode.BYPASS):
-    return inst(ALU.GTE_Max, signed=Signed.signed, cond=Cond.ALU,
-                ra_mode=ra_mode, rb_mode=rb_mode)
+def lsl(**kwargs):
+    return inst(ALU.SHL, **kwargs)
 
-def eq():
-    return inst(ALU.Sub, cond=Cond.Z)
+def lsr(**kwargs):
+    return inst(ALU.SHR, **kwargs)
 
-def ne():
-    return inst(ALU.Sub, cond=Cond.Z_n)
+def asr(**kwargs):
+    return inst(ALU.SHR, signed=Signed.signed, **kwargs)
 
-def ult():
-    return inst(ALU.Sub, cond=Cond.ULT)
+def sel(**kwargs):
+    return inst(ALU.Sel, **kwargs)
 
-def ule():
-    return inst(ALU.Sub, cond=Cond.ULE)
+def abs(**kwargs):
+    return inst(ALU.Abs, signed=Signed.signed, **kwargs)
 
-def ugt():
-    return inst(ALU.Sub, cond=Cond.UGT)
+def umin(**kwargs):
+    return inst(ALU.LTE_Min, cond=Cond.ALU, **kwargs)
 
-def uge():
-    return inst(ALU.Sub, cond=Cond.UGE)
+def umax(**kwargs):
+    return inst(ALU.GTE_Max, cond=Cond.ALU, **kwargs)
 
-def slt():
-    return inst(ALU.Sub, cond=Cond.SLT)
+def smin(**kwargs):
+    return inst(ALU.LTE_Min, signed=Signed.signed, cond=Cond.ALU, **kwargs)
 
-def sle():
-    return inst(ALU.Sub, cond=Cond.SLE)
+def smax(**kwargs):
+    return inst(ALU.GTE_Max, signed=Signed.signed, cond=Cond.ALU, **kwargs)
 
-def sgt():
-    return inst(ALU.Sub, cond=Cond.SGT)
+def eq(**kwargs):
+    return inst(ALU.Sub, cond=Cond.Z, **kwargs)
 
-def sge():
-    return inst(ALU.Sub, cond=Cond.SGE)
+def ne(**kwargs):
+    return inst(ALU.Sub, cond=Cond.Z_n, **kwargs)
+
+def ult(**kwargs):
+    return inst(ALU.Sub, cond=Cond.ULT, **kwargs)
+
+def ule(**kwargs):
+    return inst(ALU.Sub, cond=Cond.ULE, **kwargs)
+
+def ugt(**kwargs):
+    return inst(ALU.Sub, cond=Cond.UGT, **kwargs)
+
+def uge(**kwargs):
+    return inst(ALU.Sub, cond=Cond.UGE, **kwargs)
+
+def slt(**kwargs):
+    return inst(ALU.Sub, cond=Cond.SLT, **kwargs)
+
+def sle(**kwargs):
+    return inst(ALU.Sub, cond=Cond.SLE, **kwargs)
+
+def sgt(**kwargs):
+    return inst(ALU.Sub, cond=Cond.SGT, **kwargs)
+
+def sge(**kwargs):
+    return inst(ALU.Sub, cond=Cond.SGE, **kwargs)
 
 # implements a constant using a register and add by zero
 def const(val):
