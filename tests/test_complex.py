@@ -1,20 +1,23 @@
 from lassen.stdlib.fma import gen_FMA
+from lassen.stdlib.rounding import gen_round_to_zero, gen_round_to_zero_bounded
 from lassen.stdlib.fpops import gen_fdiv, gen_fln, gen_fexp
 from collections import namedtuple
 from lassen.stdlib import gen_FMA, gen_Add32, gen_Sub32
 from lassen.isa import DATAWIDTH
-from hwtypes import BitVector, Bit, SIntVector
+from hwtypes import BitVector, Bit, SIntVector, FPVector, RoundingMode
 from lassen.sim import gen_pe
 from lassen.utils import float2bfbin, bfbin2float
 import pytest
 import lassen.asm as asm
 import math
 import random
+import gmpy2
 
 Bit = Bit
 Data = BitVector[DATAWIDTH]
 SData = SIntVector[DATAWIDTH]
 Data32 = SIntVector[DATAWIDTH*2]
+BFloat16 = FPVector[8, 7,RoundingMode.RNE,False]
 
 NTESTS = 16
 
@@ -24,6 +27,30 @@ LN  = gen_fln(BitVector.get_family())
 EXP = gen_fexp(BitVector.get_family())
 Add32 = gen_Add32(BitVector.get_family())
 Sub32 = gen_Sub32(BitVector.get_family())
+RoundToZeroBounded = gen_round_to_zero_bounded(BitVector.get_family())
+RoundToZero = gen_round_to_zero(BitVector.get_family())
+
+_BOUND = 2**15-2**6-1
+_bounded_args = []
+while len(_bounded_args) < NTESTS:
+    arg = BFloat16.random()
+    while arg > _BOUND or arg < -_BOUND:
+        arg = BFloat16.random()
+    _bounded_args.append(arg)
+
+@pytest.mark.parametrize("arg", _bounded_args)
+def test_round_bounded(arg):
+    round_to_zero_bounded = RoundToZeroBounded()
+    r2z = round_to_zero_bounded(arg.reinterpret_as_bv())
+    gold = BFloat16(gmpy2.rint_trunc(arg._value))
+    assert BFloat16.reinterpret_from_bv(r2z) == gold
+
+@pytest.mark.parametrize("arg", [BFloat16.random() for _ in range(NTESTS)])
+def test_round(arg):
+    round_to_zero = RoundToZero()
+    r2z = round_to_zero(arg.reinterpret_as_bv())
+    gold = BFloat16(gmpy2.rint_trunc(arg._value))
+    assert BFloat16.reinterpret_from_bv(r2z) == gold
 
 @pytest.mark.parametrize("args", [
     (random.randint(-10,10),
