@@ -334,5 +334,130 @@
       42081637117181558804
     ],
     "instr_debug": "Inst(ALU.XOr,Signed.unsigned,BitVector[8](0),Cond.Z,Mode.BYPASS,BitVector[16](0),Mode.BYPASS,BitVector[16](0),Mode.BYPASS,Bit(False),Mode.BYPASS,Bit(False),Mode.BYPASS,Bit(False))"
+  },
+  {
+    "kind": "1to1",
+    "coreir_prim": [
+      "coreir",
+      "sle"
+    ],
+    "genargs": {
+      "width": 16
+    },
+    "peak_prim": "PE",
+    "binding": {
+      "in0": "data1",
+      "in1": "data0",
+      "out": "res_p"
+    },
+    "instr": [
+      67,
+      42081637117182869505
+    ],
+    "instr_debug": "Inst(alu=ALU.Sub, signed_=Signed.unsigned, lut=0, cond=Cond.SGE, rega=Mode.BYPASS, data0=0, regb=Mode.BYPASS, data1=0, regd=Mode.BYPASS, bit0=Bit(False), rege=Mode.BYPASS, bit1=Bit(False), regf=Mode.BYPASS, bit2=Bit(False))"
+  },
+  {
+    "kind": "1to1",
+    "coreir_prim": [
+      "coreir",
+      "slt"
+    ],
+    "genargs": {
+      "width": 16
+    },
+    "peak_prim": "PE",
+    "binding": {
+      "in0": "data0",
+      "in1": "data1",
+      "out": "res_p"
+    },
+    "instr": [
+      67,
+      42081637117183000577
+    ],
+    "instr_debug": "Inst(alu=ALU.Sub, signed_=Signed.unsigned, lut=0, cond=Cond.SLT, rega=Mode.BYPASS, data0=0, regb=Mode.BYPASS, data1=0, regd=Mode.BYPASS, bit0=Bit(False), rege=Mode.BYPASS, bit1=Bit(False), regf=Mode.BYPASS, bit2=Bit(False))"
+  },
+  {
+    "kind": "1to1",
+    "coreir_prim": [
+      "coreir",
+      "sge"
+    ],
+    "genargs": {
+      "width": 16
+    },
+    "peak_prim": "PE",
+    "binding": {
+      "in0": "data0",
+      "in1": "data1",
+      "out": "res_p"
+    },
+    "instr": [
+      67,
+      42081637117182869505
+    ],
+    "instr_debug": "Inst(alu=ALU.Sub, signed_=Signed.unsigned, lut=0, cond=Cond.SGE, rega=Mode.BYPASS, data0=0, regb=Mode.BYPASS, data1=0, regd=Mode.BYPASS, bit0=Bit(False), rege=Mode.BYPASS, bit1=Bit(False), regf=Mode.BYPASS, bit2=Bit(False))"
+  },
+  {
+    "kind": "1to1",
+    "coreir_prim": [
+      "coreir",
+      "sgt"
+    ],
+    "genargs": {
+      "width": 16
+    },
+    "peak_prim": "PE",
+    "binding": {
+      "in0": "data1",
+      "in1": "data0",
+      "out": "res_p"
+    },
+    "instr": [
+      67,
+      42081637117183000577
+    ],
+    "instr_debug": "Inst(alu=ALU.Sub, signed_=Signed.unsigned, lut=0, cond=Cond.SLT, rega=Mode.BYPASS, data0=0, regb=Mode.BYPASS, data1=0, regd=Mode.BYPASS, bit0=Bit(False), rege=Mode.BYPASS, bit1=Bit(False), regf=Mode.BYPASS, bit2=Bit(False))"
+  },
+  {
+    "kind": "1to1",
+    "coreir_prim": [
+      "coreir",
+      "not"
+    ],
+    "genargs": {
+      "width": 16
+    },
+    "peak_prim": "PE",
+    "binding": {
+      "in": "data1",
+      "out": "alu_res"
+    },
+    "instr": [
+      67,
+      42081637117181558790
+    ],
+    "instr_debug": "Inst(alu=ALU.Sbc, signed_=Signed.unsigned, lut=0, cond=Cond.Z, rega=Mode.BYPASS, data0=0, regb=Mode.BYPASS, data1=0, regd=Mode.BYPASS, bit0=Bit(False), rege=Mode.BYPASS, bit1=Bit(False), regf=Mode.BYPASS, bit2=Bit(False))"
+  },
+  {
+    "kind": "1to1",
+    "coreir_prim": [
+      "coreir",
+      "ashr"
+    ],
+    "genargs": {
+      "width": 16
+    },
+    "peak_prim": "PE",
+    "binding": {
+      "in0": "data0",
+      "in1": "data1",
+      "out": "alu_res"
+    },
+    "instr": [
+      67,
+      42081637117181559055
+    ],
+    "instr_debug": "Inst(alu=ALU.SHR, signed_=Signed.signed, lut=0, cond=Cond.Z, rega=Mode.BYPASS, data0=0, regb=Mode.BYPASS, data1=0, regd=Mode.BYPASS, bit0=Bit(False), rege=Mode.BYPASS, bit1=Bit(False), regf=Mode.BYPASS, bit2=Bit(False))"
   }
 ]

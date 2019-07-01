@@ -196,7 +196,13 @@ def make_single_op_app(c : coreir.Context,namespace : str, op : str,**genargs):
     app.definition = mdef
     return app
 
-@pytest.mark.parametrize("op",["lt","le","gt","ge","eq","neq","add","sub","mul"])
+supported_coreir_fp_ops = [
+    "lt","le","gt","ge",
+    "eq","neq",
+    "add","sub","mul"
+]
+
+@pytest.mark.parametrize("op",supported_coreir_fp_ops)
 def test_fp_ops(op):
     c = coreir.Context()
     c.load_library("float")
@@ -208,7 +214,15 @@ def test_fp_ops(op):
     imap = mapper.extract_instr_map(app)
     assert len(imap) == 1
 
-@pytest.mark.parametrize("op",["ult","ule","ugt","uge","eq","neq","add","sub","mul","mux"])
+supported_coreir_ops = [
+    "ashr","lshr","shl",
+    "ult","ule","ugt","uge",
+    "slt","sle","sgt","sge",
+    "eq","neq",
+    "neg","add","sub","mul","mux",
+    "and","or","xor","not"
+]
+@pytest.mark.parametrize("op",supported_coreir_ops)
 def test_coreir_ops(op):
     c = coreir.Context()
     app = make_single_op_app(c,"coreir",op,width=16)
