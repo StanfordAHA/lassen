@@ -9,7 +9,7 @@ install:
     - docker cp ../lassen lassen:/
     - docker exec -i lassen bash -c "pip install -r /lassen/requirements.txt" 
     - docker exec -i lassen bash -c "pip install pytest python-coveralls"
-    - docker exec -i lassen bash -c "pip install pytest-cov pytest-codestyle" 
+    - docker exec -i lassen bash -c "pip install pytest-cov pytest-codestyle pytest-parallel" 
     # check CoSA dependencies
     - docker exec -i lassen bash -c "pysmt-install --check"
     - docker exec -i lassen bash -c "cd /lassen && pip install -e ." 
