@@ -19,13 +19,11 @@ def gen_mem(family, width=width,depth=depth):
         #TODO For now only define the ports relevant for the ROM
         @name_outputs(rdata=Data)
         def __call__(self,instr : MemInstr, ain : Data, din : Data):
-
-            instr_kind, instr = instr.match()
-            if instr_kind == Rom:
+            if instr[Rom].match:
                 ain_int = int(ain)
                 if ain_int >= depth:
                     raise ValueError("address out of range!")
-                return instr.init[ain_int]
+                return instr[Rom].value.init[ain_int]
             else:
                 raise PeakNotImplementedError("NYI")
     return Mem
