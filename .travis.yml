@@ -1,19 +1,27 @@
 dist: xenial
-language: minimal
-service: docker
-
+language: python
+python:
+- 3.7
+cache:
+  apt: true
+addons:
+  apt:
+    packages:
+    - libgmp-dev
+    - libmpfr-dev
+    - libmpc-dev
+    - verilator
+before_install:
+- curl -s -L https://github.com/rdaly525/coreir/releases/latest | grep "href.*coreir-${TRAVIS_OS_NAME}.tar.gz" | cut -d \" -f 2 | xargs -I {} wget https://github.com"{}"
+- mkdir coreir_release;
+- tar -xf coreir-${TRAVIS_OS_NAME}.tar.gz -C coreir_release --strip-components 1;
+- cd coreir_release && sudo make install && cd ..
 install:
-
-    - docker pull keyiz/garnet-flow
-    - docker run -d -it --name lassen keyiz/garnet-flow bash
-    - docker cp ../lassen lassen:/
-    - docker exec -i lassen bash -c "pip install -r /lassen/requirements.txt" 
-    - docker exec -i lassen bash -c "pip install pytest python-coveralls"
-    - docker exec -i lassen bash -c "pip install pytest-cov pytest-codestyle" 
-    # check CoSA dependencies
-    - docker exec -i lassen bash -c "pysmt-install --check"
-    - docker exec -i lassen bash -c "cd /lassen && pip install -e ." 
-    
+- pip install -r requirements.txt
+- pip install pytest-cov
+- pip install python-coveralls
+- pip install -e .
 script:
-    - docker exec -i lassen bash -c "/lassen/.travis/run.sh"
-
+- ./.travis/run.sh
+after_success:
+- coveralls
