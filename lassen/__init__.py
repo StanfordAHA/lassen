@@ -1,3 +1,6 @@
+import warnings
+warnings.simplefilter("once")
+
 from .sim import *
 from .isa import *
 import json
