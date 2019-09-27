@@ -47,6 +47,6 @@ def test_reset():
     tester.circuit.ASYNCRESET = 0
     tester.step(2)
     tester.circuit.O0.expect(data[0] + data[1])
-    tester.compile_and_run("verilator", flags=["-Wno-UNUSED"],
+    tester.compile_and_run("verilator", flags=["-Wno-UNUSED", "-Wno-fatal"],
                            directory="tests/build",
                            magma_opts={"coreir_libs": {"float_DW"}})
