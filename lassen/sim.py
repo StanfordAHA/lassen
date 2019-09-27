@@ -1,7 +1,8 @@
 import hwtypes
 from hwtypes import TypeFamily
 from peak import Peak, name_outputs
-from peak.auto_assembler import assemble_values_in_func, generate_assembler
+from peak.assembler.utils import assemble_values_in_func
+from peak.assembler import Assembler
 from .common import Global, Config
 from .mode import gen_register_mode
 from .lut import gen_lut_type, gen_lut
@@ -334,8 +335,8 @@ def gen_alu(family: TypeFamily, datawidth, use_assembler=False):
             bv_alu = gen_alu_type(bv_fam)
             bv_signed = gen_signed_type(bv_fam)
             assemblers = {
-                ALU: (bv_alu, generate_assembler(bv_alu)[0]),
-                Signed: (bv_signed, generate_assembler(bv_signed)[0])
+                ALU: (bv_alu, Assembler(bv_alu).assemble),
+                Signed: (bv_signed, Assembler(bv_signed).assemble)
             }
             alu = assemble_values_in_func(assemblers, alu, locals(), globals())
         alu = m.circuit.combinational(alu)

@@ -3,7 +3,8 @@ from .family import gen_pe_type_family
 from hwtypes.adt import Enum
 import magma as m
 from functools import lru_cache
-from peak.auto_assembler import assemble_values_in_func, generate_assembler
+from peak.assembler.utils import assemble_values_in_func
+from peak.assembler import Assembler
 
 @lru_cache()
 def gen_cond_type(family):
@@ -99,7 +100,7 @@ def gen_cond(family, use_assembler=False):
             bv_fam = gen_pe_type_family(hwtypes.BitVector.get_family())
             bv_cond = gen_cond_type(bv_fam)
             assemblers = {
-                Cond: (bv_cond, generate_assembler(bv_cond)[0])
+                Cond: (bv_cond, Assembler(bv_cond).assemble)
             }
             cond = assemble_values_in_func(assemblers, cond, locals(),
                                            globals())
