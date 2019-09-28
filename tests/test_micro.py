@@ -14,7 +14,7 @@ import fault
 import os
 import random
 import shutil
-from peak.auto_assembler import generate_assembler
+from peak.assembler import Assembler
 
 class HashableDict(dict):
     def __hash__(self):
@@ -32,8 +32,11 @@ Mode = gen_mode_type(sim_family)
 
 # create these variables in global space so that we can reuse them easily
 instr_name, inst_type = pe.__call__._peak_isa_
-assembler, disassembler, width, layout = \
-            generate_assembler(inst_type)
+_assembler = Assembler(inst_type)
+assembler = _assembler.assemble
+disassembler = _assembler.disassemble
+width = _assembler.width
+layout = _assembler.layout
 pe_magma = gen_pe(magma.get_family(), use_assembler=True)
 instr_magma_type = type(pe_magma.interface.ports[instr_name])
 pe_circuit = peak.wrap_with_disassembler(pe_magma, disassembler, width,

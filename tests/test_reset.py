@@ -7,7 +7,7 @@ import magma as m
 import fault
 import hwtypes
 import peak
-from peak.auto_assembler import generate_assembler
+from peak.assembler import Assembler
 from test_pe import HashableDict
 
 
@@ -15,7 +15,11 @@ def test_reset():
     sim_family = gen_pe_type_family(hwtypes.BitVector.get_family())
     inst_type = gen_inst_type(sim_family)
     Mode = gen_mode_type(sim_family)
-    assembler, disassembler, width, layout = generate_assembler(inst_type)
+    _assembler = Assembler(inst_type)
+    assembler = _assembler.assemble
+    disassembler = _assembler.disassemble
+    width = _assembler.width
+    layout = _assembler.layout
     PE = gen_pe(m.get_family(), use_assembler=True)
     PE = peak.wrap_with_disassembler(PE, disassembler, width,
                                      HashableDict(layout),
@@ -43,5 +47,6 @@ def test_reset():
     tester.circuit.ASYNCRESET = 0
     tester.step(2)
     tester.circuit.O0.expect(data[0] + data[1])
-    tester.compile_and_run("verilator", flags=["-Wno-UNUSED"],
-                           directory="tests/build")
+    tester.compile_and_run("verilator", flags=["-Wno-UNUSED", "-Wno-fatal"],
+                           directory="tests/build",
+                           magma_opts={"coreir_libs": {"float_DW"}})
