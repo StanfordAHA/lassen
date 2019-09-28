@@ -13,7 +13,7 @@ from itertools import product
 import os
 import random
 import shutil
-from peak.auto_assembler import generate_assembler
+from peak.assembler import Assembler
 import random
 
 class HashableDict(dict):
@@ -33,8 +33,11 @@ Mode = gen_mode_type(sim_family)
 
 # create these variables in global space so that we can reuse them easily
 instr_name, inst_type = pe.__call__._peak_isa_
-assembler, disassembler, width, layout = \
-            generate_assembler(inst_type)
+_assembler = Assembler(inst_type)
+assembler = _assembler.assemble
+disassembler = _assembler.disassemble
+width = _assembler.width
+layout = _assembler.layout
 NTESTS = 16
 
 def write_data01(pe,data0 : Data, data1 : Data,instr=asm.add(),ra=Data(0)):
