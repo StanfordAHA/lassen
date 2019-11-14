@@ -1,43 +1,19 @@
-import os
-from collections import namedtuple
+from lassen import PE, Inst
 import lassen.asm as asm
-from lassen.sim import gen_pe, gen_pe_type_family
-from lassen.mode import gen_mode_type
-from lassen.isa import *
+from lassen.common import *
 from hwtypes import SIntVector, UIntVector, BitVector, Bit, FPVector, RoundingMode
 import pytest
-import magma
-import peak
-import fault
-from itertools import product
-import os
-import random
-import shutil
-from peak.assembler import Assembler
 import random
 
 class HashableDict(dict):
     def __hash__(self):
         return hash(tuple(sorted(self.keys())))
 
-Bit = Bit
-Data = BitVector[DATAWIDTH]
-Data32 = BitVector[32]
 Data8 = BitVector[32]
-BFloat16 = FPVector[8,7,RoundingMode.RNE,False]
 
-pe_ = gen_pe(BitVector.get_family())
-pe = pe_()
-sim_family = gen_pe_type_family(BitVector.get_family())
-Mode = gen_mode_type(sim_family)
+pe = PE()
+Mode_t = Inst.rega
 
-# create these variables in global space so that we can reuse them easily
-instr_name, inst_type = pe.__call__._peak_isa_
-_assembler = Assembler(inst_type)
-assembler = _assembler.assemble
-disassembler = _assembler.disassemble
-width = _assembler.width
-layout = _assembler.layout
 NTESTS = 16
 
 def write_data01(pe,data0 : Data, data1 : Data,instr=asm.add(),ra=Data(0)):
@@ -112,7 +88,7 @@ def test_config_bit012(args):
         for _ in range(NTESTS)
 ])
 def test_write_priority_data0(args):
-    instr = asm.add(ra_mode=Mode.DELAY)
+    instr = asm.add(ra_mode=Mode_t.DELAY)
     write_data01(pe,data0=args[0],data1=args[1],instr=instr,ra=args[2])
     #The config takes prioirty over the ra input
     assert args[0] == read_data0(pe,instr=instr,ra=args[2])

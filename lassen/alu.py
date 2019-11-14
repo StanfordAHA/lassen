@@ -65,8 +65,6 @@ class Signed_t(Enum):
     unsigned = 0
     signed = 1
 
-
-
 FPExpBV = BitVector[8]
 FPFracBV = BitVector[7]
 

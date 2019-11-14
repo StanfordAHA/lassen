@@ -10,11 +10,6 @@ from .cond import Cond
 from .isa import Inst
 
 BV1 = BitVector[1]
-Data32 = BitVector[32]
-Data8 = BitVector[8]
-
-ConfigData32 = Config(BitVector)[32]
-ConfigData8 = Config(BitVector)[8]
 
 DataReg = gen_register_mode(Data, Data(0))
 BitReg = gen_register_mode(Bit, Bit(0))
