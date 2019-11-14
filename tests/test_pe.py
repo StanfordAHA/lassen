@@ -10,13 +10,7 @@ import random
 from magma.bitutils import int2seq
 import pytest
 
-LUT_t = Inst.lut
-Cond_t = Inst.cond
 Mode_t = Inst.rega
-ALU_t = Inst.alu
-Signed_t = Inst.signed
-DataConst = Inst.data0
-BitConst = Inst.bit0
 
 pe = PE()
 
