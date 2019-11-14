@@ -6,6 +6,8 @@ from hwtypes import SIntVector, UIntVector, BitVector, Bit
 from collections import namedtuple
 from itertools import product
 
+import random
+from magma.bitutils import int2seq
 import pytest
 
 LUT_t = Inst.lut
@@ -22,6 +24,7 @@ pe = PE()
 def rtl_tester(*args,**kwargs):
     pass
 
+CAD_ENV = True
 
 op = namedtuple("op", ["inst", "func"])
 NTESTS = 16
@@ -266,7 +269,7 @@ def test_fp_cmp(xy,op):
 def test_lut(lut_code):
     inst = asm.lut(lut_code)
     for i in range(0, 8):
-        bit0, bit1, bit2 = magma.bitutils.int2seq(i, 3)
+        bit0, bit1, bit2 = int2seq(i, 3)
         expected = (lut_code >> i)[0]
         rtl_tester(inst, bit0=bit0, bit1=bit1, bit2=bit2, res_p=expected)
 
@@ -275,7 +278,7 @@ def test_lut(lut_code):
         for _ in range(NTESTS) ] )
 def test_reg_delay(args):
     data0, data1 = args
-    inst = asm.add(ra_mode=Mode.DELAY, rb_mode=Mode.DELAY)
+    inst = asm.add(ra_mode=Mode_t.DELAY, rb_mode=Mode_t.DELAY)
     data1_delay_values = [UIntVector.random(DATAWIDTH)]
     rtl_tester(inst, data0, data1, res=data0 + data1, delay=1,
                data1_delay_values=data1_delay_values)
@@ -286,7 +289,7 @@ def test_reg_delay(args):
 def test_reg_const(args):
     data0, const1 = args
     data1 = UIntVector.random(DATAWIDTH)
-    inst = asm.add(rb_mode=Mode.CONST, rb_const=const1)
+    inst = asm.add(rb_mode=Mode_t.CONST, rb_const=const1)
     rtl_tester(inst, data0, data1, res=data0 + const1)
 
 
@@ -295,7 +298,7 @@ def test_reg_const(args):
         for _ in range(NTESTS) ] )
 def test_stall(args):
     data0, data1 = args
-    inst = asm.add(ra_mode=Mode.BYPASS, rb_mode=Mode.DELAY)
+    inst = asm.add(ra_mode=Mode_t.BYPASS, rb_mode=Mode_t.DELAY)
     data1_delay_values = [UIntVector.random(DATAWIDTH)]
     rtl_tester(inst, data0, data1, res=data0, clk_en=0,
                data1_delay_values=data1_delay_values)

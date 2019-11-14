@@ -1,7 +1,7 @@
-from hwtypes import BitVector, Bit
+from hwtypes import BitVector, Bit, SIntVector
 from hwtypes.adt import Enum
 from peak import Peak
-from .common import Data
+from .common import Data, DATAWIDTH, BFloat16
 
 # simulate the PE ALU
 #
@@ -22,12 +22,7 @@ from .common import Data
 #   C (carry generated)
 #   V (overflow generated)
 
-#    SInt = family.Signed
-#    overflow = family.overflow
-#    Inst = gen_inst_type(family)
-#    ALU = gen_alu_type(family)
-#    Signed = gen_signed_type(family)
-#    BFloat16 = family.BFloat16
+SInt = SIntVector
 
 class ALU_t(Enum):
     Add = 0
@@ -98,8 +93,8 @@ def overflow(a, b, res):
 class ALU(Peak):
     def __call__(self, alu: ALU_t, signed: Signed_t, a:Data, b:Data, d:Bit) -> (Data, Bit, Bit, Bit, Bit, Bit):
         if signed == Signed_t.signed:
-            a = SInt[datawidth](a)
-            b = SInt[datawidth](b)
+            a = SInt[DATAWIDTH](a)
+            b = SInt[DATAWIDTH](b)
             mula, mulb = a.sext(16), b.sext(16)
             gte_pred = a >= b
             lte_pred = a <= b

@@ -148,16 +148,16 @@ def abs(**kwargs):
     return inst(ALU_t.Abs, signed=Signed_t.signed, **kwargs)
 
 def umin(**kwargs):
-    return inst(ALU_t.LTE_Min, cond=Cond_t.ALU_t, **kwargs)
+    return inst(ALU_t.LTE_Min, cond=Cond_t.ALU, **kwargs)
 
 def umax(**kwargs):
-    return inst(ALU_t.GTE_Max, cond=Cond_t.ALU_t, **kwargs)
+    return inst(ALU_t.GTE_Max, cond=Cond_t.ALU, **kwargs)
 
 def smin(**kwargs):
-    return inst(ALU_t.LTE_Min, signed=Signed_t.signed, cond=Cond_t.ALU_t, **kwargs)
+    return inst(ALU_t.LTE_Min, signed=Signed_t.signed, cond=Cond_t.ALU, **kwargs)
 
 def smax(**kwargs):
-    return inst(ALU_t.GTE_Max, signed=Signed_t.signed, cond=Cond_t.ALU_t, **kwargs)
+    return inst(ALU_t.GTE_Max, signed=Signed_t.signed, cond=Cond_t.ALU, **kwargs)
 
 def eq(**kwargs):
     return inst(ALU_t.Sub, cond=Cond_t.Z, **kwargs)
