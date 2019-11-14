@@ -3,7 +3,7 @@ from .sim import width, depth
 from hwtypes import BitVector
 
 Data = BitVector[width]
-MemInstr = gen_mem_instr(BitVector.get_family(),width,depth)
+MemInstr = gen_mem_instr(width,depth)
 Rom = MemInstr.field_dict['Rom']
 
 def rom(init):

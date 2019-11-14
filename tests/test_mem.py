@@ -5,11 +5,9 @@ import coreir
 import metamapper as mm
 import pytest
 
-family = BitVector.get_family()
-MemInstr = gen_mem_instr(family,width,depth)
+MemInstr = gen_mem_instr(width,depth)
 Rom = MemInstr.field_dict['Rom']
-Data = BitVector[width]
-Mem = gen_mem(family)
+Mem = gen_mem()
 def test_rom():
 
     #Load addr 0 with Data(0), addr 1 with Data(1), etc...

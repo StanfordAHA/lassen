@@ -1,34 +1,18 @@
-from lassen.stdlib.fma import gen_FMA
-from lassen.stdlib.rounding import gen_round_to_zero, gen_round_to_zero_bounded
-from lassen.stdlib.fpops import gen_fdiv, gen_fln, gen_fexp
-from collections import namedtuple
-from lassen.stdlib import gen_FMA, gen_Add32, gen_Sub32
-from lassen.isa import DATAWIDTH
-from hwtypes import BitVector, Bit, SIntVector, FPVector, RoundingMode
-from lassen.sim import gen_pe
+from lassen.stdlib import *
+from lassen.common import DATAWIDTH, Data, BFloat16
+from hwtypes import BitVector, Bit, SIntVector
 from lassen.utils import float2bfbin, bfbin2float
+
+from collections import namedtuple
 import pytest
-import lassen.asm as asm
 import math
 import random
 import gmpy2
 
-Bit = Bit
-Data = BitVector[DATAWIDTH]
 SData = SIntVector[DATAWIDTH]
 Data32 = SIntVector[DATAWIDTH*2]
-BFloat16 = FPVector[8, 7,RoundingMode.RNE,False]
 
 NTESTS = 16
-
-FMA = gen_FMA(BitVector.get_family())
-DIV = gen_fdiv(BitVector.get_family())
-LN  = gen_fln(BitVector.get_family())
-EXP = gen_fexp(BitVector.get_family())
-Add32 = gen_Add32(BitVector.get_family())
-Sub32 = gen_Sub32(BitVector.get_family())
-RoundToZeroBounded = gen_round_to_zero_bounded(BitVector.get_family())
-RoundToZero = gen_round_to_zero(BitVector.get_family())
 
 _BOUND = 2**15-2**6-1
 _bounded_args = []
@@ -94,7 +78,7 @@ def test_div():
         op_b = Data(int(test_vector[1], 2))
         exp_res = int(test_vector[2], 2)
         max_error = test_vector[3]
-        div = DIV()
+        div = FDiv()
         result = div(op_a, op_b)
         golden_res = bfbin2float(test_vector[2])
         actual_res = bfbin2float("{:016b}".format(int(result)))
@@ -128,7 +112,7 @@ def test_ln():
         exp_res = int(test_vector[2], 2)
         max_error = test_vector[3]
 
-        ln = LN()
+        ln = FLN()
         result = ln(op_a)
         golden_res = bfbin2float(test_vector[2])
         actual_res = bfbin2float("{:016b}".format(int(result)))
@@ -173,7 +157,7 @@ def test_exp():
         exp_res = int(test_vector[2], 2)
         max_error = test_vector[3]
 
-        exp = EXP()
+        exp = FExp()
         result = exp(op_a)
         golden_res = bfbin2float(test_vector[2])
         actual_res = bfbin2float("{:016b}".format(int(result)))

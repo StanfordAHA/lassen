@@ -4,7 +4,7 @@ import magma as m
 from functools import lru_cache
 
 @lru_cache()
-def gen_mem_instr(family,width,depth):
+def gen_mem_instr(width, depth):
 
     class Fifo(Product):
         pass
@@ -13,7 +13,7 @@ def gen_mem_instr(family,width,depth):
         pass
 
     class Rom(Product):
-        init=Tuple[(family.BitVector[width] for _ in range(depth))]
+        init=Tuple[(BitVector[width] for _ in range(depth))]
 
     class MemInstr(Sum[Rom, Fifo, LineBuffer]):
         pass

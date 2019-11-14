@@ -1,15 +1,14 @@
 from hwtypes import TypeFamily
 from peak import Peak, name_outputs, PeakNotImplementedError
-from .isa import *
+from .isa import gen_mem_instr
+from lassen.common import Data
 
 width = 16
 depth = 1024
 
-def gen_mem(family, width=width,depth=depth):
-    MemInstr = gen_mem_instr(family,width,depth)
+def gen_mem(width=width,depth=depth):
+    MemInstr = gen_mem_instr(width,depth)
     Rom = MemInstr.field_dict['Rom']
-    Bit = family.Bit
-    Data = family.BitVector[width]
 
     class Mem(Peak):
         def __init__(self):
