@@ -1,7 +1,7 @@
 from peak import Peak, gen_register
 from functools import lru_cache
 from hwtypes import Enum, Bit, BitVector
-
+import inspect
 
 """
 Field for specifying register modes
@@ -11,10 +11,13 @@ class Mode_t(Enum):
     BYPASS = 2  # Register is bypassed and input value is returned
     DELAY = 3   # Register written with input value, previous value returned
 
-@lru_cache(None)
+#@lru_cache(None)
 def gen_register_mode(T, init=None):
     if init is None:
         init = T(0)
+    elif not isinstance(init, T):
+        init = T(init)
+
     Reg = gen_register(T, init=init)
 
     class RegisterMode(Peak):
@@ -37,5 +40,9 @@ def gen_register_mode(T, init=None):
                 return value, reg_val
             elif mode == Mode_t.DELAY:
                 return reg_val, reg_val
+
+        @classmethod
+        def uniquify(cls):
+            return f"{T},{init}"
 
     return RegisterMode

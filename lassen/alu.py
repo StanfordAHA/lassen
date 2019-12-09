@@ -1,4 +1,4 @@
-from hwtypes import BitVector, Bit, SIntVector
+from hwtypes import BitVector, Bit, SIntVector, UIntVector
 from hwtypes.adt import Enum
 from peak import Peak
 from .common import Data, DATAWIDTH, BFloat16
@@ -23,6 +23,10 @@ from .common import Data, DATAWIDTH, BFloat16
 #   V (overflow generated)
 
 SInt = SIntVector
+SData = SInt[DATAWIDTH]
+UInt = UIntVector
+UData = UInt[DATAWIDTH]
+
 
 class ALU_t(Enum):
     Add = 0
@@ -63,27 +67,6 @@ class Signed_t(Enum):
 FPExpBV = BitVector[8]
 FPFracBV = BitVector[7]
 
-def bv2float(bv):
-    return BFloat16.reinterpret_from_bv(bv)
-
-def float2bv(bvf):
-    return BFloat16.reinterpret_as_bv(bvf)
-
-def fp_get_exp(val : Data):
-    return val[7:15]
-
-def fp_get_frac(val : Data):
-    return val[:7]
-
-def fp_is_zero(val : Data):
-    return (fp_get_exp(val) == FPExpBV(0)) & (fp_get_frac(val) == FPFracBV(0))
-
-def fp_is_inf(val : Data):
-    return (fp_get_exp(val) == FPExpBV(-1)) & (fp_get_frac(val) == FPFracBV(0))
-
-def fp_is_neg(val : Data):
-    return Bit(val[-1])
-
 def overflow(a, b, res):
     msb_a = a[-1]
     msb_b = b[-1]
@@ -91,26 +74,50 @@ def overflow(a, b, res):
     return (msb_a & msb_b & ~N) | (~msb_a & ~msb_b & N)
 
 class ALU(Peak):
+    def bv2float(self,bv):
+        return BFloat16.reinterpret_from_bv(bv)
+
+    def float2bv(self,bvf):
+        return BFloat16.reinterpret_as_bv(bvf)
+
+    def fp_get_exp(self,val : Data):
+        return val[7:15]
+
+    def fp_get_frac(self,val : Data):
+        return val[:7]
+
+    def fp_is_zero(self,val : Data):
+        return (fp_get_exp(val) == FPExpBV(0)) & (fp_get_frac(val) == FPFracBV(0))
+
+    def fp_is_inf(self,val : Data):
+        return (fp_get_exp(val) == FPExpBV(-1)) & (fp_get_frac(val) == FPFracBV(0))
+
+    def fp_is_neg(self,val : Data):
+        return Bit(val[-1])
+
     def __call__(self, alu: ALU_t, signed: Signed_t, a:Data, b:Data, d:Bit) -> (Data, Bit, Bit, Bit, Bit, Bit):
+        a = Data(a)
+        b = Data(b)
         if signed == Signed_t.signed:
-            a = SInt[DATAWIDTH](a)
-            b = SInt[DATAWIDTH](b)
-            mula, mulb = a.sext(16), b.sext(16)
-            gte_pred = a >= b
-            lte_pred = a <= b
-            abs_pred = a >= 0
-            shr = a >> b
+            a_, b_ = SData(a), SData(b)
+            mula, mulb = a_.sext(16), b_.sext(16)
+            gte_pred = a_ >= b_
+            lte_pred = a_ <= b_
+            abs_pred = a_ >= 0
+            shr = a_ >> b_
         elif signed == Signed_t.unsigned:
-            mula, mulb = Data(a).zext(16), Data(b).zext(16)
-            gte_pred = a >= b
-            lte_pred = a <= b
-            abs_pred = a >= 0
-            shr = a >> b
+            a_, b_ = UData(a), UData(b)
+            mula, mulb = a_.zext(16), b_.zext(16)
+            gte_pred = a_ >= b_
+            lte_pred = a_ <= b_
+            abs_pred = a_ >= 0
+            shr = a_ >> b_
+
         mul = mula * mulb
-        a_inf = fp_is_inf(a)
-        b_inf = fp_is_inf(b)
-        a_neg = fp_is_neg(a)
-        b_neg = fp_is_neg(b)
+        a_inf = self.fp_is_inf(a)
+        b_inf = self.fp_is_inf(b)
+        a_neg = self.fp_is_neg(a)
+        b_neg = self.fp_is_neg(b)
 
         if alu == ALU_t.FCnvExp2F:
             expa0 = BitVector[8](a[7:15])
