@@ -11,12 +11,8 @@ addons:
     - libmpfr-dev
     - libmpc-dev
     - verilator
-before_install:
-- curl -s -L https://github.com/rdaly525/coreir/releases/latest | grep "href.*coreir-${TRAVIS_OS_NAME}.tar.gz" | cut -d \" -f 2 | xargs -I {} wget https://github.com"{}"
-- mkdir coreir_release;
-- tar -xf coreir-${TRAVIS_OS_NAME}.tar.gz -C coreir_release --strip-components 1;
-- cd coreir_release && sudo make install && cd ..
 install:
+- pip install coreir
 - pip install -r requirements.txt
 - pip install pytest-cov
 - pip install python-coveralls
