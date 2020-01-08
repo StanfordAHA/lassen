@@ -38,7 +38,7 @@ def gen_register_mode(T, init=None):
                     return const_, reg_val
                 elif mode == Mode_t.BYPASS:
                     return value, reg_val
-                elif mode == Mode_t.DELAY:
+                else: # mode == Mode_t.DELAY:
                     return reg_val, reg_val
 
         return update_peak(RegisterMode, family)

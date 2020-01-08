@@ -14,6 +14,7 @@ from .isa import Inst_fc
 def PE_fc(family):
     BV1 = family.BitVector[1]
     Data = family.BitVector[16]
+    Bit = family.Bit
     DataReg = gen_register_mode(Data, 0)(family)
     BitReg = gen_register_mode(Bit, 0)(family)
     ALU = ALU_fc(family)
@@ -42,6 +43,7 @@ def PE_fc(family):
             #Lut
             self.lut: LUT = LUT()
 
+        @name_outputs(alu_res=Data,res_p=Bit,read_config_data=ConfigData32)
         def __call__(self, inst: Inst, \
             data0: Data, data1: Data = Data(0), \
             bit0: Bit = Bit(0), bit1: Bit = Bit(0), bit2: Bit = Bit(0), \
@@ -103,6 +105,4 @@ def PE_fc(family):
 
     if family.Bit is m.Bit:
         PE = m.circuit.sequential(PE)
-    else:
-        PE.__call__ = name_outputs(alu_res=Data,res_p=Bit,read_config_data=ConfigData32)(PE.__call__)
     return update_peak(PE,family)

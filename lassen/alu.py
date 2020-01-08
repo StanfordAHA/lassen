@@ -328,7 +328,7 @@ def ALU_fc(family):
                 else:
                     signed_res = SInt[16](unsigned_res)
                 # We are not checking for overflow when converting to int
-                res, res_p, V = Data(signed_res), 0, (expa0 >  BitVector[8](142))
+                res, res_p, V = Data(signed_res), Bit(0), (expa0 >  BitVector[8](142))
             elif alu == ALU_t.FGetFFrac:
                 signa = BitVector[16]((a & 0x8000))
                 manta = BitVector[16]((a & 0x7F)) | 0x80
