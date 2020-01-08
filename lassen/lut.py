@@ -1,10 +1,21 @@
-from hwtypes import BitVector, Bit
-from peak import Peak
+from peak import Peak, family_closure, name_outputs, update_peak
+from functools import lru_cache
 
-LUT_t = BitVector[8]
-_IDX_t = BitVector[3]
-class LUT(Peak):
-    def __call__(self, lut: LUT_t, bit0: Bit, bit1: Bit, bit2: Bit) -> Bit:
-        i = _IDX_t([bit0, bit1, bit2])
-        i = i.zext(5)
-        return ((lut >> i) & 1)[0]
+@lru_cache(None)
+def LUT_t_fc(family):
+    LUT_t = family.BitVector[8]
+    IDX_t = family.BitVector[3]
+    return LUT_t, IDX_t
+
+@family_closure
+def LUT_fc(family):
+    Bit = family.Bit
+    LUT_t, IDX_t = LUT_t_fc(family)
+
+    class LUT(Peak):
+        @name_outputs(lut_out=Bit)
+        def __call__(self, lut: LUT_t, bit0: Bit, bit1: Bit, bit2: Bit) -> Bit:
+            i = IDX_t([bit0, bit1, bit2])
+            i = i.zext(5)
+            return ((lut >> i) & 1)[0]
+    return update_peak(LUT, family)

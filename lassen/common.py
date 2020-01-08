@@ -1,10 +1,17 @@
 from hwtypes import make_modifier, BitVector
-from hwtypes import FPVector, RoundingMode
+from hwtypes import SMTFPVector, FPVector, RoundingMode
+from hwtypes import SMTBit
 
 # Current PE has 16-bit data path
 DATAWIDTH = 16
 Data = BitVector[DATAWIDTH]
-BFloat16 = FPVector[8,7,RoundingMode.RNE,False]
+def BFloat16_fc(family):
+    if family is SMTBit.get_family():
+        FPV = SMTFPVector
+    else:
+        FPV = FPVector
+    BFloat16 = FPV[8,7,RoundingMode.RNE,False]
+    return BFloat16
 
 # Global signal modifier.
 Global = make_modifier("Global")

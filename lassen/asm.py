@@ -1,8 +1,8 @@
 from dataclasses import dataclass
-from .isa import Inst
+from .isa import Inst_fc
 from hwtypes import BitVector, Bit
 
-
+Inst = Inst_fc(Bit.get_family())
 LUT_t = Inst.lut
 Cond_t = Inst.cond
 Mode_t = Inst.rega

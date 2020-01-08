@@ -1,5 +1,5 @@
 from hwtypes import Enum, Bit, BitVector
-from peak import Peak
+from peak import Peak, family_closure, name_outputs, update_peak
 """
 Condition code field - selects which 1-bit result is retuned
 """
@@ -39,58 +39,64 @@ class Cond_t(Enum):
 # Inputs are the condition code field, the alu result, the lut result,
 # and the flags Z, N, C, V
 #
-class Cond(Peak):
-    def __call__(self, code: Cond_t, alu: Bit, lut: Bit, Z: Bit, N: Bit, C: Bit, V: Bit) \
-            -> Bit:
-        if code == Cond_t.Z:
-            return Z
-        elif code == Cond_t.Z_n:
-            return ~Z
-        elif (code == Cond_t.C) | (code == Cond_t.UGE):
-            return C
-        elif (code == Cond_t.C_n) | (code == Cond_t.ULT):
-            return ~C
-        elif code == Cond_t._N:
-            return N
-        elif code == Cond_t._N_n:
-            return ~N
-        elif code == Cond_t.V:
-            return V
-        elif code == Cond_t.V_n:
-            return ~V
-        elif code == Cond_t.UGT:
-            return C & (~Z)
-        elif code == Cond_t.ULE:
-            return (~C) | Z
-        elif code == Cond_t.SGE:
-            return N == V
-        elif code == Cond_t.SLT:
-            return N != V
-        elif code == Cond_t.SGT:
-            return (~Z) & (N == V)
-        elif code == Cond_t.SLE:
-            return Z | (N != V)
-        elif code == Cond_t.ALU:
-            return alu
-        elif code == Cond_t.LUT:
-            return lut
-        elif code == Cond_t.FP_GE:
-            return ~N | Z
-        elif code == Cond_t.FP_GT:
-            return ~N & ~Z
-        elif code == Cond_t.FP_LE:
-            return N | Z
-        elif code == Cond_t.FP_LT:
-            return N & ~Z
+@family_closure
+def Cond_fc(family):
+    Bit = family.Bit
+    class Cond(Peak):
+        @name_outputs(cond=Bit)
+        def __call__(self, code: Cond_t, alu: Bit, lut: Bit, Z: Bit, N: Bit, C: Bit, V: Bit) \
+                -> Bit:
+            if code == Cond_t.Z:
+                return Z
+            elif code == Cond_t.Z_n:
+                return ~Z
+            elif (code == Cond_t.C) | (code == Cond_t.UGE):
+                return C
+            elif (code == Cond_t.C_n) | (code == Cond_t.ULT):
+                return ~C
+            elif code == Cond_t._N:
+                return N
+            elif code == Cond_t._N_n:
+                return ~N
+            elif code == Cond_t.V:
+                return V
+            elif code == Cond_t.V_n:
+                return ~V
+            elif code == Cond_t.UGT:
+                return C & (~Z)
+            elif code == Cond_t.ULE:
+                return (~C) | Z
+            elif code == Cond_t.SGE:
+                return N == V
+            elif code == Cond_t.SLT:
+                return N != V
+            elif code == Cond_t.SGT:
+                return (~Z) & (N == V)
+            elif code == Cond_t.SLE:
+                return Z | (N != V)
+            elif code == Cond_t.ALU:
+                return alu
+            elif code == Cond_t.LUT:
+                return lut
+            elif code == Cond_t.FP_GE:
+                return ~N | Z
+            elif code == Cond_t.FP_GT:
+                return ~N & ~Z
+            elif code == Cond_t.FP_LE:
+                return N | Z
+            else: #code == Cond_t.FP_LT:
+                return N & ~Z
 
-#    if family.Bit is m.Bit:
-#        if use_assembler:
-#            bv_fam = gen_pe_type_family(hwtypes.BitVector.get_family())
-#            bv_cond = gen_cond_type(bv_fam)
-#            assemblers = {
-#                Cond: (bv_cond, Assembler(bv_cond).assemble)
-#            }
-#            cond = assemble_values_in_func(assemblers, cond, locals(),
-#                                           globals())
-#        cond = m.circuit.combinational(cond)
+
+    return update_peak(Cond, family)
+    #    if family.Bit is m.Bit:
+    #        if use_assembler:
+    #            bv_fam = gen_pe_type_family(hwtypes.BitVector.get_family())
+    #            bv_cond = gen_cond_type(bv_fam)
+    #            assemblers = {
+    #                Cond: (bv_cond, Assembler(bv_cond).assemble)
+    #            }
+    #            cond = assemble_values_in_func(assemblers, cond, locals(),
+    #                                           globals())
+    #        cond = m.circuit.combinational(cond)
 
