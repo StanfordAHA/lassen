@@ -73,7 +73,8 @@ def copy_file(src_filename, dst_filename, override=False):
 
 def rtl_tester(test_op, data0=None, data1=None, bit0=None, bit1=None, bit2=None,
                res=None, res_p=None, clk_en=1, delay=0,
-               data0_delay_values=None, data1_delay_values=None):
+               data0_delay_values=None, data1_delay_values=None,
+               is_fp_op=False):
     tester.clear()
     if hasattr(test_op, "inst"):
         tester.circuit.inst = assembler(test_op.inst)
@@ -105,7 +106,10 @@ def rtl_tester(test_op, data0=None, data1=None, bit0=None, bit1=None, bit2=None,
             tester.circuit.data1 = data1_delay_values[i]
 
     if res is not None:
-        tester.circuit.O0.expect(res)
+        if is_fp_op:
+            tester.circuit.O0[1:].expect(res[1:])
+        else:
+            tester.circuit.O0.expect(res)
     if res_p is not None:
         tester.circuit.O1.expect(res_p)
     if CAD_ENV:
@@ -315,7 +319,7 @@ def test_fp_binary_op(op,args):
     res, res_p, _ = pe(inst, data0, data1)
     assert res == BFloat16.reinterpret_as_bv(out)
     if CAD_ENV:
-        rtl_tester(op, data0, data1, res=res)
+        rtl_tester(op, data0, data1, res=res, is_fp_op=True)
     else:
         pytest.skip("Skipping since DW not available")
 
@@ -340,7 +344,7 @@ def test_fp_mul():
     data1 = Data(0x4049)
     res, res_p, _ = pe(inst, data0, data1)
     if CAD_ENV:
-        rtl_tester(inst, data0, data1, res=res)
+        rtl_tester(inst, data0, data1, res=res, is_fp_op=True)
     else:
         pytest.skip("Skipping since DW not available")
 
@@ -366,7 +370,7 @@ def test_fp_cmp(xy,op):
     _, res_p, _ = pe(op.inst,data0,data1)
     assert res_p == out
     if CAD_ENV:
-        rtl_tester(op, data0, data1, res_p=out)
+        rtl_tester(op, data0, data1, res_p=out, is_fp_op=True)
     else:
         pytest.skip("Skipping since DW not available")
 
