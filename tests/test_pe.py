@@ -107,7 +107,9 @@ def rtl_tester(test_op, data0=None, data1=None, bit0=None, bit1=None, bit2=None,
 
     if res is not None:
         if is_fp_op:
-            tester.circuit.O0[1:].expect(res[1:])
+            rtl_res = tester.circuit.O0
+            masked_res = res | (rtl_res & 1)
+            tester.circuit.O0.expect(masked_res)
         else:
             tester.circuit.O0.expect(res)
     if res_p is not None:
