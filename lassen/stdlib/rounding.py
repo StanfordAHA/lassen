@@ -1,10 +1,16 @@
-from lassen import PE, asm, Data
+from lassen import PE_fc, asm
+from lassen.common import DATAWIDTH
 from peak import Peak
+from hwtypes import Bit, BitVector
 
 #should probably be in isa or something
 _MANTISSA_SIZE = 7
 _EXPONENT_SIZE = 8
 _EXPONENT_BIAS = (1 << (_EXPONENT_SIZE - 1)) - 1
+
+
+PE = PE_fc(Bit.get_family())
+Data = BitVector[DATAWIDTH]
 
 class RoundToZeroBounded(Peak):
     def __init__(self):

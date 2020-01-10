@@ -1,5 +1,5 @@
 from lassen.stdlib import *
-from lassen.common import DATAWIDTH, Data, BFloat16
+from lassen.common import DATAWIDTH, BFloat16_fc
 from hwtypes import BitVector, Bit, SIntVector
 from lassen.utils import float2bfbin, bfbin2float
 
@@ -11,6 +11,7 @@ import gmpy2
 
 SData = SIntVector[DATAWIDTH]
 Data32 = SIntVector[DATAWIDTH*2]
+BFloat16 = BFloat16_fc(Bit.get_family())
 
 NTESTS = 16
 

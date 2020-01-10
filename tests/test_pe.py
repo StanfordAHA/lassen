@@ -26,7 +26,7 @@ def rtl_tester(*args,**kwargs):
 CAD_ENV = True
 
 op = namedtuple("op", ["inst", "func"])
-NTESTS = 16
+NTESTS = 4
 
 @pytest.mark.parametrize("op", [
     op(asm.and_(), lambda x, y: x & y),

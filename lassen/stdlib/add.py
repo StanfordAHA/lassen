@@ -1,6 +1,8 @@
-from hwtypes import BitVector
-from lassen import PE, asm
+from hwtypes import BitVector, Bit
+from lassen import PE_fc, asm
 from peak import Peak
+
+PE = PE_fc(Bit.get_family())
 
 Data16 = BitVector[16]
 Data32 = BitVector[32]

@@ -1,6 +1,6 @@
-from hwtypes import BitVector
-from lassen import PE, asm
-from lassen.common import Data
+from hwtypes import BitVector, Bit
+from lassen import PE_fc, asm
+from lassen.common import DATAWIDTH
 from lassen.mem import *
 from peak import Peak
 from lassen.tlut import tlut
@@ -11,6 +11,7 @@ import math
 
 MEM = gen_mem()
 TLUT = tlut()
+PE = PE_fc(Bit.get_family())
 class FDiv(Peak):
     def __init__(self):
         self.pe_get_mant  = PE()

@@ -1,4 +1,4 @@
-from lassen import PE, Inst
+from lassen import PE_fc, Inst_fc
 import lassen.asm as asm
 from lassen.common import *
 from hwtypes import SIntVector, UIntVector, BitVector, Bit, FPVector, RoundingMode
@@ -11,6 +11,8 @@ class HashableDict(dict):
 
 Data8 = BitVector[32]
 
+PE = PE_fc(Bit.get_family())
+Inst = Inst_fc(Bit.get_family())
 pe = PE()
 Mode_t = Inst.rega
 

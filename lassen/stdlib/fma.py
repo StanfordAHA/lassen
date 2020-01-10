@@ -1,6 +1,10 @@
-from hwtypes import BitVector
-from lassen import PE, asm, Data
+from hwtypes import BitVector, Bit
+from lassen import PE_fc, asm
+from lassen.common import DATAWIDTH
 from peak import Peak
+
+Data = BitVector[DATAWIDTH]
+PE = PE_fc(Bit.get_family())
 
 #This is a complex operation that implements a Fused multiply add
 class FMA(Peak):
