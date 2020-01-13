@@ -130,7 +130,7 @@ def gen_alu(family: TypeFamily, datawidth, use_assembler=False):
             else:
                 sign = BitVector[16](0)
             if (sign[15] == Bit(1)):
-                abs_input = BitVector[16](-a)
+                abs_input = BitVector[16](-SInt[16](a))
             else:
                 abs_input = BitVector[16](a)
             scale = SInt[16](-127)
@@ -216,7 +216,7 @@ def gen_alu(family: TypeFamily, datawidth, use_assembler=False):
             # C, V = a-b?
             res, res_p = lte_pred.ite(a,b), lte_pred
         elif alu == ALU.Abs:
-            res, res_p = abs_pred.ite(a,-a), Bit(a[-1])
+            res, res_p = abs_pred.ite(a,-SInt[16](a)), Bit(a[-1])
         elif alu == ALU.Sel:
             res, res_p = d.ite(a, b), Bit(0)
         elif alu == ALU.And:
