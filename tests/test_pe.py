@@ -107,11 +107,7 @@ def rtl_tester(test_op, data0=None, data1=None, bit0=None, bit1=None, bit2=None,
 
     if res is not None:
         if is_fp_op:
-            rtl_res = tester.peak(tester._circuit.O0)
-            # select lsb from rtl_res and the other bits from res
-            # https://graphics.stanford.edu/~seander/bithacks.html#MaskedMerge
-            masked_res = res ^ ((res ^ rtl_res) & 1)
-            tester.circuit.O0.expect(masked_res)
+            tester.circuit.O0[1:].expect(res[1:])
         else:
             tester.circuit.O0.expect(res)
     if res_p is not None:
