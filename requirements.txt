@@ -1,4 +1,4 @@
--e git+git://github.com/phanrahan/magma@lassen#egg=magma-lang
+-e git+git://github.com/phanrahan/magma#egg=magma-lang
 -e git+git://github.com/phanrahan/peak.git@update-rtl-utils#egg=peak
 -e git+git://github.com/rdaly525/MetaMapper.git#egg=metamapper
 -e git+git://github.com/leonardt/fault#egg=fault
