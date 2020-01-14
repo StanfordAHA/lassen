@@ -107,6 +107,7 @@ def rtl_tester(test_op, data0=None, data1=None, bit0=None, bit1=None, bit2=None,
 
     if res is not None:
         if is_fp_op:
+            tester.print("Got=%x, expected=%x\n", tester.circuit.O0, res)
             tester.circuit.O0[1:].expect(res[1:])
         else:
             tester.circuit.O0.expect(res)
