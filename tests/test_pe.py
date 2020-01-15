@@ -28,20 +28,22 @@ Data = BitVector[DATAWIDTH]
 BFloat16 = FPVector[8, 7,RoundingMode.RNE,False]
 
 
-pe_ = gen_pe(BitVector.get_family())
-pe = pe_()
+PE = gen_pe(BitVector.get_family())
+pe = PE()
 sim_family = gen_pe_type_family(BitVector.get_family())
 Mode = gen_mode_type(sim_family)
 
 # create these variables in global space so that we can reuse them easily
-instr_name, inst_type = pe.__call__._peak_isa_
+inst_name = 'inst'
+inst_type = PE.input_t.field_dict[inst_name]
+
 _assembler = Assembler(inst_type)
 assembler = _assembler.assemble
 disassembler = _assembler.disassemble
 width = _assembler.width
 layout = _assembler.layout
 pe_magma = gen_pe(magma.get_family(), use_assembler=True)
-instr_magma_type = type(pe_magma.interface.ports[instr_name])
+instr_magma_type = type(pe_magma.interface.ports[inst_name])
 pe_circuit = peak.wrap_with_disassembler(pe_magma, disassembler, width,
                                          HashableDict(layout),
                                          instr_magma_type)
@@ -73,6 +75,8 @@ def rtl_tester(test_op, data0=None, data1=None, bit0=None, bit1=None, bit2=None,
                res=None, res_p=None, clk_en=1, delay=0,
                data0_delay_values=None, data1_delay_values=None):
     tester.clear()
+    # Advance timestep past 0 for fp functional model (see rnd logic)
+    tester.eval()
     if hasattr(test_op, "inst"):
         tester.circuit.inst = assembler(test_op.inst)
     else:

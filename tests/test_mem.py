@@ -2,12 +2,10 @@ from lassen.mem import *
 import lassen.mem.asm as asm
 from hwtypes import BitVector, Bit
 import coreir
-import metamapper as mm
 import pytest
 
 family = BitVector.get_family()
-MemInstr = gen_mem_instr(family,width,depth)
-Rom = MemInstr.field_dict['Rom']
+MemInstr, (Rom, Fifo, LineBuffer) = gen_mem_instr(family,width,depth)
 Data = BitVector[width]
 Mem = gen_mem(family)
 def test_rom():

@@ -3,8 +3,7 @@ from .sim import width, depth
 from hwtypes import BitVector
 
 Data = BitVector[width]
-MemInstr = gen_mem_instr(BitVector.get_family(),width,depth)
-Rom = MemInstr.field_dict['Rom']
+MemInstr, (Rom, Fifo, LineBuffer) = gen_mem_instr(BitVector.get_family(),width,depth)
 
 def rom(init):
     assert len(init)==depth
