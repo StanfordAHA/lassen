@@ -75,6 +75,8 @@ def rtl_tester(test_op, data0=None, data1=None, bit0=None, bit1=None, bit2=None,
                res=None, res_p=None, clk_en=1, delay=0,
                data0_delay_values=None, data1_delay_values=None):
     tester.clear()
+    # Advance timestep past 0 for fp functional model (see rnd logic)
+    tester.eval()
     if hasattr(test_op, "inst"):
         tester.circuit.inst = assembler(test_op.inst)
     else:
