@@ -9,8 +9,8 @@ from .common import DATAWIDTH
 https://github.com/StanfordAHA/CGRAGenerator/wiki/PE-Spec
 """
 def Inst_fc(family):
-    DataConst = family.BitVector[DATAWIDTH]
-    BitConst = family.Bit
+    Data = family.BitVector[DATAWIDTH]
+    Bit = family.Bit
 
     LUT_t, _ = LUT_t_fc(family)
     class Inst(Product):
@@ -19,13 +19,13 @@ def Inst_fc(family):
         lut= LUT_t          # LUT operation as a 3-bit LUT
         cond= Cond_t        # Condition code (see cond.py)
         rega= Mode_t        # RegA mode (see mode.py)
-        data0= DataConst         # RegA constant (16-bits)
+        data0= Data         # RegA constant (16-bits)
         regb= Mode_t        # RegB mode
-        data1= DataConst         # RegB constant (16-bits)
+        data1= Data         # RegB constant (16-bits)
         regd= Mode_t        # RegD mode
-        bit0= BitConst           # RegD constant (1-bit)
+        bit0= Bit           # RegD constant (1-bit)
         rege= Mode_t        # RegE mode
-        bit1= BitConst           # RegE constant (1-bit)
+        bit1= Bit           # RegE constant (1-bit)
         regf= Mode_t        # RegF mode
-        bit2= BitConst           # RegF constant (1-bit)
+        bit2= Bit           # RegF constant (1-bit)
     return Inst

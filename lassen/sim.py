@@ -1,5 +1,4 @@
-from peak import Peak, family_closure, name_outputs, update_peak
-from hwtypes import BitVector, Bit
+from peak import Peak, family_closure, name_outputs, update_peak, Const
 from functools import lru_cache
 import magma as m
 
@@ -14,6 +13,8 @@ from .isa import Inst_fc
 def PE_fc(family):
     BV1 = family.BitVector[1]
     Data = family.BitVector[16]
+    Data8 = family.BitVector[8]
+    Data32 = family.BitVector[32]
     Bit = family.Bit
     DataReg = gen_register_mode(Data, 0)(family)
     BitReg = gen_register_mode(Bit, 0)(family)
@@ -43,15 +44,15 @@ def PE_fc(family):
             #Lut
             self.lut: LUT = LUT()
 
-        @name_outputs(alu_res=Data,res_p=Bit,read_config_data=ConfigData32)
-        def __call__(self, inst: Inst, \
+        @name_outputs(alu_res=Data,res_p=Bit,read_config_data=Global(Data32))
+        def __call__(self, inst: Const(Inst), \
             data0: Data, data1: Data = Data(0), \
             bit0: Bit = Bit(0), bit1: Bit = Bit(0), bit2: Bit = Bit(0), \
             clk_en: Global(Bit) = Bit(1), \
-            config_addr : ConfigData8 = ConfigData8(0), \
-            config_data : ConfigData32 = ConfigData32(0), \
-            config_en : Config(Bit) = Bit(0) \
-        ) -> (Data, Bit, ConfigData32):
+            config_addr : Global(Data8) = Data8(0), \
+            config_data : Global(Data32) = Data32(0), \
+            config_en : Global(Bit) = Bit(0) \
+        ) -> (Data, Bit, Global(Data32)):
             # Simulate one clock cycle
 
 
@@ -87,8 +88,8 @@ def PE_fc(family):
 
             #Calculate read_config_data
             read_config_data = bit012_addr.ite(
-                ConfigData32(BV1(rd_rdata).concat(BV1(re_rdata)).concat(BV1(rf_rdata)).concat(BitVector[32-3](0))),
-                ConfigData32(ra_rdata.concat(rb_rdata))
+                BV1(rd_rdata).concat(BV1(re_rdata)).concat(BV1(rf_rdata)).concat(BitVector[32-3](0)),
+                ra_rdata.concat(rb_rdata)
             )
 
             # calculate alu results
@@ -101,7 +102,7 @@ def PE_fc(family):
             res_p = self.cond(inst.cond, alu_res_p, lut_res, Z, N, C, V)
 
             # return 16-bit result, 1-bit result
-            return alu_res, res_p, read_config_data
+            return alu_res, res_p, Global(Data32)(read_config_data)
 
     if family.Bit is m.Bit:
         PE = m.circuit.sequential(PE)

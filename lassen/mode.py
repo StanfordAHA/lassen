@@ -1,7 +1,6 @@
 from peak import Peak, gen_register, family_closure, update_peak, name_outputs
-from hwtypes import Enum, Bit, BitVector
-import inspect
-from peak.mapper.utils import rebind_type
+from hwtypes.adt_util import rebind_type
+from hwtypes import Enum
 
 """
 Field for specifying register modes
@@ -11,13 +10,12 @@ class Mode_t(Enum):
     BYPASS = 2  # Register is bypassed and input value is returned
     DELAY = 3   # Register written with input value, previous value returned
 
-def gen_register_mode(T, init=None):
+def gen_register_mode(T, init=0):
     @family_closure
     def RegisterMode_fc(family):
         T_f = rebind_type(T, family)
-        #init_f = 0 if init is None else init
-        #init_f = T_f(init_f)
         Reg = gen_register(T_f, init)(family)
+        Bit = family.Bit
 
         class RegisterMode(Peak):
             def __init__(self):
@@ -41,5 +39,7 @@ def gen_register_mode(T, init=None):
                 else: # mode == Mode_t.DELAY:
                     return reg_val, reg_val
 
-        return update_peak(RegisterMode, family)
+        r = update_peak(RegisterMode, family)
+        return r
+
     return RegisterMode_fc
