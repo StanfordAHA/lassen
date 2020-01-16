@@ -1,5 +1,5 @@
 -e git+git://github.com/phanrahan/magma#egg=magma-lang
--e git+git://github.com/phanrahan/peak.git#egg=peak
+-e git+git://github.com/phanrahan/peak.git@reg-update#egg=peak
 -e git+git://github.com/rdaly525/MetaMapper.git#egg=metamapper
 -e git+git://github.com/leonardt/fault#egg=fault
 -e git+git://github.com/phanrahan/mantle#egg=mantle
