@@ -5,7 +5,7 @@ import coreir
 import pytest
 
 MemInstr = gen_mem_instr(width,depth)
-Rom = MemInstr.field_dict['Rom']
+Rom = MemInstr.field_dict['rom']
 Mem = gen_mem()
 def test_rom():
 

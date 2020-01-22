@@ -11,8 +11,9 @@ from .isa import Inst_fc
 
 @family_closure
 def PE_fc(family):
+    BitVector = family.BitVector
     BV1 = family.BitVector[1]
-    Data = family.BitVector[16]
+    Data = family.BitVector[DATAWIDTH]
     Data8 = family.BitVector[8]
     Data32 = family.BitVector[32]
     Bit = family.Bit
@@ -44,7 +45,6 @@ def PE_fc(family):
             #Lut
             self.lut: LUT = LUT()
 
-        @name_outputs(alu_res=Data,res_p=Bit,read_config_data=Global(Data32))
         def __call__(self, inst: Const(Inst), \
             data0: Data, data1: Data = Data(0), \
             bit0: Bit = Bit(0), bit1: Bit = Bit(0), bit2: Bit = Bit(0), \
@@ -102,8 +102,11 @@ def PE_fc(family):
             res_p = self.cond(inst.cond, alu_res_p, lut_res, Z, N, C, V)
 
             # return 16-bit result, 1-bit result
-            return alu_res, res_p, Global(Data32)(read_config_data)
+            return alu_res, res_p, read_config_data
 
     if family.Bit is m.Bit:
         PE = m.circuit.sequential(PE)
-    return update_peak(PE,family)
+    else:
+        pass
+        #@name_outputs(alu_res=Data,res_p=Bit,read_config_data=Global(Data32))
+    return update_peak(PE, family)

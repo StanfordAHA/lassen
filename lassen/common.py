@@ -4,7 +4,6 @@ from hwtypes import SMTBit
 
 # Current PE has 16-bit data path
 DATAWIDTH = 16
-Data = BitVector[DATAWIDTH]
 def BFloat16_fc(family):
     if family is SMTBit.get_family():
         FPV = SMTFPVector

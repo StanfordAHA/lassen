@@ -10,7 +10,7 @@ class HashableDict(dict):
         return hash(tuple(sorted(self.keys())))
 
 Data8 = BitVector[32]
-
+Data = BitVector[DATAWIDTH]
 PE = PE_fc(Bit.get_family())
 Inst = Inst_fc(Bit.get_family())
 pe = PE()

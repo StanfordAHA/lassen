@@ -1,5 +1,5 @@
 from hwtypes import BitVector, Bit
-from hwtypes.adt import Sum, Enum, Product, Tuple
+from hwtypes.adt import TaggedUnion, Product, Tuple
 import magma as m
 from functools import lru_cache
 
@@ -15,7 +15,9 @@ def gen_mem_instr(width, depth):
     class Rom(Product):
         init=Tuple[(BitVector[width] for _ in range(depth))]
 
-    class MemInstr(Sum[Rom, Fifo, LineBuffer]):
-        pass
+    class MemInstr(TaggedUnion, cache=True):
+        rom=Rom
+        fifo=Fifo
+        lb=LineBuffer
 
     return MemInstr
