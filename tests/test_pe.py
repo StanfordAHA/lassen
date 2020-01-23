@@ -2,12 +2,12 @@ import lassen.asm as asm
 from lassen import PE_fc, Inst_fc
 from lassen.common import DATAWIDTH, BFloat16_fc
 from hwtypes import SIntVector, UIntVector, BitVector, Bit
-
 from collections import namedtuple
 from itertools import product
 
 import random
 from magma.bitutils import int2seq
+from rtl_utils import rtl_tester, CAD_ENV
 import pytest
 
 Inst = Inst_fc(Bit.get_family())
@@ -18,12 +18,6 @@ pe = PE()
 
 BFloat16 = BFloat16_fc(Bit.get_family())
 Data = BitVector[DATAWIDTH]
-
-#TODO reenable RTL tests
-def rtl_tester(*args,**kwargs):
-    pass
-
-CAD_ENV = True
 
 op = namedtuple("op", ["inst", "func"])
 NTESTS = 4

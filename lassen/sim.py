@@ -10,7 +10,7 @@ from .cond import Cond_fc
 from .isa import Inst_fc
 
 @family_closure
-def PE_fc(family):
+def PE_fc(family, use_assembler=False):
     BitVector = family.BitVector
     BV1 = family.BitVector[1]
     Data = family.BitVector[DATAWIDTH]
