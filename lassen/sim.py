@@ -1,4 +1,4 @@
-from peak import Peak, family_closure, name_outputs, update_peak, Const
+from peak import Peak, family_closure, name_outputs, Const, update_peak
 from functools import lru_cache
 import magma as m
 
@@ -9,8 +9,12 @@ from .alu import ALU_fc
 from .cond import Cond_fc
 from .isa import Inst_fc
 
+#Hack for now
+def Global(f):
+    return f
+
 @family_closure
-def PE_fc(family, use_assembler=False):
+def PE_fc(family):
     BitVector = family.BitVector
     BV1 = family.BitVector[1]
     Data = family.BitVector[DATAWIDTH]
@@ -78,7 +82,6 @@ def PE_fc(family, use_assembler=False):
             #rf
             rf_we = rd_we
             rf_config_wdata = config_data[BIT2_START]
-
             ra, ra_rdata = self.rega(inst.rega, inst.data0, data0, clk_en, ra_we, ra_config_wdata)
             rb, rb_rdata = self.regb(inst.regb, inst.data1, data1, clk_en, rb_we, rb_config_wdata)
 
@@ -103,10 +106,5 @@ def PE_fc(family, use_assembler=False):
 
             # return 16-bit result, 1-bit result
             return alu_res, res_p, read_config_data
-
-    if family.Bit is m.Bit:
-        PE = m.circuit.sequential(PE)
-    else:
-        pass
-        #@name_outputs(alu_res=Data,res_p=Bit,read_config_data=Global(Data32))
+    #@name_outputs(alu_res=Data,res_p=Bit,read_config_data=Global(Data32))
     return update_peak(PE, family)

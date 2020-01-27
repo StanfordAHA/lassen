@@ -1,8 +1,8 @@
 from hwtypes.adt import Product
-from .cond import Cond_t
-from .mode import Mode_t
+from .cond import Cond_t_fc
+from .mode import Mode_t_fc
 from .lut import LUT_t_fc
-from .alu import ALU_t, Signed_t
+from .alu import ALU_t_fc
 from .common import DATAWIDTH
 
 """
@@ -13,6 +13,9 @@ def Inst_fc(family):
     Bit = family.Bit
 
     LUT_t, _ = LUT_t_fc(family)
+    Cond_t = Cond_t_fc(family)
+    Mode_t = Mode_t_fc(family)
+    ALU_t, Signed_t = ALU_t_fc(family)
     class Inst(Product):
         alu= ALU_t          # ALU operation
         signed= Signed_t     # unsigned or signed

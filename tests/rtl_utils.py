@@ -27,7 +27,8 @@ assembler = _assembler.assemble
 disassembler = _assembler.disassemble
 width = _assembler.width
 layout = _assembler.layout
-PE_magma = PE_fc(magma.get_family(), use_assembler=True)
+#PE_magma = PE_fc(magma.get_family(), use_assembler=True)
+PE_magma = PE_fc(magma.get_family())
 instr_magma_type = type(PE_magma.interface.ports[inst_name])
 pe_circuit = peak.wrap_with_disassembler(PE_magma, disassembler, width,
                                          HashableDict(layout),

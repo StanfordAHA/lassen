@@ -1,38 +1,43 @@
 from hwtypes import Enum, Bit, BitVector
-from peak import Peak, family_closure, name_outputs, update_peak
+from peak import Peak, family_closure, name_outputs, update_peak, family_closure, Enum_fc
+from functools import lru_cache
+
 """
 Condition code field - selects which 1-bit result is retuned
 """
-class Cond_t(Enum):
-    Z = 0    # EQ
-    Z_n = 1  # NE
-    C = 2    # UGE
-    C_n = 3  # ULT
-    # Prefix _N because it clobbers magma's `.N` field used in the array
-    # types
-    _N = 4    # <  0
-    _N_n = 5  # >= 0
-    V = 6    # Overflow
-    V_n = 7  # No overflow
-    EQ = 0
-    NE = 1
-    UGE = 2
-    ULT = 3
-    UGT = 8
-    ULE = 9
-    SGE = 10
-    SLT = 11
-    SGT = 12
-    SLE = 13
-    LUT = 14
-    ALU = 15
-    FP_EQ = 0
-    FP_NE = 1
-    FP_GE = 16
-    FP_GT = 17
-    FP_LE = 18
-    FP_LT = 19
-
+@lru_cache(None)
+def Cond_t_fc(family):
+    Enum = Enum_fc(family)
+    class Cond_t(Enum):
+        Z = 0    # EQ
+        Z_n = 1  # NE
+        C = 2    # UGE
+        C_n = 3  # ULT
+        # Prefix _N because it clobbers magma's `.N` field used in the array
+        # types
+        _N = 4    # <  0
+        _N_n = 5  # >= 0
+        V = 6    # Overflow
+        V_n = 7  # No overflow
+        EQ = 0
+        NE = 1
+        UGE = 2
+        ULT = 3
+        UGT = 8
+        ULE = 9
+        SGE = 10
+        SLT = 11
+        SGT = 12
+        SLE = 13
+        LUT = 14
+        ALU = 15
+        FP_EQ = 0
+        FP_NE = 1
+        FP_GE = 16
+        FP_GT = 17
+        FP_LE = 18
+        FP_LT = 19
+    return Cond_t
 #
 # Implement condition code logic
 #
@@ -42,6 +47,7 @@ class Cond_t(Enum):
 @family_closure
 def Cond_fc(family):
     Bit = family.Bit
+    Cond_t = Cond_t_fc(family)
     class Cond(Peak):
         @name_outputs(cond=Bit)
         def __call__(self, code: Cond_t, alu: Bit, lut: Bit, Z: Bit, N: Bit, C: Bit, V: Bit) \
@@ -88,7 +94,7 @@ def Cond_fc(family):
                 return N & ~Z
 
 
-    return update_peak(Cond, family)
+    return update_peak(Cond, family, locals(), globals())
     #    if family.Bit is m.Bit:
     #        if use_assembler:
     #            bv_fam = gen_pe_type_family(hwtypes.BitVector.get_family())

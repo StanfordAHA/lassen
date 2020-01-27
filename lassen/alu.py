@@ -1,8 +1,7 @@
-from hwtypes.adt import Enum
-from peak import Peak, name_outputs, family_closure, update_peak
+from peak import Peak, name_outputs, family_closure, update_peak, Enum_fc
 from peak.mapper.utils import rebind_type
 from .common import DATAWIDTH, BFloat16_fc
-
+from functools import lru_cache
 # simulate the PE ALU
 #
 #   inputs
@@ -22,43 +21,46 @@ from .common import DATAWIDTH, BFloat16_fc
 #   C (carry generated)
 #   V (overflow generated)
 
+@lru_cache(None)
+def ALU_t_fc(family):
+    Enum = Enum_fc(family)
+    class ALU_t(Enum):
+        Add = 0
+        Sub = 1
+        Adc = 2
+        Sbc = 6
+        Abs = 3
+        GTE_Max = 4
+        LTE_Min = 5
+        Sel = 8
+        Mult0 = 0xb
+        Mult1 = 0xc
+        Mult2 = 0xd
+        SHR = 0xf
+        SHL = 0x11
+        Or = 0x12
+        And = 0x13
+        XOr = 0x14
+        FP_add = 0x16
+        FP_sub = 0x17
+        FP_cmp = 0x18
+        FP_mult = 0x19
+        FGetMant = 0x92
+        FAddIExp = 0x93
+        FSubExp = 0x94
+        FCnvExp2F = 0x95
+        FGetFInt = 0x96
+        FGetFFrac = 0x97
+        FCnvInt2F = 0x98
 
-class ALU_t(Enum):
-    Add = 0
-    Sub = 1
-    Adc = 2
-    Sbc = 6
-    Abs = 3
-    GTE_Max = 4
-    LTE_Min = 5
-    Sel = 8
-    Mult0 = 0xb
-    Mult1 = 0xc
-    Mult2 = 0xd
-    SHR = 0xf
-    SHL = 0x11
-    Or = 0x12
-    And = 0x13
-    XOr = 0x14
-    FP_add = 0x16
-    FP_sub = 0x17
-    FP_cmp = 0x18
-    FP_mult = 0x19
-    FGetMant = 0x92
-    FAddIExp = 0x93
-    FSubExp = 0x94
-    FCnvExp2F = 0x95
-    FGetFInt = 0x96
-    FGetFFrac = 0x97
-    FCnvInt2F = 0x98
+    """
+    Whether the operation is unsigned (0) or signed (1)
+    """
+    class Signed_t(Enum):
+        unsigned = 0
+        signed = 1
 
-"""
-Whether the operation is unsigned (0) or signed (1)
-"""
-class Signed_t(Enum):
-    unsigned = 0
-    signed = 1
-
+    return ALU_t, Signed_t
 
 def overflow(a, b, res):
     msb_a = a[-1]
@@ -80,6 +82,7 @@ def ALU_fc(family):
     BFloat16 = BFloat16_fc(family)
     FPExpBV = family.BitVector[8]
     FPFracBV = family.BitVector[7]
+    ALU_t, Signed_t = ALU_t_fc(family)
 
     def bv2float(bv):
         return BFloat16.reinterpret_from_bv(bv)
@@ -103,7 +106,7 @@ def ALU_fc(family):
         return Bit(val[-1])
 
     class ALU(Peak):
-        @name_outputs(res=Data, res_p=Bit, Z=Bit, N=Bit, C=Bit, V=Bit)
+        #@name_outputs(res=Data, res_p=Bit, Z=Bit, N=Bit, C=Bit, V=Bit)
         def __call__(self, alu: ALU_t, signed: Signed_t, a:Data, b:Data, d:Bit) -> (Data, Bit, Bit, Bit, Bit, Bit):
             a = Data(a)
             b = Data(b)
@@ -367,8 +370,7 @@ def ALU_fc(family):
 
             return res, res_p, Z, N, C, V
 
-    ALU =  update_peak(ALU, family)
-    return ALU
+    return update_peak(ALU, family, locals(), globals())
     #    if family.Bit is m.Bit:
     #        if use_assembler:
     #            bv_fam = gen_pe_type_family(hwtypes.BitVector.get_family())

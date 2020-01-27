@@ -10,6 +10,11 @@ from magma.bitutils import int2seq
 from rtl_utils import rtl_tester, CAD_ENV
 import pytest
 
+
+#def rtl_tester(*args,**kwargs):
+#    pass
+#CAD_ENV = False
+
 Inst = Inst_fc(Bit.get_family())
 Mode_t = Inst.rega
 

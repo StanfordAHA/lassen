@@ -1,14 +1,18 @@
-from peak import Peak, gen_register, family_closure, update_peak, name_outputs
+from peak import Peak, gen_register, family_closure, update_peak, Enum_fc
 from hwtypes.adt_util import rebind_type
 from hwtypes import Enum
-
+from functools import lru_cache
 """
 Field for specifying register modes
 """
-class Mode_t(Enum):
-    CONST = 0   # Register returns constant in constant field
-    BYPASS = 2  # Register is bypassed and input value is returned
-    DELAY = 3   # Register written with input value, previous value returned
+@lru_cache(None)
+def Mode_t_fc(family):
+    Enum = Enum_fc(family)
+    class Mode_t(Enum):
+        CONST = 0   # Register returns constant in constant field
+        BYPASS = 2  # Register is bypassed and input value is returned
+        DELAY = 3   # Register written with input value, previous value returned
+    return Mode_t
 
 def gen_register_mode(T, init=0):
     @family_closure
@@ -16,13 +20,12 @@ def gen_register_mode(T, init=0):
         T_f = rebind_type(T, family)
         Reg = gen_register(T_f, init)(family)
         Bit = family.Bit
-
+        Mode_t = Mode_t_fc(family)
         class RegisterMode(Peak):
             def __init__(self):
                 self.register: Reg = Reg()
 
             #Outputs <based on mode>, register_value
-            @name_outputs(value=T_f,read_value=T_f)
             def __call__(self, mode: Mode_t, const_: T_f, value: T_f,
                     clk_en: Bit, config_we : Bit, config_data : T_f) -> (T_f,T_f):
                 if config_we==Bit(1):
@@ -38,8 +41,6 @@ def gen_register_mode(T, init=0):
                     return value, reg_val
                 else: # mode == Mode_t.DELAY:
                     return reg_val, reg_val
-
-        r = update_peak(RegisterMode, family)
-        return r
+        return update_peak(RegisterMode, family)
 
     return RegisterMode_fc
