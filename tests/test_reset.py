@@ -20,7 +20,7 @@ def test_reset():
     disassembler = _assembler.disassemble
     width = _assembler.width
     layout = _assembler.layout
-    PE = gen_pe(m.get_family(), use_assembler=True)
+    PE = gen_pe(m.get_family())
     PE = peak.wrap_with_disassembler(PE, disassembler, width,
                                      HashableDict(layout),
                                      type(PE.interface.ports["inst"]))

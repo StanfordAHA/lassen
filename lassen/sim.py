@@ -32,7 +32,7 @@ import magma as m
 #   C (carry generated)
 #   V (overflow generated)
 #
-def gen_alu(family: TypeFamily, datawidth, use_assembler=False):
+def gen_alu(family: TypeFamily, datawidth):
     Bit = family.Bit
     BitVector = family.Unsigned
     Data = family.Unsigned[datawidth]
@@ -330,25 +330,16 @@ def gen_alu(family: TypeFamily, datawidth, use_assembler=False):
 
         return res, res_p, Z, N, C, V
     if family.Bit is m.Bit:
-        if use_assembler:
-            bv_fam = gen_pe_type_family(hwtypes.BitVector.get_family())
-            bv_alu = gen_alu_type(bv_fam)
-            bv_signed = gen_signed_type(bv_fam)
-            assemblers = {
-                ALU: (bv_alu, Assembler(bv_alu).assemble),
-                Signed: (bv_signed, Assembler(bv_signed).assemble)
-            }
-            alu = assemble_values_in_func(assemblers, alu, locals(), globals())
         alu = m.circuit.combinational(alu)
 
     return alu
 
 
-def gen_pe(family, use_assembler=False):
+def gen_pe(family):
     family = gen_pe_type_family(family)
-    alu = gen_alu(family, DATAWIDTH, use_assembler)
+    alu = gen_alu(family, DATAWIDTH)
     lut = gen_lut(family)
-    cond = gen_cond(family, use_assembler)
+    cond = gen_cond(family)
 
     Bit = family.Bit
     BV1 = family.BitVector[1]

@@ -42,7 +42,7 @@ def gen_cond_type(family):
         FP_LT = 19
     return Cond
 
-def gen_cond(family, use_assembler=False):
+def gen_cond(family):
     #
     # Implement condition code logic
     #
@@ -96,13 +96,5 @@ def gen_cond(family, use_assembler=False):
             return N & ~Z
 
     if family.Bit is m.Bit:
-        if use_assembler:
-            bv_fam = gen_pe_type_family(hwtypes.BitVector.get_family())
-            bv_cond = gen_cond_type(bv_fam)
-            assemblers = {
-                Cond: (bv_cond, Assembler(bv_cond).assemble)
-            }
-            cond = assemble_values_in_func(assemblers, cond, locals(),
-                                           globals())
         cond = m.circuit.combinational(cond)
     return cond

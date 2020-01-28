@@ -39,7 +39,7 @@ assembler = _assembler.assemble
 disassembler = _assembler.disassemble
 width = _assembler.width
 layout = _assembler.layout
-pe_magma = gen_pe(magma.get_family(), use_assembler=True)
+pe_magma = gen_pe(magma.get_family())
 instr_magma_type = type(pe_magma.interface.ports[inst_name])
 pe_circuit = peak.wrap_with_disassembler(pe_magma, disassembler, width,
                                          HashableDict(layout),
