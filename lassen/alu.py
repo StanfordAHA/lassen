@@ -1,4 +1,4 @@
-from peak import Peak, name_outputs, family_closure, update_peak, Enum_fc
+from peak import Peak, name_outputs, family_closure, assemble, Enum_fc
 from peak.mapper.utils import rebind_type
 from .common import DATAWIDTH, BFloat16_fc
 from functools import lru_cache
@@ -105,6 +105,7 @@ def ALU_fc(family):
     def fp_is_neg(val : Data):
         return Bit(val[-1])
 
+    @assemble(family, locals(), globals())
     class ALU(Peak):
         #@name_outputs(res=Data, res_p=Bit, Z=Bit, N=Bit, C=Bit, V=Bit)
         def __call__(self, alu: ALU_t, signed: Signed_t, a:Data, b:Data, d:Bit) -> (Data, Bit, Bit, Bit, Bit, Bit):
@@ -116,14 +117,14 @@ def ALU_fc(family):
                 lte_pred = a__ <= b__
                 abs_pred = a__ >= 0
                 shr = Data(a__ >> b__)
-                mula, mulb = a.sext(16), b.sext(16)
+                mula, mulb = a__.sext(16), b__.sext(16)
             else: # signed == Signed_t.unsigned:
                 a_, b_ = UData(a), UData(b)
                 gte_pred = a_ >= b_
                 lte_pred = a_ <= b_
                 abs_pred = a_ >= 0
                 shr = Data(a_ >> b_)
-                mula, mulb = a.zext(16), b.zext(16)
+                mula, mulb = a_.zext(16), b_.zext(16)
 
             mul = mula * mulb
             a_inf = fp_is_inf(a)
@@ -370,16 +371,4 @@ def ALU_fc(family):
 
             return res, res_p, Z, N, C, V
 
-    return update_peak(ALU, family, locals(), globals())
-    #    if family.Bit is m.Bit:
-    #        if use_assembler:
-    #            bv_fam = gen_pe_type_family(hwtypes.BitVector.get_family())
-    #            bv_alu = gen_alu_type(bv_fam)
-    #            bv_signed = gen_signed_type(bv_fam)
-    #            assemblers = {
-    #                ALU: (bv_alu, Assembler(bv_alu).assemble),
-    #                Signed: (bv_signed, Assembler(bv_signed).assemble)
-    #            }
-    #            alu = assemble_values_in_func(assemblers, alu, locals(), globals())
-    #        alu = m.circuit.combinational(alu)
-
+    return ALU

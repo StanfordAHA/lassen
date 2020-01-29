@@ -1,4 +1,4 @@
-from peak import Peak, family_closure, name_outputs, Const, update_peak
+from peak import Peak, family_closure, name_outputs, Const, assemble
 from functools import lru_cache
 import magma as m
 
@@ -28,6 +28,7 @@ def PE_fc(family):
     LUT = LUT_fc(family)
     Inst = Inst_fc(family)
 
+    @assemble(family, locals(), globals())
     class PE(Peak):
         def __init__(self):
 
@@ -107,4 +108,4 @@ def PE_fc(family):
             # return 16-bit result, 1-bit result
             return alu_res, res_p, read_config_data
     #@name_outputs(alu_res=Data,res_p=Bit,read_config_data=Global(Data32))
-    return update_peak(PE, family)
+    return PE

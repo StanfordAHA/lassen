@@ -1,5 +1,4 @@
-from hwtypes import Enum, Bit, BitVector
-from peak import Peak, family_closure, name_outputs, update_peak, family_closure, Enum_fc
+from peak import Peak, family_closure, name_outputs, assemble,  Enum_fc
 from functools import lru_cache
 
 """
@@ -48,6 +47,7 @@ def Cond_t_fc(family):
 def Cond_fc(family):
     Bit = family.Bit
     Cond_t = Cond_t_fc(family)
+    @assemble(family, locals(), globals())
     class Cond(Peak):
         @name_outputs(cond=Bit)
         def __call__(self, code: Cond_t, alu: Bit, lut: Bit, Z: Bit, N: Bit, C: Bit, V: Bit) \
@@ -94,7 +94,7 @@ def Cond_fc(family):
                 return N & ~Z
 
 
-    return update_peak(Cond, family, locals(), globals())
+    return Cond
     #    if family.Bit is m.Bit:
     #        if use_assembler:
     #            bv_fam = gen_pe_type_family(hwtypes.BitVector.get_family())

@@ -1,6 +1,5 @@
-from peak import Peak, gen_register, family_closure, update_peak, Enum_fc
+from peak import Peak, gen_register, family_closure, assemble, Enum_fc
 from hwtypes.adt_util import rebind_type
-from hwtypes import Enum
 from functools import lru_cache
 """
 Field for specifying register modes
@@ -21,6 +20,7 @@ def gen_register_mode(T, init=0):
         Reg = gen_register(T_f, init)(family)
         Bit = family.Bit
         Mode_t = Mode_t_fc(family)
+        @assemble(family, locals(), globals())
         class RegisterMode(Peak):
             def __init__(self):
                 self.register: Reg = Reg()
@@ -41,6 +41,6 @@ def gen_register_mode(T, init=0):
                     return value, reg_val
                 else: # mode == Mode_t.DELAY:
                     return reg_val, reg_val
-        return update_peak(RegisterMode, family)
+        return RegisterMode
 
     return RegisterMode_fc
