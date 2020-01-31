@@ -19,7 +19,11 @@ def Const(f):
 def PE_fc(family):
     BitVector = family.BitVector
     GlobalBV = Global(BitVector)
-    BV1 = family.BitVector[1]
+    #BV1 = family.BitVector[1]
+
+    #Hack
+    def BV1(bit):
+        return bit.ite(family.BitVector[1](1),family.BitVector[1](0))
     Data = family.BitVector[DATAWIDTH]
     Data8 = family.BitVector[8]
     Data32 = family.BitVector[32]

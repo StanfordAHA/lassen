@@ -2,9 +2,11 @@ import fault
 import magma
 import shutil
 from peak.assembler import Assembler
+from peak import wrap_with_disassembler
 from lassen import PE_fc, Inst_fc
 from lassen.common import DATAWIDTH, BFloat16_fc
 from hwtypes import Bit, BitVector
+import os
 
 class HashableDict(dict):
     def __hash__(self):
@@ -30,7 +32,7 @@ layout = _assembler.layout
 #PE_magma = PE_fc(magma.get_family(), use_assembler=True)
 PE_magma = PE_fc(magma.get_family())
 instr_magma_type = type(PE_magma.interface.ports[inst_name])
-pe_circuit = peak.wrap_with_disassembler(PE_magma, disassembler, width,
+pe_circuit = wrap_with_disassembler(PE_magma, disassembler, width,
                                          HashableDict(layout),
                                          instr_magma_type)
 tester = fault.Tester(pe_circuit, clock=pe_circuit.CLK)

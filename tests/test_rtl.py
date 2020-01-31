@@ -4,7 +4,19 @@ from lassen.cond import Cond_fc
 from lassen.sim import PE_fc
 from hwtypes import BitVector
 import magma
+import functools
+import pdb
 
+#def debug_on(exception):
+#    def decorator(f):
+#        @functools.wraps(f)
+#        def wrapper(*args,**kwargs):
+#            try:
+#                return f(*args,**kwargs)
+#            except exception:
+#                pdb.post_mortem(sys.exec_info()[2])
+#        return wrapper
+#    return decorator
 
 def test_cond():
     Cond_magma = Cond_fc(magma.get_family())
@@ -18,8 +30,3 @@ def test_alu():
 def test_PE():
     PE_magma = PE_fc(magma.get_family())
 
-#
-#from lassen import PE
-#def test_rtl():
-#    PE_magma = compile_to_magma(PE)
-#    print(PE_magma)
