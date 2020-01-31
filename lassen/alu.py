@@ -108,8 +108,8 @@ def ALU_fc(family):
     @assemble(family, locals(), globals())
     class ALU(Peak):
         #@name_outputs(res=Data, res_p=Bit, Z=Bit, N=Bit, C=Bit, V=Bit)
-        def __call__(self, alu: ALU_t, signed: Signed_t, a:Data, b:Data, d:Bit) -> (Data, Bit, Bit, Bit, Bit, Bit):
-            if signed == Signed_t.signed:
+        def __call__(self, alu: ALU_t, signed_: Signed_t, a:Data, b:Data, d:Bit) -> (Data, Bit, Bit, Bit, Bit, Bit):
+            if signed_ == Signed_t.signed:
                 a_s = SData(a)
                 b_s = SData(b)
                 mula, mulb = a_s.sext(16), b_s.sext(16)
@@ -117,7 +117,7 @@ def ALU_fc(family):
                 lte_pred = a_s <= b_s
                 abs_pred = a_s >= 0
                 shr = a_s >> b_s
-            elif signed == Signed_t.unsigned:
+            elif signed_ == Signed_t.unsigned:
                 a_u = UData(a)
                 b_u = UData(b)
                 mula, mulb = a_u.zext(16), b_u.zext(16)
@@ -166,7 +166,7 @@ def ALU_fc(family):
                 normmant_mul_right = SInt[16](1) << (SInt[16](7)-scale)
                 normmant_mask = SInt[16](0x7F)
             elif alu == ALU_t.FCnvInt2F:
-                if signed == Signed_t.signed:
+                if signed_ == Signed_t.signed:
                     sign = BitVector[16]((a) & 0x8000)
                 else:
                     sign = BitVector[16](0)
