@@ -108,7 +108,7 @@ def ALU_fc(family):
     @assemble(family, locals(), globals())
     class ALU(Peak):
         #@name_outputs(res=Data, res_p=Bit, Z=Bit, N=Bit, C=Bit, V=Bit)
-        def __call__(self, alu: ALU_t, signed_: Signed_t, a:Data, b:Data, d:Bit) -> (Data, Bit, Bit, Bit, Bit, Bit):
+        def __call__(self, alu: ALU_t, signed_: Signed_t, a:UData, b:UData, d:Bit) -> (UData, Bit, Bit, Bit, Bit, Bit):
             if signed_ == Signed_t.signed:
                 a_s = SData(a)
                 b_s = SData(b)
@@ -124,7 +124,7 @@ def ALU_fc(family):
                 gte_pred = a_u >= b_u
                 lte_pred = a_u <= b_u
                 abs_pred = a_u >= 0
-                shr = a >> b
+                shr = a_u >> b_u
             mul = mula * mulb
             a_inf = fp_is_inf(a)
             b_inf = fp_is_inf(b)
@@ -238,7 +238,8 @@ def ALU_fc(family):
             C = Bit(0)
             V = Bit(0)
             if (alu == ALU_t.Add) | (alu == ALU_t.Sub) | (alu == ALU_t.Adc) | (alu == ALU_t.Sbc):
-                res, C = SData(a).adc(SData(b), Cin)
+                #TODO this is wrong here
+                res, C = a.adc(b, Cin)
                 V = overflow(a, b, res)
                 res_p = C
             elif alu == ALU_t.Mult0:
