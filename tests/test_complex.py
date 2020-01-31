@@ -38,9 +38,9 @@ def test_round(arg):
     assert BFloat16.reinterpret_from_bv(r2z) == gold
 
 @pytest.mark.parametrize("args", [
-    (random.randint(-10,10),
-     random.randint(-10,10),
-     random.randint(-10,10))
+    (random.randint(-10, 10),
+     random.randint(-10, 10),
+     random.randint(-10, 10))
     for _ in range(NTESTS) ] )
 def test_fma(args):
     fma = FMA()
@@ -68,7 +68,7 @@ def test_div():
         quotient = bfbin2float(float2bfbin(divident_bfp / divisor_bfp))
         quotient_bfloat_str = float2bfbin(quotient)
 
-        divisor_exp = int(divisor_bfloat_str[1:9],2)-127
+        divisor_exp = int(divisor_bfloat_str[1:9], 2)-127
         max_error =  2*math.fabs(eps*(divident_bfp/divisor_bfp))
         test_vectors.append(
             [divident_bfloat_str, divisor_bfloat_str, quotient_bfloat_str, max_error])
@@ -85,7 +85,7 @@ def test_div():
         actual_res = bfbin2float("{:016b}".format(int(result)))
         delta = math.fabs(golden_res - actual_res)
         #print("div", bfbin2float(test_vector[0]), bfbin2float(test_vector[1]),
-        #      golden_res,actual_res,delta,max_error)
+        #      golden_res, actual_res, delta, max_error)
         assert delta <= max_error
 
 def test_ln():
@@ -101,10 +101,10 @@ def test_ln():
         res = bfbin2float(float2bfbin(math.log(num_bfp)))
         res_bfloat_str = float2bfbin(res)
 
-        num_exp = int(num_bfloat_str[1:9],2)-127
-        res_exp = int(res_bfloat_str[1:9],2)-127
+        num_exp = int(num_bfloat_str[1:9], 2)-127
+        res_exp = int(res_bfloat_str[1:9], 2)-127
         max_error =  2*(eps + math.fabs(eps*num_exp) + eps)
-        test_vectors.append([num_bfloat_str, float2bfbin(0), res_bfloat_str,max_error])
+        test_vectors.append([num_bfloat_str, float2bfbin(0), res_bfloat_str, max_error])
 
     #result = ln(op_a)
     for test_vector in test_vectors:
@@ -119,7 +119,7 @@ def test_ln():
         actual_res = bfbin2float("{:016b}".format(int(result)))
         delta = math.fabs(golden_res - actual_res)
         #print("ln", bfbin2float(test_vector[0]), bfbin2float(test_vector[1]),
-        #      golden_res,actual_res,delta, max_error)
+        #      golden_res, actual_res, delta, max_error)
 
         assert delta <= max_error
 
@@ -164,30 +164,30 @@ def test_exp():
         actual_res = bfbin2float("{:016b}".format(int(result)))
         delta = math.fabs(golden_res - actual_res)
         #print("ln", bfbin2float(test_vector[0]), bfbin2float(test_vector[1]),
-        #      golden_res,actual_res,delta, max_error)
+        #      golden_res, actual_res, delta, max_error)
 
         assert delta <= max_error
 
 def test_add32_targeted():
     add32 = Add32()
-    assert Data32(10) == add32(Data32(2),Data32(8))
-    assert Data32(100000) == add32(Data32(20000),Data32(80000))
-    assert Data32(2**17-2) == add32(Data32(2**16-1),Data32(2**16-1))
-    assert Data32(2**31-2) == add32(Data32(2**30-1),Data32(2**30-1))
+    assert Data32(10) == add32(Data32(2), Data32(8))
+    assert Data32(100000) == add32(Data32(20000), Data32(80000))
+    assert Data32(2**17-2) == add32(Data32(2**16-1), Data32(2**16-1))
+    assert Data32(2**31-2) == add32(Data32(2**30-1), Data32(2**30-1))
 
 op = namedtuple("op", ["complex", "func"])
-@pytest.mark.parametrize("op",[
-    op(Add32,lambda x, y : x + y),
-    op(Sub32,lambda x, y : x - y),
+@pytest.mark.parametrize("op", [
+    op(Add32, lambda x, y : x + y),
+    op(Sub32, lambda x, y : x - y),
 ])
 @pytest.mark.parametrize("args", [
-    (SIntVector.random(32),SIntVector.random(32))
+    (SIntVector.random(32), SIntVector.random(32))
         for _ in range(NTESTS)
 ])
-def test_addsub(op,args):
+def test_addsub(op, args):
     cop = op.complex()
     in0 = args[0]
     in1 = args[1]
-    res = cop(in0,in1)
-    assert res == op.func(in0,in1)
+    res = cop(in0, in1)
+    assert res == op.func(in0, in1)
 
