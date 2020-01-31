@@ -1,4 +1,4 @@
-from peak import Peak, family_closure, name_outputs, Const, assemble
+from peak import Peak, family_closure, name_outputs, assemble
 from functools import lru_cache
 import magma as m
 
@@ -12,10 +12,13 @@ from .isa import Inst_fc
 #Hack for now
 def Global(f):
     return f
+def Const(f):
+    return f
 
 @family_closure
 def PE_fc(family):
     BitVector = family.BitVector
+    GlobalBV = Global(BitVector)
     BV1 = family.BitVector[1]
     Data = family.BitVector[DATAWIDTH]
     Data8 = family.BitVector[8]
@@ -54,10 +57,10 @@ def PE_fc(family):
             data0: Data, data1: Data = Data(0), \
             bit0: Bit = Bit(0), bit1: Bit = Bit(0), bit2: Bit = Bit(0), \
             clk_en: Global(Bit) = Bit(1), \
-            config_addr : Global(Data8) = Data8(0), \
-            config_data : Global(Data32) = Data32(0), \
+            config_addr : GlobalBV[8] = Data8(0), \
+            config_data : GlobalBV[32] = Data32(0), \
             config_en : Global(Bit) = Bit(0) \
-        ) -> (Data, Bit, Global(Data32)):
+        ) -> (Data, Bit, GlobalBV[32]):
             # Simulate one clock cycle
 
 
