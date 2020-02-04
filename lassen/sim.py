@@ -105,7 +105,7 @@ def PE_fc(family):
             )
 
             # calculate alu results
-            alu_res, alu_res_p, Z, N, C, V = self.alu(inst.alu, inst.signed, UData(ra), UData(rb), rd)
+            alu_res, alu_res_p, Z, N, C, V = self.alu(inst.alu, inst.signed, ra, rb, rd)
 
             # calculate lut results
             lut_res = self.lut(inst.lut, rd, re, rf)
