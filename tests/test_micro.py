@@ -3,22 +3,18 @@ from lassen import PE_fc, Inst_fc
 from lassen.common import DATAWIDTH, BFloat16_fc
 from lassen.utils import float2bfbin, bfbin2float
 from hwtypes import SIntVector, UIntVector, BitVector, Bit
-
+from rtl_utils import rtl_tester
 from collections import namedtuple
-
 import random
 import pytest
+Inst = Inst_fc(Bit.get_family())
+Mode_t = Inst.rega
 
 PE = PE_fc(Bit.get_family())
 pe = PE()
-Data = BitVector[DATAWIDTH]
+
 BFloat16 = BFloat16_fc(Bit.get_family())
-
-#TODO reenable RTL tests
-def rtl_tester(*args,**kwargs):
-    pass
-
-CAD_ENV = True
+Data = BitVector[DATAWIDTH]
 
 op = namedtuple("op", ["inst", "func"])
 NTESTS = 16
@@ -34,11 +30,11 @@ def BFloat(fpdata):
     sign = BitVector[1](fpdata.sign)
     exp = BitVector[8](fpdata.exp)
     frac = BitVector[7](fpdata.frac)
-    return BitVector.concat(BitVector.concat(frac,exp),sign)
+    return BitVector.concat(BitVector.concat(frac, exp), sign)
 
 #Generate random bfloat
 def random_bfloat():
-    return fpdata(BitVector.random(1),BitVector.random(8),BitVector.random(7))
+    return fpdata(BitVector.random(1), BitVector.random(8), BitVector.random(7))
 
 @pytest.mark.parametrize("fpdata", [
     random_bfloat() for _ in range(NTESTS)
@@ -50,7 +46,7 @@ def test_bfloat_construct(fpdata):
     assert fp[:7] == fpdata.frac
 
 @pytest.mark.parametrize("args", [
-    (random_bfloat(),SIntVector.random(DATAWIDTH)) for _ in range(NTESTS)
+    (random_bfloat(), SIntVector.random(DATAWIDTH)) for _ in range(NTESTS)
 ])
 def test_get_mant(args):
     #output = input.mantissa (7 bit)
@@ -74,7 +70,7 @@ def test_add_exp_imm_targeted():
     rtl_tester(inst, data0, data1, res=0x020A)
 
 @pytest.mark.parametrize("args", [
-    (random_bfloat(),SIntVector.random(8))
+    (random_bfloat(), SIntVector.random(8))
         for _ in range(NTESTS)
 ])
 def test_add_exp_imm(args):
@@ -92,7 +88,7 @@ def test_add_exp_imm(args):
     rtl_tester(inst, in0, in1, res=out)
 
 @pytest.mark.parametrize("args", [
-    (random_bfloat(),random_bfloat())
+    (random_bfloat(), random_bfloat())
         for _ in range(NTESTS)
 ])
 def test_sub_exp(args):
@@ -124,7 +120,7 @@ def test_sub_exp_targeted():
 
 #@pytest.mark.skip("Not sure the exact op semantics")
 @pytest.mark.parametrize("args", [
-    (random_bfloat(),SIntVector.random(DATAWIDTH)) for _ in range(NTESTS)
+    (random_bfloat(), SIntVector.random(DATAWIDTH)) for _ in range(NTESTS)
 ])
 def test_cnvt_exp_to_float(args):
 
@@ -137,7 +133,7 @@ def test_cnvt_exp_to_float(args):
     in1 = args[1]
     #output = (float)(input1.exp) (UNBIASED)
     unbiased_expa = int(fp0.exp) - 127;
-    out = int(float2bfbin(unbiased_expa),2)
+    out = int(float2bfbin(unbiased_expa), 2)
     inst = asm.fcnvexp2f()
 
     res, res_p, _ = pe(inst, in0, in1)
@@ -231,7 +227,7 @@ def test_get_float_frac_targeted():
 
 
 @pytest.mark.parametrize("args", [
-    (random.randint(-2**8,2**8),BitVector.random(DATAWIDTH))
+    (random.randint(-2**8, 2**8), BitVector.random(DATAWIDTH))
     for _ in range(NTESTS)
 ])
 def test_sint_to_float(args):
@@ -239,12 +235,12 @@ def test_sint_to_float(args):
     in0 = SIntVector[16](args[0])
     in1 = args[1]
     correct = BFloat16(float(args[0])).reinterpret_as_bv()
-    res, _, _ = pe(inst,in0,in1)
+    res, _, _ = pe(inst, in0, in1)
     assert correct == res
     rtl_tester(inst, in0, in1, res=correct)
 
 @pytest.mark.parametrize("args", [
-    (random.randint(0,2**8),BitVector.random(DATAWIDTH))
+    (random.randint(0, 2**8), BitVector.random(DATAWIDTH))
     for _ in range(NTESTS)
 ])
 def test_uint_to_float(args):
@@ -252,6 +248,6 @@ def test_uint_to_float(args):
     in0 = UIntVector[16](args[0])
     in1 = args[1]
     correct = BFloat16(float(args[0])).reinterpret_as_bv()
-    res, _, _ = pe(inst,in0,in1)
+    res, _, _ = pe(inst, in0, in1)
     assert correct == res
     rtl_tester(inst, in0, in1, res=correct)

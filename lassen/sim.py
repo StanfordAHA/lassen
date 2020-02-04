@@ -15,7 +15,7 @@ def PE_fc(family):
 
     #Hack
     def BV1(bit):
-        return bit.ite(family.BitVector[1](1),family.BitVector[1](0))
+        return bit.ite(family.BitVector[1](1), family.BitVector[1](0))
     Data = family.BitVector[DATAWIDTH]
     UData = family.Unsigned[DATAWIDTH]
     Data8 = family.BitVector[8]
@@ -108,5 +108,4 @@ def PE_fc(family):
 
             # return 16-bit result, 1-bit result
             return alu_res, res_p, read_config_data
-    #@name_outputs(alu_res=Data,res_p=Bit,read_config_data=Global(Data32))
     return PE

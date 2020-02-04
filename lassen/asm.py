@@ -12,9 +12,9 @@ DataConst = Inst.data0
 BitConst = Inst.bit0
 
 #Lut Constants
-B0 = BitVector[8]([0,1,0,1,0,1,0,1])
-B1 = BitVector[8]([0,0,1,1,0,0,1,1])
-B2 = BitVector[8]([0,0,0,0,1,1,1,1])
+B0 = BitVector[8]([0, 1, 0, 1, 0, 1, 0, 1])
+B1 = BitVector[8]([0, 0, 1, 1, 0, 0, 1, 1])
+B2 = BitVector[8]([0, 0, 0, 0, 1, 1, 1, 1])
 
 def inst(alu, signed=Signed_t.unsigned, lut=0, cond=Cond_t.Z,
          ra_mode=Mode_t.BYPASS, ra_const=0,
@@ -196,7 +196,7 @@ def const(val):
                 rb_mode=Mode_t.CONST, rb_const=0)
 
 def lut(val):
-    return inst(ALU_t.Add,lut=val,cond=Cond_t.LUT)
+    return inst(ALU_t.Add, lut=val, cond=Cond_t.LUT)
 
 #Using bit1 and bit2 since bit0 can be used in the ALU_t
 def lut_and():

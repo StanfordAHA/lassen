@@ -253,12 +253,12 @@ def ALU_fc(family):
                 res_p = C
             elif alu == ALU_t.GTE_Max:
                 # C, V = a-b?
-                res, res_p = gte_pred.ite(a,b), gte_pred
+                res, res_p = gte_pred.ite(a, b), gte_pred
             elif alu == ALU_t.LTE_Min:
                 # C, V = a-b?
-                res, res_p = lte_pred.ite(a,b), lte_pred
+                res, res_p = lte_pred.ite(a, b), lte_pred
             elif alu == ALU_t.Abs:
-                res, res_p = abs_pred.ite(a,-SInt[16](a)), Bit(a[-1])
+                res, res_p = abs_pred.ite(a, -SInt[16](a)), Bit(a[-1])
             elif alu == ALU_t.Sel:
                 res, res_p = d.ite(a, b), Bit(0)
             elif alu == ALU_t.And:

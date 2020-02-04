@@ -10,11 +10,6 @@ from magma.bitutils import int2seq
 from rtl_utils import rtl_tester, CAD_ENV
 import pytest
 
-
-#def rtl_tester(*args,**kwargs):
-#    pass
-#CAD_ENV = False
-
 Inst = Inst_fc(Bit.get_family())
 Mode_t = Inst.rega
 
@@ -45,7 +40,7 @@ NTESTS = 4
 def test_unsigned_binary(op, args):
     x, y = args
     res, _, _ = pe(op.inst, Data(x), Data(y))
-    assert res==op.func(x,y)
+    assert res==op.func(x, y)
     rtl_tester(op, x, y, res=res)
 
 @pytest.mark.parametrize("op", [
@@ -61,7 +56,7 @@ def test_unsigned_binary(op, args):
 def test_signed_binary(op, args):
     x, y = args
     res, _, _ = pe(op.inst, Data(x), Data(y))
-    assert res==op.func(x,y)
+    assert res==op.func(x, y)
     rtl_tester(op, x, y, res=res)
 
 @pytest.mark.parametrize("op", [
@@ -92,7 +87,7 @@ def test_signed_unary(op, args):
 def test_unsigned_relation(op, args):
     x, y = args
     _, res_p, _ = pe(op.inst, Data(x), Data(y))
-    assert res_p==op.func(x,y)
+    assert res_p==op.func(x, y)
     rtl_tester(op, x, y, res_p=res_p)
 
 @pytest.mark.parametrize("op", [
@@ -108,7 +103,7 @@ def test_unsigned_relation(op, args):
 def test_signed_relation(op, args):
     x, y = args
     _, res_p, _ = pe(op.inst, Data(x), Data(y))
-    assert res_p==op.func(x,y)
+    assert res_p==op.func(x, y)
     rtl_tester(op, x, y, res_p=res_p)
 
 @pytest.mark.parametrize("op", [
@@ -117,16 +112,16 @@ def test_signed_relation(op, args):
     op(asm.sbc(),  lambda x, y, c: x - y +c-1),
 ])
 @pytest.mark.parametrize("args", [
-    (UIntVector.random(DATAWIDTH), UIntVector.random(DATAWIDTH), Bit(random.choice([1,0])))
+    (UIntVector.random(DATAWIDTH), UIntVector.random(DATAWIDTH), Bit(random.choice([1, 0])))
         for _ in range(NTESTS) ]
 )
-def test_ternary(op,args):
+def test_ternary(op, args):
     inst = op.inst
     d0 = args[0]
     d1 = args[1]
     b0 = args[2]
-    res, _, _ = pe(inst, d0,d1,b0)
-    assert res==op.func(d0,d1,b0)
+    res, _, _ = pe(inst, d0, d1, b0)
+    assert res==op.func(d0, d1, b0)
     rtl_tester(inst, d0, d1, b0, res=res)
 
 @pytest.mark.parametrize("args", [
@@ -141,7 +136,7 @@ def test_smult(args):
     smult1 = asm.smult1()
     smult2 = asm.smult2()
     x, y = args
-    xy = mul(x,y)
+    xy = mul(x, y)
     res, _, _ = pe(smult0, Data(x), Data(y))
     assert res == xy[0:DATAWIDTH]
     rtl_tester(smult0, x, y, res=res)
@@ -165,7 +160,7 @@ def test_umult(args):
     umult1 = asm.umult1()
     umult2 = asm.umult2()
     x, y = args
-    xy = mul(x,y)
+    xy = mul(x, y)
     res, _, _ = pe(umult0, Data(x), Data(y))
     assert res == xy[0:DATAWIDTH]
     rtl_tester(umult0, x, y, res=res)
@@ -183,9 +178,9 @@ def test_umult(args):
 def BV(val):
     return BFloat16(val)
 
-fp_sign_vec = [BV(2.0),BV(-2.0),BV(3.0),BV(-3.0)]
-fp_zero_vec = [BV(0.0),BV('-0.0')]
-fp_inf_vec = [BV('inf'),BV('-inf')]
+fp_sign_vec = [BV(2.0), BV(-2.0), BV(3.0), BV(-3.0)]
+fp_zero_vec = [BV(0.0), BV('-0.0')]
+fp_inf_vec = [BV('inf'), BV('-inf')]
 
 @pytest.mark.parametrize("op", [
     op(asm.fp_add(), lambda x, y: x + y),
@@ -194,13 +189,13 @@ fp_inf_vec = [BV('inf'),BV('-inf')]
 ])
 @pytest.mark.parametrize("args",
     [(BFloat16.random(), BFloat16.random()) for _ in range(NTESTS)] +
-    list(product(fp_sign_vec+fp_zero_vec,fp_sign_vec+fp_zero_vec))
+    list(product(fp_sign_vec+fp_zero_vec, fp_sign_vec+fp_zero_vec))
 )
-def test_fp_binary_op(op,args):
+def test_fp_binary_op(op, args):
     inst = op.inst
     in0 = args[0]
     in1 = args[1]
-    out = op.func(in0,in1)
+    out = op.func(in0, in1)
     data0 = BFloat16.reinterpret_as_bv(in0)
     data1 = BFloat16.reinterpret_as_bv(in1)
     res, res_p, _ = pe(inst, data0, data1)
@@ -218,11 +213,11 @@ def BFloat(fpdata):
     sign = BitVector[1](fpdata.sign)
     exp = BitVector[8](fpdata.exp)
     frac = BitVector[7](fpdata.frac)
-    return BitVector.concat(BitVector.concat(sign,exp),frac)
+    return BitVector.concat(BitVector.concat(sign, exp), frac)
 
 #Generate random bfloat
 def random_bfloat():
-    return fpdata(BitVector.random(1),BitVector.random(8),BitVector.random(7))
+    return fpdata(BitVector.random(1), BitVector.random(8), BitVector.random(7))
 
 def test_fp_mul():
     # Regression test for https://github.com/StanfordAHA/lassen/issues/111
@@ -238,8 +233,8 @@ def test_fp_mul():
 
 @pytest.mark.parametrize("xy",
     [(BFloat16.random(), BFloat16.random()) for _ in range(NTESTS)] +
-    list(product(fp_sign_vec+fp_zero_vec+fp_inf_vec,fp_sign_vec+fp_zero_vec+fp_inf_vec)) +
-    list(product(fp_zero_vec+fp_inf_vec,[BFloat16.random() for _ in range(NTESTS)]))
+    list(product(fp_sign_vec+fp_zero_vec+fp_inf_vec, fp_sign_vec+fp_zero_vec+fp_inf_vec)) +
+    list(product(fp_zero_vec+fp_inf_vec, [BFloat16.random() for _ in range(NTESTS)]))
 )
 @pytest.mark.parametrize("op", [
     op(asm.fp_gt(),  lambda x, y: x >  y),
@@ -249,12 +244,12 @@ def test_fp_mul():
     op(asm.fp_eq(),  lambda x, y: x == y),
     op(asm.fp_neq(),  lambda x, y: x != y),
 ])
-def test_fp_cmp(xy,op):
-    in0,in1 = xy
-    out = op.func(in0,in1)
+def test_fp_cmp(xy, op):
+    in0, in1 = xy
+    out = op.func(in0, in1)
     data0 = BFloat16.reinterpret_as_bv(in0)
     data1 = BFloat16.reinterpret_as_bv(in1)
-    _, res_p, _ = pe(op.inst,data0,data1)
+    _, res_p, _ = pe(op.inst, data0, data1)
     assert res_p == out
     if CAD_ENV:
         rtl_tester(op, data0, data1, res_p=out)

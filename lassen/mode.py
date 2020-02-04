@@ -28,9 +28,9 @@ def gen_register_mode(T, init=0):
 
             #Outputs <based on mode>, register_value
             def __call__(self, mode: Mode_t, const_: T_f, value: T_f,
-                    clk_en: Bit, config_we : Bit, config_data : T_f) -> (T_f,T_f):
+                    clk_en: Bit, config_we : Bit, config_data : T_f) -> (T_f, T_f):
                 if config_we==Bit(1):
-                    reg_val = self.register(config_data,Bit(1))
+                    reg_val = self.register(config_data, Bit(1))
                 elif mode == Mode_t.DELAY:
                     reg_val = self.register(value, clk_en)
                 else:
