@@ -3,11 +3,12 @@ from .mode import Mode_t_fc
 from .lut import LUT_t_fc
 from .alu import ALU_t_fc
 from .common import DATAWIDTH
-from peak import Const, Product_fc
+from peak import Const, Product_fc, family_closure
 
 """
 https://github.com/StanfordAHA/CGRAGenerator/wiki/PE-Spec
 """
+@family_closure
 def Inst_fc(family):
     Data = family.BitVector[DATAWIDTH]
     Bit = family.Bit

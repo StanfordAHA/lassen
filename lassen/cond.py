@@ -1,10 +1,9 @@
 from peak import Peak, family_closure, name_outputs, assemble,  Enum_fc
-from functools import lru_cache
 
 """
 Condition code field - selects which 1-bit result is retuned
 """
-@lru_cache(None)
+@family_closure
 def Cond_t_fc(family):
     Enum = Enum_fc(family)
     class Cond_t(Enum):

@@ -1,7 +1,8 @@
 from peak import Peak, family_closure, name_outputs, assemble
 from functools import lru_cache
 
-@lru_cache(None)
+
+@family_closure
 def LUT_t_fc(family):
     LUT_t = family.BitVector[8]
     IDX_t = family.BitVector[3]

@@ -1,7 +1,6 @@
 from peak import Peak, name_outputs, family_closure, assemble, Enum_fc
 from peak.mapper.utils import rebind_type
 from .common import DATAWIDTH, BFloat16_fc
-from functools import lru_cache
 # simulate the PE ALU
 #
 #   inputs
@@ -21,7 +20,7 @@ from functools import lru_cache
 #   C (carry generated)
 #   V (overflow generated)
 
-@lru_cache(None)
+@family_closure
 def ALU_t_fc(family):
     Enum = Enum_fc(family)
     class ALU_t(Enum):

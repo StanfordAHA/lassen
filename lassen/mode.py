@@ -4,7 +4,7 @@ from functools import lru_cache
 """
 Field for specifying register modes
 """
-@lru_cache(None)
+@family_closure
 def Mode_t_fc(family):
     Enum = Enum_fc(family)
     class Mode_t(Enum):
@@ -13,6 +13,7 @@ def Mode_t_fc(family):
         DELAY = 3   # Register written with input value, previous value returned
     return Mode_t
 
+@lru_cache(None)
 def gen_register_mode(T, init=0):
     @family_closure
     def RegisterMode_fc(family):
