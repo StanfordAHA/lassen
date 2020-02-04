@@ -2,7 +2,7 @@ from lassen.mode import gen_register_mode
 from lassen.alu import ALU_fc
 from lassen.cond import Cond_fc
 from lassen.sim import PE_fc
-from hwtypes import BitVector
+from hwtypes import BitVector, UIntVector
 import magma
 import functools
 import pdb
@@ -29,4 +29,13 @@ def test_alu():
 
 def test_PE():
     PE_magma = PE_fc(magma.get_family())
+
+from rtl_utils import rtl_tester
+UData = UIntVector[16]
+def test_UGE():
+    op = asm.uge()
+    x, y = UData(10), UData(5)
+    gold = (x >= y)
+    rtl_tester(op, x, y, res_p=gold)
+
 
