@@ -1,12 +1,17 @@
 from lassen.sim import gen_pe
 import lassen.asm as asm
-from hwtypes import BitVector
+from hwtypes import BitVector, Bit
 import coreir
-import metamapper as mm
+#import metamapper as mm
 import pytest
 import json
-from lassen import rules as Rules
-from lassen import LassenMapper
+#from lassen import rules as Rules
+#from lassen import LassenMapper
+
+from peak.mapper.utils import pretty_print_binding
+from peak.mapper import ArchMapper
+from peak import Peak, name_outputs
+
 
 @pytest.mark.skip("This takes a long time")
 def test_discover():
@@ -233,29 +238,29 @@ def test_coreir_ops(op):
     imap = mapper.extract_instr_map(app)
     assert len(imap) == 1
 
-@pytest.mark.parametrize("rule",Rules)
-def test_rules(rule):
-    if rule['kind'] != "1to1":
-        pytest.skip()
-    namespace,op = rule["coreir_prim"]
-    c = coreir.Context()
-    if namespace == "coreir":
-        genargs = dict(width=16)
-    elif namespace == "float":
-        genargs = dict(exp_bits=8,frac_bits=7)
-    app = make_single_op_app(c,namespace,op,**genargs)
-    app.print_()
-    mapper = LassenMapper(c)
-    for rule in Rules:
-        mapper.add_rr_from_description(rule)
-
-    try:
-        mapper.map_app(app)
-    except:
-        raise NotImplementedError("You probably need to regenerate rules by running the scripts/gen_rules.py script")
-
-    imap = mapper.extract_instr_map(app)
-    assert len(imap) == 1
+#@pytest.mark.parametrize("rule",Rules)
+#def test_rules(rule):
+#    if rule['kind'] != "1to1":
+#        pytest.skip()
+#    namespace,op = rule["coreir_prim"]
+#    c = coreir.Context()
+#    if namespace == "coreir":
+#        genargs = dict(width=16)
+#    elif namespace == "float":
+#        genargs = dict(exp_bits=8,frac_bits=7)
+#    app = make_single_op_app(c,namespace,op,**genargs)
+#    app.print_()
+#    mapper = LassenMapper(c)
+#    for rule in Rules:
+#        mapper.add_rr_from_description(rule)
+#
+#    try:
+#        mapper.map_app(app)
+#    except:
+#        raise NotImplementedError("You probably need to regenerate rules by running the scripts/gen_rules.py script")
+#
+#    imap = mapper.extract_instr_map(app)
+#    assert len(imap) == 1
 
 def test_init():
     c = coreir.Context()
@@ -268,3 +273,26 @@ def test_init():
     mapper.map_app(app)
     imap = mapper.extract_instr_map(app)
     assert len(imap) == 3
+
+
+def ir_fc(family):
+    Data = family.BitVector[16]
+    class IRAdd(Peak):
+
+        @name_outputs(out=Data)
+        def __call__(self,in0:Data,in1:Data):
+            return in0*in1
+    return IRAdd
+
+from lassen.alu import gen_ALU
+
+def test_blah():
+    arch_fc = gen_ALU
+    arch_bv = arch_fc(Bit.get_family())
+    arch_mapper = ArchMapper(arch_fc)
+    ir_mapper = arch_mapper.process_ir_instruction(ir_fc)
+    solution = ir_mapper.solve('z3')
+    assert solution.solved
+    pretty_print_binding(solution.ibinding)
+
+test_blah()
