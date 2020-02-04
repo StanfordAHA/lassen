@@ -84,20 +84,6 @@ def ALU_fc(family):
     FPFracBV = family.BitVector[7]
     ALU_t, Signed_t = ALU_t_fc(family)
 
-    def adc(a : Data, b: Data, cin: Bit, signed_: Signed_t) -> (Data, Bit):
-        cin = cin.ite(UInt[1](1), UInt[1](0))
-        UData17 = family.Unsigned[DATAWIDTH + 1]
-        if signed_:
-            a = SData(a).sext(1)
-            b = SData(b).sext(1)
-            c = cin.zext(DATAWIDTH)
-        else:
-            a = UData(a).zext(1)
-            b = UData(b).zext(1)
-            c = cin.zext(DATAWIDTH)
-        res = UData17(a) + UData17(b) + UData17(c)
-        return res[0:-1], res[-1]
-
     def bv2float(bv):
         return BFloat16.reinterpret_from_bv(bv)
 
@@ -252,7 +238,8 @@ def ALU_fc(family):
             C = Bit(0)
             V = Bit(0)
             if (alu == ALU_t.Add) | (alu == ALU_t.Sub) | (alu == ALU_t.Adc) | (alu == ALU_t.Sbc):
-                res, C = adc(a, b, Cin, signed_)
+                #adc needs to be unsigned
+                res, C = UData(a).adc(UData(b), Cin)
                 V = overflow(a, b, res)
                 res_p = C
             elif alu == ALU_t.Mult0:
