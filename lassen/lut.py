@@ -1,21 +1,22 @@
-import magma as m
+from peak import Peak, family_closure, name_outputs, assemble
+from functools import lru_cache
 
+@lru_cache(None)
+def LUT_t_fc(family):
+    LUT_t = family.BitVector[8]
+    IDX_t = family.BitVector[3]
+    return LUT_t, IDX_t
 
-def gen_lut_type(family):
-    # Types for LUT operations
-    return family.BitVector[8]
-
-
-def gen_lut(family):
-    LUT = gen_lut_type(family)
-    _IDX_t = family.BitVector[3]
+@family_closure
+def LUT_fc(family):
     Bit = family.Bit
+    LUT_t, IDX_t = LUT_t_fc(family)
 
-    # Implement a 3-bit LUT
-    def _lut(lut: LUT, bit0: Bit, bit1: Bit, bit2: Bit) -> Bit:
-        i = _IDX_t([bit0, bit1, bit2])
-        i = i.zext(5)
-        return ((lut >> i) & 1)[0]
-    if family.Bit is m.Bit:
-        _lut = m.circuit.combinational(_lut)
-    return _lut
+    @assemble(family, locals(), globals())
+    class LUT(Peak):
+        @name_outputs(lut_out=Bit)
+        def __call__(self, lut: LUT_t, bit0: Bit, bit1: Bit, bit2: Bit) -> Bit:
+            i = IDX_t([bit0, bit1, bit2])
+            i = i.zext(5)
+            return ((lut >> i) & 1)[0]
+    return LUT

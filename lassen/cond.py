@@ -1,17 +1,13 @@
-import hwtypes
-from .family import gen_pe_type_family
-from hwtypes.adt import Enum
-import magma as m
+from peak import Peak, family_closure, name_outputs, assemble,  Enum_fc
 from functools import lru_cache
-from peak.assembler.utils import assemble_values_in_func
-from peak.assembler import Assembler
 
-@lru_cache()
-def gen_cond_type(family):
-    """
-    Condition code field - selects which 1-bit result is retuned
-    """
-    class Cond(family.Enum):
+"""
+Condition code field - selects which 1-bit result is retuned
+"""
+@lru_cache(None)
+def Cond_t_fc(family):
+    Enum = Enum_fc(family)
+    class Cond_t(Enum):
         Z = 0    # EQ
         Z_n = 1  # NE
         C = 2    # UGE
@@ -40,69 +36,61 @@ def gen_cond_type(family):
         FP_GT = 17
         FP_LE = 18
         FP_LT = 19
-    return Cond
-
-def gen_cond(family, use_assembler=False):
-    #
-    # Implement condition code logic
-    #
-    # Inputs are the condition code field, the alu result, the lut result,
-    # and the flags Z, N, C, V
-    #
-    Cond = gen_cond_type(family)
+    return Cond_t
+#
+# Implement condition code logic
+#
+# Inputs are the condition code field, the alu result, the lut result,
+# and the flags Z, N, C, V
+#
+@family_closure
+def Cond_fc(family):
     Bit = family.Bit
+    Cond_t = Cond_t_fc(family)
+    @assemble(family, locals(), globals())
+    class Cond(Peak):
+        @name_outputs(cond=Bit)
+        def __call__(self, code: Cond_t, alu: Bit, lut: Bit, Z: Bit, N: Bit, C: Bit, V: Bit) \
+                -> Bit:
+            if code == Cond_t.Z:
+                return Z
+            elif code == Cond_t.Z_n:
+                return ~Z
+            elif (code == Cond_t.C) | (code == Cond_t.UGE):
+                return C
+            elif (code == Cond_t.C_n) | (code == Cond_t.ULT):
+                return ~C
+            elif code == Cond_t._N:
+                return N
+            elif code == Cond_t._N_n:
+                return ~N
+            elif code == Cond_t.V:
+                return V
+            elif code == Cond_t.V_n:
+                return ~V
+            elif code == Cond_t.UGT:
+                return C & (~Z)
+            elif code == Cond_t.ULE:
+                return (~C) | Z
+            elif code == Cond_t.SGE:
+                return N == V
+            elif code == Cond_t.SLT:
+                return N != V
+            elif code == Cond_t.SGT:
+                return (~Z) & (N == V)
+            elif code == Cond_t.SLE:
+                return Z | (N != V)
+            elif code == Cond_t.ALU:
+                return alu
+            elif code == Cond_t.LUT:
+                return lut
+            elif code == Cond_t.FP_GE:
+                return ~N | Z
+            elif code == Cond_t.FP_GT:
+                return ~N & ~Z
+            elif code == Cond_t.FP_LE:
+                return N | Z
+            else: #code == Cond_t.FP_LT:
+                return N & ~Z
 
-    def cond(code: Cond, alu: Bit, lut: Bit, Z: Bit, N: Bit, C: Bit, V: Bit) \
-            -> Bit:
-        if code == Cond.Z:
-            return Z
-        elif code == Cond.Z_n:
-            return ~Z
-        elif (code == Cond.C) | (code == Cond.UGE):
-            return C
-        elif (code == Cond.C_n) | (code == Cond.ULT):
-            return ~C
-        elif code == Cond._N:
-            return N
-        elif code == Cond._N_n:
-            return ~N
-        elif code == Cond.V:
-            return V
-        elif code == Cond.V_n:
-            return ~V
-        elif code == Cond.UGT:
-            return C & (~Z)
-        elif code == Cond.ULE:
-            return (~C) | Z
-        elif code == Cond.SGE:
-            return N == V
-        elif code == Cond.SLT:
-            return N != V
-        elif code == Cond.SGT:
-            return (~Z) & (N == V)
-        elif code == Cond.SLE:
-            return Z | (N != V)
-        elif code == Cond.ALU:
-            return alu
-        elif code == Cond.LUT:
-            return lut
-        elif code == Cond.FP_GE:
-            return ~N | Z
-        elif code == Cond.FP_GT:
-            return ~N & ~Z
-        elif code == Cond.FP_LE:
-            return N | Z
-        elif code == Cond.FP_LT:
-            return N & ~Z
-
-    if family.Bit is m.Bit:
-        if use_assembler:
-            bv_fam = gen_pe_type_family(hwtypes.BitVector.get_family())
-            bv_cond = gen_cond_type(bv_fam)
-            assemblers = {
-                Cond: (bv_cond, Assembler(bv_cond).assemble)
-            }
-            cond = assemble_values_in_func(assemblers, cond, locals(),
-                                           globals())
-        cond = m.circuit.combinational(cond)
-    return cond
+    return Cond
