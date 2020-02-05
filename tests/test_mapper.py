@@ -13,7 +13,7 @@ def Add_fc(family):
     return Add
 
 def test_add():
-    arch_fc = PE_fc
+    arch_fc = ALU_fc
     ir_fc = Add_fc
     arch_mapper = ArchMapper(arch_fc)
     ir_mapper = arch_mapper.process_ir_instruction(ir_fc)
