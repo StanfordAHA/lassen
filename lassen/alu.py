@@ -77,6 +77,7 @@ def ALU_fc(family):
     SData = SInt[DATAWIDTH]
     UInt = family.Unsigned
     UData = UInt[DATAWIDTH]
+    UData32 = UInt[32]
 
     BFloat16 = BFloat16_fc(family)
     FPExpBV = family.BitVector[8]
@@ -111,11 +112,11 @@ def ALU_fc(family):
             if signed_ == Signed_t.signed:
                 a_s = SData(a)
                 b_s = SData(b)
-                mula, mulb = a_s.sext(16), b_s.sext(16)
+                mula, mulb = UData32(a_s.sext(16)), UData32(b_s.sext(16))
                 gte_pred = a_s >= b_s
                 lte_pred = a_s <= b_s
                 abs_pred = a_s >= 0
-                shr = a_s >> b_s
+                shr = Data(a_s >> b_s)
             else: #signed_ == Signed_t.unsigned:
                 a_u = UData(a)
                 b_u = UData(b)
@@ -123,7 +124,7 @@ def ALU_fc(family):
                 gte_pred = a_u >= b_u
                 lte_pred = a_u <= b_u
                 abs_pred = a_u >= 0
-                shr = a_u >> b_u
+                shr = Data(a_u >> b_u)
             mul = mula * mulb
             a_inf = fp_is_inf(a)
             b_inf = fp_is_inf(b)
@@ -277,14 +278,14 @@ def ALU_fc(family):
                 #Flip the sign bit of b
                 if (alu == ALU_t.FP_sub) | (alu == ALU_t.FP_cmp):
                     b = (Data(1) << (DATAWIDTH-1)) ^ b
-                a = bv2float(a)
-                b = bv2float(b)
-                res = float2bv(a + b)
+                a_fpadd = bv2float(a)
+                b_fpadd = bv2float(b)
+                res = float2bv(a_fpadd + b_fpadd)
                 res_p = Bit(0)
             elif alu == ALU_t.FP_mult:
-                a = bv2float(a)
-                b = bv2float(b)
-                res = float2bv(a * b)
+                a_fpmul = bv2float(a)
+                b_fpmul = bv2float(b)
+                res = float2bv(a_fpmul * b_fpmul)
                 res_p = Bit(0)
             elif alu == ALU_t.FGetMant:
                 res, res_p = (a & 0x7F), Bit(0)
