@@ -20,7 +20,7 @@ def gen_fdiv(family):
           self.pe_scale_res = PE()
           self.pe_mult      = PE()
         #result = op_a/op_b;
-        def __call__(self,in0 : Data, in1 : Data):
+        def __call__(self,in0 : Data, in1 : Data) -> Data:
             inst1 = asm.fgetmant()
             inst2 = asm.fsubexp()
             inst3 = asm.fp_mul()
@@ -47,7 +47,7 @@ def gen_fln(family):
           self.pe_mult     = PE()
           self.pe_add      = PE()
         #result = ln(op_a)
-        def __call__(self,in0 : Data):
+        def __call__(self, in0 : Data) -> Data:
           inst1 = asm.fgetmant()
           inst2 = asm.fcnvexp2f()
           inst3 = asm.fp_mul()
@@ -79,7 +79,7 @@ def gen_fexp(family):
           self.pe_incr_exp = PE()
           self.pe_div_mult = PE ()
         #result = ln(op_a)
-        def __call__(self,in0 : Data):
+        def __call__(self,in0 : Data) -> Data:
           # Perform op_a/ln(2)
           inst1 = asm.fp_mul()
           # Compute 2**op_a

@@ -14,7 +14,7 @@ def gen_round_to_zero_bounded(family):
             self.pe1 = PE()
             self.pe2 = PE()
 
-        def __call__(self, in0: Data):
+        def __call__(self, in0: Data) -> Data:
             f2i = asm.fgetfint()
             i2f = asm.fcnvsint2f()
             pe1_out,_,_ = self.pe1(f2i, in0)
@@ -33,7 +33,7 @@ def gen_round_to_zero(family):
             self.pe2 = PE()
             self.pe3 = PE()
 
-        def __call__(self, in0: Data):
+        def __call__(self, in0: Data) -> Data:
             exp_mask = Data(((1 << _EXPONENT_SIZE) - 1) << _MANTISSA_SIZE)
             mask_exponent = asm.and_(rb_mode=asm.Mode.CONST, rb_const=exp_mask)
             exp, _, _ = self.pe1(mask_exponent, in0)

@@ -11,7 +11,7 @@ def gen_FMA(family):
             self.pe1 = PE()
             self.pe2 = PE()
 
-        def __call__(self,in0 : Data, in1 : Data, in2 : Data):
+        def __call__(self,in0 : Data, in1 : Data, in2 : Data) -> Data:
             inst1 = asm.smult0()
             inst2 = asm.add()
             pe1_out,_,_ = self.pe1(inst1,in0,in1)
