@@ -12,6 +12,15 @@ import gmpy2
 SData = SIntVector[DATAWIDTH]
 Data32 = SIntVector[DATAWIDTH*2]
 BFloat16 = BFloat16_fc(Bit.get_family())
+RoundToZero = RoundToZero_fc(Bit.get_family())
+RoundToZeroBounded = RoundToZeroBounded_fc(Bit.get_family())
+FExp = FExp_fc(Bit.get_family())
+Add32 = Add32_fc(Bit.get_family())
+Sub32 = Sub32_fc(Bit.get_family())
+FMA = FMA_fc(Bit.get_family())
+FDiv = FDiv_fc(Bit.get_family())
+FLN = FLN_fc(Bit.get_family())
+
 
 NTESTS = 16
 

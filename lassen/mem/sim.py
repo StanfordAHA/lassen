@@ -3,6 +3,9 @@ from .isa import gen_mem_instr
 from lassen.common import DATAWIDTH
 from hwtypes import BitVector
 
+
+
+#FIXME Have memories adhere to family closure
 width = 16
 depth = 1024
 Data = BitVector[DATAWIDTH]
