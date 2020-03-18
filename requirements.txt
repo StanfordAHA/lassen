@@ -4,4 +4,4 @@
 -e git+git://github.com/leonardt/fault#egg=fault
 -e git+git://github.com/phanrahan/mantle#egg=mantle
 cosa
--e git+git://github.com/leonardt/hwtypes#egg=hwtypes
+-e git+git://github.com/leonardt/hwtypes@poly#egg=hwtypes
