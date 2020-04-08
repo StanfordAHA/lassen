@@ -1,4 +1,4 @@
-from lassen.mode import Mode_t_fc
+from lassen.mode import Mode_t
 #from lassen.isa import Inst_fc
 #from lassen.sim import PE_fc
 from lassen.asm import add
@@ -9,7 +9,6 @@ import hwtypes
 
 
 def test_reset():
-    Mode_t = Mode_t_fc(hwtypes.Bit.get_family())
     tester = fault.Tester(pe_circuit, clock=pe_circuit.CLK)
 
     inst = add(ra_mode=Mode_t.DELAY, rb_mode=Mode_t.DELAY)

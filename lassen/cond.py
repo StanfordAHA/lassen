@@ -1,41 +1,38 @@
-from peak import Peak, family_closure, name_outputs, assemble,  Enum_fc
+from peak import Peak, family_closure, name_outputs, assemble
+from hwtypes.adt import Enum
 
 """
 Condition code field - selects which 1-bit result is retuned
 """
-@family_closure
-def Cond_t_fc(family):
-    Enum = Enum_fc(family)
-    class Cond_t(Enum):
-        Z = 0    # EQ
-        Z_n = 1  # NE
-        C = 2    # UGE
-        C_n = 3  # ULT
-        # Prefix _N because it clobbers magma's `.N` field used in the array
-        # types
-        _N = 4    # <  0
-        _N_n = 5  # >= 0
-        V = 6    # Overflow
-        V_n = 7  # No overflow
-        EQ = 0
-        NE = 1
-        UGE = 2
-        ULT = 3
-        UGT = 8
-        ULE = 9
-        SGE = 10
-        SLT = 11
-        SGT = 12
-        SLE = 13
-        LUT = 14
-        ALU = 15
-        FP_EQ = 0
-        FP_NE = 1
-        FP_GE = 16
-        FP_GT = 17
-        FP_LE = 18
-        FP_LT = 19
-    return Cond_t
+class Cond_t(Enum):
+    Z = 0    # EQ
+    Z_n = 1  # NE
+    C = 2    # UGE
+    C_n = 3  # ULT
+    # Prefix _N because it clobbers magma's `.N` field used in the array
+    # types
+    _N = 4    # <  0
+    _N_n = 5  # >= 0
+    V = 6    # Overflow
+    V_n = 7  # No overflow
+    EQ = 0
+    NE = 1
+    UGE = 2
+    ULT = 3
+    UGT = 8
+    ULE = 9
+    SGE = 10
+    SLT = 11
+    SGT = 12
+    SLE = 13
+    LUT = 14
+    ALU = 15
+    FP_EQ = 0
+    FP_NE = 1
+    FP_GE = 16
+    FP_GT = 17
+    FP_LE = 18
+    FP_LT = 19
 #
 # Implement condition code logic
 #
@@ -45,7 +42,6 @@ def Cond_t_fc(family):
 @family_closure
 def Cond_fc(family):
     Bit = family.Bit
-    Cond_t = Cond_t_fc(family)
     @assemble(family, locals(), globals())
     class Cond(Peak):
         @name_outputs(cond=Bit)

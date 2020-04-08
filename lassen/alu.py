@@ -1,6 +1,7 @@
-from peak import Peak, name_outputs, family_closure, assemble, Enum_fc
+from peak import Peak, name_outputs, family_closure, assemble
 from peak.mapper.utils import rebind_type
 from .common import DATAWIDTH, BFloat16_fc
+from hwtypes.adt import Enum
 # simulate the PE ALU
 #
 #   inputs
@@ -20,46 +21,41 @@ from .common import DATAWIDTH, BFloat16_fc
 #   C (carry generated)
 #   V (overflow generated)
 
-@family_closure
-def ALU_t_fc(family):
-    Enum = Enum_fc(family)
-    class ALU_t(Enum):
-        Add = 0
-        Sub = 1
-        Adc = 2
-        Sbc = 6
-        Abs = 3
-        GTE_Max = 4
-        LTE_Min = 5
-        Sel = 8
-        Mult0 = 0xb
-        Mult1 = 0xc
-        Mult2 = 0xd
-        SHR = 0xf
-        SHL = 0x11
-        Or = 0x12
-        And = 0x13
-        XOr = 0x14
-        FP_add = 0x16
-        FP_sub = 0x17
-        FP_cmp = 0x18
-        FP_mult = 0x19
-        FGetMant = 0x92
-        FAddIExp = 0x93
-        FSubExp = 0x94
-        FCnvExp2F = 0x95
-        FGetFInt = 0x96
-        FGetFFrac = 0x97
-        FCnvInt2F = 0x98
+class ALU_t(Enum):
+    Add = 0
+    Sub = 1
+    Adc = 2
+    Sbc = 6
+    Abs = 3
+    GTE_Max = 4
+    LTE_Min = 5
+    Sel = 8
+    Mult0 = 0xb
+    Mult1 = 0xc
+    Mult2 = 0xd
+    SHR = 0xf
+    SHL = 0x11
+    Or = 0x12
+    And = 0x13
+    XOr = 0x14
+    FP_add = 0x16
+    FP_sub = 0x17
+    FP_cmp = 0x18
+    FP_mult = 0x19
+    FGetMant = 0x92
+    FAddIExp = 0x93
+    FSubExp = 0x94
+    FCnvExp2F = 0x95
+    FGetFInt = 0x96
+    FGetFFrac = 0x97
+    FCnvInt2F = 0x98
 
-    """
-    Whether the operation is unsigned (0) or signed (1)
-    """
-    class Signed_t(Enum):
-        unsigned = 0
-        signed = 1
-
-    return ALU_t, Signed_t
+"""
+Whether the operation is unsigned (0) or signed (1)
+"""
+class Signed_t(Enum):
+    unsigned = 0
+    signed = 1
 
 def overflow(a, b, res):
     msb_a = a[-1]
@@ -82,7 +78,6 @@ def ALU_fc(family):
     BFloat16 = BFloat16_fc(family)
     FPExpBV = family.BitVector[8]
     FPFracBV = family.BitVector[7]
-    ALU_t, Signed_t = ALU_t_fc(family)
 
     def bv2float(bv):
         return BFloat16.reinterpret_from_bv(bv)
@@ -115,7 +110,7 @@ def ALU_fc(family):
                 mula, mulb = UData32(a_s.sext(16)), UData32(b_s.sext(16))
                 gte_pred = a_s >= b_s
                 lte_pred = a_s <= b_s
-                abs_pred = a_s >= 0
+                abs_pred = a_s >= SData(0)
                 shr = Data(a_s >> b_s)
             else: #signed_ == Signed_t.unsigned:
                 a_u = UData(a)
@@ -123,7 +118,7 @@ def ALU_fc(family):
                 mula, mulb = a_u.zext(16), b_u.zext(16)
                 gte_pred = a_u >= b_u
                 lte_pred = a_u <= b_u
-                abs_pred = a_u >= 0
+                abs_pred = a_u >= SData(0)
                 shr = Data(a_u >> b_u)
             mul = mula * mulb
             a_inf = fp_is_inf(a)
@@ -332,7 +327,7 @@ def ALU_fc(family):
                 else:
                     signed_res = SInt[16](unsigned_res)
                 # We are not checking for overflow when converting to int
-                res, res_p, V = signed_res, 0, (expa0 >  BitVector[8](142))
+                res, res_p, V = signed_res, Bit(0), (expa0 >  BitVector[8](142))
             elif alu == ALU_t.FGetFFrac:
                 signa = BitVector[16]((a & 0x8000))
                 manta = BitVector[16]((a & 0x7F)) | 0x80
@@ -364,7 +359,7 @@ def ALU_fc(family):
             if (alu == ALU_t.FP_sub) | (alu == ALU_t.FP_add) | (alu == ALU_t.FP_mult) | (alu==ALU_t.FP_cmp):
                 Z = fp_is_zero(res)
             else:
-                Z = (res == 0)
+                Z = (res == SData(0))
 
             #Nicely handles infinities for comparisons
             if (alu == ALU_t.FP_cmp):

@@ -1,9 +1,10 @@
-from .cond import Cond_t_fc
-from .mode import Mode_t_fc
+from .cond import Cond_t
+from .mode import Mode_t
 from .lut import LUT_t_fc
-from .alu import ALU_t_fc
+from .alu import ALU_t, Signed_t
 from .common import DATAWIDTH
-from peak import Const, Product_fc, family_closure
+from peak import Const, family_closure
+from hwtypes.adt import Product
 
 """
 https://github.com/StanfordAHA/CGRAGenerator/wiki/PE-Spec
@@ -14,10 +15,7 @@ def Inst_fc(family):
     Bit = family.Bit
 
     LUT_t, _ = LUT_t_fc(family)
-    Cond_t = Cond_t_fc(family)
-    Mode_t = Mode_t_fc(family)
-    ALU_t, Signed_t = ALU_t_fc(family)
-    class Inst(Product_fc(family)):
+    class Inst(Product):
         alu= ALU_t          # ALU operation
         signed= Signed_t     # unsigned or signed
         lut= LUT_t          # LUT operation as a 3-bit LUT
