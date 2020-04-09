@@ -1,147 +1,26 @@
-import os
-from collections import namedtuple
 import lassen.asm as asm
-from lassen.sim import gen_pe, gen_pe_type_family
-from lassen.mode import gen_mode_type
-from lassen.isa import DATAWIDTH, gen_alu_type
-from hwtypes import SIntVector, UIntVector, BitVector, Bit, FPVector, RoundingMode
-import pytest
-import math
-import random
-import magma
-import peak
-import fault
+from lassen import PE_fc, Inst_fc
+from lassen.common import DATAWIDTH, BFloat16_fc
+from hwtypes import SIntVector, UIntVector, BitVector, Bit
+from collections import namedtuple
 from itertools import product
-import os
+
 import random
-import shutil
-from peak.assembler import Assembler
-import random
+from magma.bitutils import int2seq
+from rtl_utils import rtl_tester, CAD_ENV
+import pytest
 
-class HashableDict(dict):
-    def __hash__(self):
-        return hash(tuple(sorted(self.keys())))
+Inst = Inst_fc(Bit.get_family())
+Mode_t = Inst.rega
 
-
-Bit = Bit
-Data = BitVector[DATAWIDTH]
-BFloat16 = FPVector[8, 7,RoundingMode.RNE,False]
-
-
-PE = gen_pe(BitVector.get_family())
+PE = PE_fc(Bit.get_family())
 pe = PE()
-sim_family = gen_pe_type_family(BitVector.get_family())
-Mode = gen_mode_type(sim_family)
 
-# create these variables in global space so that we can reuse them easily
-inst_name = 'inst'
-inst_type = PE.input_t.field_dict[inst_name]
-
-_assembler = Assembler(inst_type)
-assembler = _assembler.assemble
-disassembler = _assembler.disassemble
-width = _assembler.width
-layout = _assembler.layout
-pe_magma = gen_pe(magma.get_family(), use_assembler=True)
-instr_magma_type = type(pe_magma.interface.ports[inst_name])
-pe_circuit = peak.wrap_with_disassembler(pe_magma, disassembler, width,
-                                         HashableDict(layout),
-                                         instr_magma_type)
-tester = fault.Tester(pe_circuit, clock=pe_circuit.CLK)
-test_dir = "tests/build"
-
-# Explicitly load `float_DW` lib so we get technology specific mapping with
-# special code for BFloat rounding, for more info:
-# * https://github.com/rdaly525/coreir/pull/753
-# * https://github.com/StanfordAHA/lassen/issues/111
-# We reset the context because tests/test_micro.py calls compile and pollutes
-# the coreir context causing a "redefinition of module" error
-magma.backend.coreir_.CoreIRContextSingleton().reset_instance()
-magma.compile(f"{test_dir}/WrappedPE", pe_circuit, output="coreir-verilog",
-              coreir_libs={"float_DW"})
-
-# check if we need to use ncsim + cw IP
-cw_dir = "/cad/synopsys/dc_shell/J-2014.09-SP3/dw/sim_ver/"   # noqa
-CAD_ENV = shutil.which("ncsim") and os.path.isdir(cw_dir)
-
-
-def copy_file(src_filename, dst_filename, override=False):
-    if not override and os.path.isfile(dst_filename):
-        return
-    shutil.copy(src_filename, dst_filename)
-
-
-def rtl_tester(test_op, data0=None, data1=None, bit0=None, bit1=None, bit2=None,
-               res=None, res_p=None, clk_en=1, delay=0,
-               data0_delay_values=None, data1_delay_values=None):
-    tester.clear()
-    # Advance timestep past 0 for fp functional model (see rnd logic)
-    tester.circuit.ASYNCRESET = 0
-    tester.eval()
-    tester.circuit.ASYNCRESET = 1
-    tester.eval()
-    tester.circuit.ASYNCRESET = 0
-    tester.eval()
-    if hasattr(test_op, "inst"):
-        tester.circuit.inst = assembler(test_op.inst)
-    else:
-        tester.circuit.inst = assembler(test_op)
-    tester.circuit.CLK = 0
-    tester.circuit.clk_en = clk_en
-    if data0 is not None:
-        data0 = BitVector[16](data0)
-        tester.circuit.data0 = data0
-    if data1 is not None:
-        data1 = BitVector[16](data1)
-        tester.circuit.data1 = data1
-    if bit0 is not None:
-        tester.circuit.bit0 = Bit(bit0)
-    if bit1 is not None:
-        tester.circuit.bit1 = Bit(bit1)
-    if bit2 is not None:
-        tester.circuit.bit2 = Bit(bit2)
-    #make sure config_en is off
-    tester.circuit.config_en = Bit(0)
-    tester.eval()
-
-    for i in range(delay):
-        tester.step(2)
-        if data0_delay_values is not None:
-            tester.circuit.data0 = data0_delay_values[i]
-        if data1_delay_values is not None:
-            tester.circuit.data1 = data1_delay_values[i]
-
-    if res is not None:
-        tester.circuit.O0.expect(res)
-    if res_p is not None:
-        tester.circuit.O1.expect(res_p)
-    if CAD_ENV:
-        # use ncsim
-        libs = ["DW_fp_mult.v", "DW_fp_add.v", "DW_fp_addsub.v"]
-        for filename in libs:
-            copy_file(os.path.join(cw_dir, filename),
-                      os.path.join(test_dir, filename))
-        tester.compile_and_run(target="system-verilog", simulator="ncsim",
-                               directory="tests/build/",
-                               include_verilog_libraries=libs,
-                               skip_compile=True)
-    else:
-        libs = ["DW_fp_mult.v", "DW_fp_add.v"]
-        for filename in libs:
-            copy_file(os.path.join("stubs", filename),
-                      os.path.join(test_dir, filename))
-        # detect if the PE circuit has been built
-        skip_verilator = os.path.isfile(os.path.join(test_dir, "obj_dir",
-                                                     "VWrappedPE__ALL.a"))
-        tester.compile_and_run(target="verilator",
-                               directory=test_dir,
-                               flags=['-Wno-UNUSED', '-Wno-PINNOCONNECT'],
-                               skip_compile=True,
-                               skip_verilator=skip_verilator)
-
+BFloat16 = BFloat16_fc(Bit.get_family())
+Data = BitVector[DATAWIDTH]
 
 op = namedtuple("op", ["inst", "func"])
-NTESTS = 16
+NTESTS = 4
 
 @pytest.mark.parametrize("op", [
     op(asm.and_(), lambda x, y: x & y),
@@ -161,7 +40,7 @@ NTESTS = 16
 def test_unsigned_binary(op, args):
     x, y = args
     res, _, _ = pe(op.inst, Data(x), Data(y))
-    assert res==op.func(x,y)
+    assert res==op.func(x, y)
     rtl_tester(op, x, y, res=res)
 
 @pytest.mark.parametrize("op", [
@@ -177,7 +56,7 @@ def test_unsigned_binary(op, args):
 def test_signed_binary(op, args):
     x, y = args
     res, _, _ = pe(op.inst, Data(x), Data(y))
-    assert res==op.func(x,y)
+    assert res==op.func(x, y)
     rtl_tester(op, x, y, res=res)
 
 @pytest.mark.parametrize("op", [
@@ -208,7 +87,7 @@ def test_signed_unary(op, args):
 def test_unsigned_relation(op, args):
     x, y = args
     _, res_p, _ = pe(op.inst, Data(x), Data(y))
-    assert res_p==op.func(x,y)
+    assert res_p==op.func(x, y)
     rtl_tester(op, x, y, res_p=res_p)
 
 @pytest.mark.parametrize("op", [
@@ -224,7 +103,7 @@ def test_unsigned_relation(op, args):
 def test_signed_relation(op, args):
     x, y = args
     _, res_p, _ = pe(op.inst, Data(x), Data(y))
-    assert res_p==op.func(x,y)
+    assert res_p==op.func(x, y)
     rtl_tester(op, x, y, res_p=res_p)
 
 @pytest.mark.parametrize("op", [
@@ -233,16 +112,16 @@ def test_signed_relation(op, args):
     op(asm.sbc(),  lambda x, y, c: x - y +c-1),
 ])
 @pytest.mark.parametrize("args", [
-    (UIntVector.random(DATAWIDTH), UIntVector.random(DATAWIDTH), Bit(random.choice([1,0])))
+    (UIntVector.random(DATAWIDTH), UIntVector.random(DATAWIDTH), Bit(random.choice([1, 0])))
         for _ in range(NTESTS) ]
 )
-def test_ternary(op,args):
+def test_ternary(op, args):
     inst = op.inst
     d0 = args[0]
     d1 = args[1]
     b0 = args[2]
-    res, _, _ = pe(inst, d0,d1,b0)
-    assert res==op.func(d0,d1,b0)
+    res, _, _ = pe(inst, d0, d1, b0)
+    assert res==op.func(d0, d1, b0)
     rtl_tester(inst, d0, d1, b0, res=res)
 
 @pytest.mark.parametrize("args", [
@@ -257,7 +136,7 @@ def test_smult(args):
     smult1 = asm.smult1()
     smult2 = asm.smult2()
     x, y = args
-    xy = mul(x,y)
+    xy = mul(x, y)
     res, _, _ = pe(smult0, Data(x), Data(y))
     assert res == xy[0:DATAWIDTH]
     rtl_tester(smult0, x, y, res=res)
@@ -281,7 +160,7 @@ def test_umult(args):
     umult1 = asm.umult1()
     umult2 = asm.umult2()
     x, y = args
-    xy = mul(x,y)
+    xy = mul(x, y)
     res, _, _ = pe(umult0, Data(x), Data(y))
     assert res == xy[0:DATAWIDTH]
     rtl_tester(umult0, x, y, res=res)
@@ -299,9 +178,9 @@ def test_umult(args):
 def BV(val):
     return BFloat16(val)
 
-fp_sign_vec = [BV(2.0),BV(-2.0),BV(3.0),BV(-3.0)]
-fp_zero_vec = [BV(0.0),BV('-0.0')]
-fp_inf_vec = [BV('inf'),BV('-inf')]
+fp_sign_vec = [BV(2.0), BV(-2.0), BV(3.0), BV(-3.0)]
+fp_zero_vec = [BV(0.0), BV('-0.0')]
+fp_inf_vec = [BV('inf'), BV('-inf')]
 
 @pytest.mark.parametrize("op", [
     op(asm.fp_add(), lambda x, y: x + y),
@@ -310,13 +189,13 @@ fp_inf_vec = [BV('inf'),BV('-inf')]
 ])
 @pytest.mark.parametrize("args",
     [(BFloat16.random(), BFloat16.random()) for _ in range(NTESTS)] +
-    list(product(fp_sign_vec+fp_zero_vec,fp_sign_vec+fp_zero_vec))
+    list(product(fp_sign_vec+fp_zero_vec, fp_sign_vec+fp_zero_vec))
 )
-def test_fp_binary_op(op,args):
+def test_fp_binary_op(op, args):
     inst = op.inst
     in0 = args[0]
     in1 = args[1]
-    out = op.func(in0,in1)
+    out = op.func(in0, in1)
     data0 = BFloat16.reinterpret_as_bv(in0)
     data1 = BFloat16.reinterpret_as_bv(in1)
     res, res_p, _ = pe(inst, data0, data1)
@@ -334,11 +213,11 @@ def BFloat(fpdata):
     sign = BitVector[1](fpdata.sign)
     exp = BitVector[8](fpdata.exp)
     frac = BitVector[7](fpdata.frac)
-    return BitVector.concat(BitVector.concat(sign,exp),frac)
+    return BitVector.concat(BitVector.concat(sign, exp), frac)
 
 #Generate random bfloat
 def random_bfloat():
-    return fpdata(BitVector.random(1),BitVector.random(8),BitVector.random(7))
+    return fpdata(BitVector.random(1), BitVector.random(8), BitVector.random(7))
 
 def test_fp_mul():
     # Regression test for https://github.com/StanfordAHA/lassen/issues/111
@@ -354,8 +233,8 @@ def test_fp_mul():
 
 @pytest.mark.parametrize("xy",
     [(BFloat16.random(), BFloat16.random()) for _ in range(NTESTS)] +
-    list(product(fp_sign_vec+fp_zero_vec+fp_inf_vec,fp_sign_vec+fp_zero_vec+fp_inf_vec)) +
-    list(product(fp_zero_vec+fp_inf_vec,[BFloat16.random() for _ in range(NTESTS)]))
+    list(product(fp_sign_vec+fp_zero_vec+fp_inf_vec, fp_sign_vec+fp_zero_vec+fp_inf_vec)) +
+    list(product(fp_zero_vec+fp_inf_vec, [BFloat16.random() for _ in range(NTESTS)]))
 )
 @pytest.mark.parametrize("op", [
     op(asm.fp_gt(),  lambda x, y: x >  y),
@@ -365,12 +244,12 @@ def test_fp_mul():
     op(asm.fp_eq(),  lambda x, y: x == y),
     op(asm.fp_neq(),  lambda x, y: x != y),
 ])
-def test_fp_cmp(xy,op):
-    in0,in1 = xy
-    out = op.func(in0,in1)
+def test_fp_cmp(xy, op):
+    in0, in1 = xy
+    out = op.func(in0, in1)
     data0 = BFloat16.reinterpret_as_bv(in0)
     data1 = BFloat16.reinterpret_as_bv(in1)
-    _, res_p, _ = pe(op.inst,data0,data1)
+    _, res_p, _ = pe(op.inst, data0, data1)
     assert res_p == out
     if CAD_ENV:
         rtl_tester(op, data0, data1, res_p=out)
@@ -383,7 +262,7 @@ def test_fp_cmp(xy,op):
 def test_lut(lut_code):
     inst = asm.lut(lut_code)
     for i in range(0, 8):
-        bit0, bit1, bit2 = magma.bitutils.int2seq(i, 3)
+        bit0, bit1, bit2 = int2seq(i, 3)
         expected = (lut_code >> i)[0]
         rtl_tester(inst, bit0=bit0, bit1=bit1, bit2=bit2, res_p=expected)
 
@@ -392,7 +271,7 @@ def test_lut(lut_code):
         for _ in range(NTESTS) ] )
 def test_reg_delay(args):
     data0, data1 = args
-    inst = asm.add(ra_mode=Mode.DELAY, rb_mode=Mode.DELAY)
+    inst = asm.add(ra_mode=Mode_t.DELAY, rb_mode=Mode_t.DELAY)
     data1_delay_values = [UIntVector.random(DATAWIDTH)]
     rtl_tester(inst, data0, data1, res=data0 + data1, delay=1,
                data1_delay_values=data1_delay_values)
@@ -403,7 +282,7 @@ def test_reg_delay(args):
 def test_reg_const(args):
     data0, const1 = args
     data1 = UIntVector.random(DATAWIDTH)
-    inst = asm.add(rb_mode=Mode.CONST, rb_const=const1)
+    inst = asm.add(rb_mode=Mode_t.CONST, rb_const=const1)
     rtl_tester(inst, data0, data1, res=data0 + const1)
 
 
@@ -412,7 +291,7 @@ def test_reg_const(args):
         for _ in range(NTESTS) ] )
 def test_stall(args):
     data0, data1 = args
-    inst = asm.add(ra_mode=Mode.BYPASS, rb_mode=Mode.DELAY)
+    inst = asm.add(ra_mode=Mode_t.BYPASS, rb_mode=Mode_t.DELAY)
     data1_delay_values = [UIntVector.random(DATAWIDTH)]
     rtl_tester(inst, data0, data1, res=data0, clk_en=0,
                data1_delay_values=data1_delay_values)

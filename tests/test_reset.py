@@ -1,32 +1,17 @@
-from lassen.mode import gen_mode_type
-from lassen.family import gen_pe_type_family
-from lassen.isa import gen_inst_type
-from lassen.sim import gen_pe
+from lassen.mode import Mode_t
+#from lassen.isa import Inst_fc
+#from lassen.sim import PE_fc
 from lassen.asm import add
+from rtl_utils import pe_circuit, assembler
 import magma as m
 import fault
 import hwtypes
-import peak
-from peak.assembler import Assembler
-from test_pe import HashableDict
 
 
 def test_reset():
-    sim_family = gen_pe_type_family(hwtypes.BitVector.get_family())
-    inst_type = gen_inst_type(sim_family)
-    Mode = gen_mode_type(sim_family)
-    _assembler = Assembler(inst_type)
-    assembler = _assembler.assemble
-    disassembler = _assembler.disassemble
-    width = _assembler.width
-    layout = _assembler.layout
-    PE = gen_pe(m.get_family(), use_assembler=True)
-    PE = peak.wrap_with_disassembler(PE, disassembler, width,
-                                     HashableDict(layout),
-                                     type(PE.interface.ports["inst"]))
-    tester = fault.Tester(PE, PE.CLK)
+    tester = fault.Tester(pe_circuit, clock=pe_circuit.CLK)
 
-    inst = add(ra_mode=Mode.DELAY, rb_mode=Mode.DELAY)
+    inst = add(ra_mode=Mode_t.DELAY, rb_mode=Mode_t.DELAY)
     tester.circuit.inst = assembler(inst)
     data = [0, 0]
     for i in range(2):

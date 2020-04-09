@@ -1,34 +1,28 @@
-from lassen.stdlib.fma import gen_FMA
-from lassen.stdlib.rounding import gen_round_to_zero, gen_round_to_zero_bounded
-from lassen.stdlib.fpops import gen_fdiv, gen_fln, gen_fexp
-from collections import namedtuple
-from lassen.stdlib import gen_FMA, gen_Add32, gen_Sub32
-from lassen.isa import DATAWIDTH
-from hwtypes import BitVector, Bit, SIntVector, FPVector, RoundingMode
-from lassen.sim import gen_pe
+from lassen.stdlib import *
+from lassen.common import DATAWIDTH, BFloat16_fc
+from hwtypes import BitVector, Bit, SIntVector
 from lassen.utils import float2bfbin, bfbin2float
+
+from collections import namedtuple
 import pytest
-import lassen.asm as asm
 import math
 import random
 import gmpy2
 
-Bit = Bit
-Data = BitVector[DATAWIDTH]
 SData = SIntVector[DATAWIDTH]
 Data32 = SIntVector[DATAWIDTH*2]
-BFloat16 = FPVector[8, 7,RoundingMode.RNE,False]
+BFloat16 = BFloat16_fc(Bit.get_family())
+RoundToZero = RoundToZero_fc(Bit.get_family())
+RoundToZeroBounded = RoundToZeroBounded_fc(Bit.get_family())
+FExp = FExp_fc(Bit.get_family())
+Add32 = Add32_fc(Bit.get_family())
+Sub32 = Sub32_fc(Bit.get_family())
+FMA = FMA_fc(Bit.get_family())
+FDiv = FDiv_fc(Bit.get_family())
+FLN = FLN_fc(Bit.get_family())
+
 
 NTESTS = 16
-
-FMA = gen_FMA(BitVector.get_family())
-DIV = gen_fdiv(BitVector.get_family())
-LN  = gen_fln(BitVector.get_family())
-EXP = gen_fexp(BitVector.get_family())
-Add32 = gen_Add32(BitVector.get_family())
-Sub32 = gen_Sub32(BitVector.get_family())
-RoundToZeroBounded = gen_round_to_zero_bounded(BitVector.get_family())
-RoundToZero = gen_round_to_zero(BitVector.get_family())
 
 _BOUND = 2**15-2**6-1
 _bounded_args = []
@@ -53,9 +47,9 @@ def test_round(arg):
     assert BFloat16.reinterpret_from_bv(r2z) == gold
 
 @pytest.mark.parametrize("args", [
-    (random.randint(-10,10),
-     random.randint(-10,10),
-     random.randint(-10,10))
+    (random.randint(-10, 10),
+     random.randint(-10, 10),
+     random.randint(-10, 10))
     for _ in range(NTESTS) ] )
 def test_fma(args):
     fma = FMA()
@@ -83,7 +77,7 @@ def test_div():
         quotient = bfbin2float(float2bfbin(divident_bfp / divisor_bfp))
         quotient_bfloat_str = float2bfbin(quotient)
 
-        divisor_exp = int(divisor_bfloat_str[1:9],2)-127
+        divisor_exp = int(divisor_bfloat_str[1:9], 2)-127
         max_error =  2*math.fabs(eps*(divident_bfp/divisor_bfp))
         test_vectors.append(
             [divident_bfloat_str, divisor_bfloat_str, quotient_bfloat_str, max_error])
@@ -94,13 +88,13 @@ def test_div():
         op_b = Data(int(test_vector[1], 2))
         exp_res = int(test_vector[2], 2)
         max_error = test_vector[3]
-        div = DIV()
+        div = FDiv()
         result = div(op_a, op_b)
         golden_res = bfbin2float(test_vector[2])
         actual_res = bfbin2float("{:016b}".format(int(result)))
         delta = math.fabs(golden_res - actual_res)
         #print("div", bfbin2float(test_vector[0]), bfbin2float(test_vector[1]),
-        #      golden_res,actual_res,delta,max_error)
+        #      golden_res, actual_res, delta, max_error)
         assert delta <= max_error
 
 def test_ln():
@@ -116,10 +110,10 @@ def test_ln():
         res = bfbin2float(float2bfbin(math.log(num_bfp)))
         res_bfloat_str = float2bfbin(res)
 
-        num_exp = int(num_bfloat_str[1:9],2)-127
-        res_exp = int(res_bfloat_str[1:9],2)-127
+        num_exp = int(num_bfloat_str[1:9], 2)-127
+        res_exp = int(res_bfloat_str[1:9], 2)-127
         max_error =  2*(eps + math.fabs(eps*num_exp) + eps)
-        test_vectors.append([num_bfloat_str, float2bfbin(0), res_bfloat_str,max_error])
+        test_vectors.append([num_bfloat_str, float2bfbin(0), res_bfloat_str, max_error])
 
     #result = ln(op_a)
     for test_vector in test_vectors:
@@ -128,13 +122,13 @@ def test_ln():
         exp_res = int(test_vector[2], 2)
         max_error = test_vector[3]
 
-        ln = LN()
+        ln = FLN()
         result = ln(op_a)
         golden_res = bfbin2float(test_vector[2])
         actual_res = bfbin2float("{:016b}".format(int(result)))
         delta = math.fabs(golden_res - actual_res)
         #print("ln", bfbin2float(test_vector[0]), bfbin2float(test_vector[1]),
-        #      golden_res,actual_res,delta, max_error)
+        #      golden_res, actual_res, delta, max_error)
 
         assert delta <= max_error
 
@@ -173,36 +167,36 @@ def test_exp():
         exp_res = int(test_vector[2], 2)
         max_error = test_vector[3]
 
-        exp = EXP()
+        exp = FExp()
         result = exp(op_a)
         golden_res = bfbin2float(test_vector[2])
         actual_res = bfbin2float("{:016b}".format(int(result)))
         delta = math.fabs(golden_res - actual_res)
         #print("ln", bfbin2float(test_vector[0]), bfbin2float(test_vector[1]),
-        #      golden_res,actual_res,delta, max_error)
+        #      golden_res, actual_res, delta, max_error)
 
         assert delta <= max_error
 
 def test_add32_targeted():
     add32 = Add32()
-    assert Data32(10) == add32(Data32(2),Data32(8))
-    assert Data32(100000) == add32(Data32(20000),Data32(80000))
-    assert Data32(2**17-2) == add32(Data32(2**16-1),Data32(2**16-1))
-    assert Data32(2**31-2) == add32(Data32(2**30-1),Data32(2**30-1))
+    assert Data32(10) == add32(Data32(2), Data32(8))
+    assert Data32(100000) == add32(Data32(20000), Data32(80000))
+    assert Data32(2**17-2) == add32(Data32(2**16-1), Data32(2**16-1))
+    assert Data32(2**31-2) == add32(Data32(2**30-1), Data32(2**30-1))
 
 op = namedtuple("op", ["complex", "func"])
-@pytest.mark.parametrize("op",[
-    op(Add32,lambda x, y : x + y),
-    op(Sub32,lambda x, y : x - y),
+@pytest.mark.parametrize("op", [
+    op(Add32, lambda x, y : x + y),
+    op(Sub32, lambda x, y : x - y),
 ])
 @pytest.mark.parametrize("args", [
-    (SIntVector.random(32),SIntVector.random(32))
+    (SIntVector.random(32), SIntVector.random(32))
         for _ in range(NTESTS)
 ])
-def test_addsub(op,args):
+def test_addsub(op, args):
     cop = op.complex()
     in0 = args[0]
     in1 = args[1]
-    res = cop(in0,in1)
-    assert res == op.func(in0,in1)
+    res = cop(in0, in1)
+    assert res == op.func(in0, in1)
 

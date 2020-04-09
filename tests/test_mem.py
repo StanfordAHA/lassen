@@ -4,10 +4,9 @@ from hwtypes import BitVector, Bit
 import coreir
 import pytest
 
-family = BitVector.get_family()
-MemInstr, (Rom, Fifo, LineBuffer) = gen_mem_instr(family,width,depth)
-Data = BitVector[width]
-Mem = gen_mem(family)
+MemInstr = gen_mem_instr(width,depth)
+Rom = MemInstr.field_dict['rom']
+Mem = gen_mem()
 def test_rom():
 
     #Load addr 0 with Data(0), addr 1 with Data(1), etc...
