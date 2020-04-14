@@ -3,7 +3,7 @@ from lassen import PE_fc, asm
 from peak import Peak
 
 def Add32_fc(family):
-    PE = PE_fc(Bit.get_family())
+    PE = PE_fc(family)
     Data16 = BitVector[16]
     Data32 = BitVector[32]
     class Add32(Peak):
@@ -20,7 +20,7 @@ def Add32_fc(family):
     return Add32
 
 def Sub32_fc(family):
-    PE = PE_fc(Bit.get_family())
+    PE = PE_fc(family)
     Data16 = BitVector[16]
     Data32 = BitVector[32]
     class Sub32(Peak):
