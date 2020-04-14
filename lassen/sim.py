@@ -1,4 +1,4 @@
-from peak import Peak, family_closure, name_outputs, assemble
+from peak import Peak, family_closure, name_outputs
 from functools import lru_cache
 import magma as m
 
@@ -28,7 +28,7 @@ def PE_fc(family):
     LUT = LUT_fc(family)
     Inst = Inst_fc(family)
 
-    @assemble(family, locals(), globals())
+    @family.assemble(locals(), globals())
     class PE(Peak):
         def __init__(self):
 
