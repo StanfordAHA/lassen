@@ -1,25 +1,29 @@
-from lassen.stdlib import *
-from lassen.common import DATAWIDTH, BFloat16_fc
+from collections import namedtuple
+import math
+import pytest
+import random
+
+import gmpy2
+
 from hwtypes import BitVector, Bit, SIntVector
+from peak.family import PyFamily
+
+from lassen.common import DATAWIDTH, BFloat16_fc
+from lassen.stdlib import *
 from lassen.utils import float2bfbin, bfbin2float
 
-from collections import namedtuple
-import pytest
-import math
-import random
-import gmpy2
 
 SData = SIntVector[DATAWIDTH]
 Data32 = SIntVector[DATAWIDTH*2]
-BFloat16 = BFloat16_fc(Bit.get_family())
-RoundToZero = RoundToZero_fc(Bit.get_family())
-RoundToZeroBounded = RoundToZeroBounded_fc(Bit.get_family())
-FExp = FExp_fc(Bit.get_family())
-Add32 = Add32_fc(Bit.get_family())
-Sub32 = Sub32_fc(Bit.get_family())
-FMA = FMA_fc(Bit.get_family())
-FDiv = FDiv_fc(Bit.get_family())
-FLN = FLN_fc(Bit.get_family())
+BFloat16 = BFloat16_fc(PyFamily())
+RoundToZero = RoundToZero_fc(PyFamily())
+RoundToZeroBounded = RoundToZeroBounded_fc(PyFamily())
+FExp = FExp_fc(PyFamily())
+Add32 = Add32_fc(PyFamily())
+Sub32 = Sub32_fc(PyFamily())
+FMA = FMA_fc(PyFamily())
+FDiv = FDiv_fc(PyFamily())
+FLN = FLN_fc(PyFamily())
 
 
 NTESTS = 16

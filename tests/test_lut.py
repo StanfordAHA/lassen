@@ -1,12 +1,16 @@
 from collections import namedtuple
 import operator
-import lassen.asm as asm
-from lassen import PE_fc, DATAWIDTH
-from hwtypes import SIntVector, UIntVector, BitVector, Bit
-import pytest
 import random
 
-PE = PE_fc(Bit.get_family())
+import pytest
+
+from hwtypes import SIntVector, UIntVector, BitVector, Bit
+from peak.family import PyFamily
+
+import lassen.asm as asm
+from lassen import PE_fc, DATAWIDTH
+
+PE = PE_fc(PyFamily())
 Data = BitVector[DATAWIDTH]
 
 op = namedtuple("op", ["name", "func"])

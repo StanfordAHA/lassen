@@ -1,12 +1,12 @@
 from lassen.alu import ALU_fc
-from peak import Peak, family_closure, assemble
+from peak import Peak, family_closure
 from peak.mapper import ArchMapper
 from peak.mapper.utils import pretty_print_binding
 
 @family_closure
 def Add_fc(family):
     Data = family.BitVector[16]
-    @assemble(family, locals(), globals())
+    @family.assemble(locals(), globals())
     class Add(Peak):
         def __call__(self, a: Data, b:Data) -> Data:
             return a + b

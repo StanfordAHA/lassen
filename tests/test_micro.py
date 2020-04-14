@@ -1,19 +1,24 @@
+from collections import namedtuple
+import random
+
+import pytest
+
+from hwtypes import SIntVector, UIntVector, BitVector, Bit
+from peak.family import PyFamily
+
 import lassen.asm as asm
 from lassen import PE_fc, Inst_fc
 from lassen.common import DATAWIDTH, BFloat16_fc
 from lassen.utils import float2bfbin, bfbin2float
-from hwtypes import SIntVector, UIntVector, BitVector, Bit
 from rtl_utils import rtl_tester
-from collections import namedtuple
-import random
-import pytest
-Inst = Inst_fc(Bit.get_family())
+
+Inst = Inst_fc(PyFamily())
 Mode_t = Inst.rega
 
-PE = PE_fc(Bit.get_family())
+PE = PE_fc(PyFamily())
 pe = PE()
 
-BFloat16 = BFloat16_fc(Bit.get_family())
+BFloat16 = BFloat16_fc(PyFamily())
 Data = BitVector[DATAWIDTH]
 
 op = namedtuple("op", ["inst", "func"])
