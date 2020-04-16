@@ -1,23 +1,27 @@
-import fault
-import magma
+import os
+
 import shutil
-from peak.assembler import Assembler
+
+import fault
+from hwtypes import Bit, BitVector
+import magma
 from peak import wrap_with_disassembler
+from peak.assembler import Assembler
+from peak.family import PyFamily, MagmaFamily
+
 from lassen import PE_fc, Inst_fc
 from lassen.common import DATAWIDTH, BFloat16_fc
-from hwtypes import Bit, BitVector
-import os
 
 class HashableDict(dict):
     def __hash__(self):
         return hash(tuple(sorted(self.keys())))
 
-Inst = Inst_fc(Bit.get_family())
+Inst = Inst_fc(PyFamily())
 Mode_t = Inst.rega
 
-PE_bv = PE_fc(Bit.get_family())
+PE_bv = PE_fc(PyFamily())
 
-BFloat16 = BFloat16_fc(Bit.get_family())
+BFloat16 = BFloat16_fc(PyFamily())
 Data = BitVector[DATAWIDTH]
 
 # create these variables in global space so that we can reuse them easily
@@ -29,8 +33,8 @@ assembler = _assembler.assemble
 disassembler = _assembler.disassemble
 width = _assembler.width
 layout = _assembler.layout
-#PE_magma = PE_fc(magma.get_family(), use_assembler=True)
-PE_magma = PE_fc(magma.get_family())
+#PE_magma = PE_fc(MagmaFamily(), use_assembler=True)
+PE_magma = PE_fc(MagmaFamily())
 instr_magma_type = type(PE_magma.interface.ports[inst_name])
 pe_circuit = wrap_with_disassembler(PE_magma, disassembler, width,
                                          HashableDict(layout),

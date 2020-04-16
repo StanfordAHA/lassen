@@ -1,4 +1,4 @@
-from peak import Peak, family_closure, name_outputs, assemble
+from peak import Peak, family_closure, name_outputs
 from hwtypes.adt import Enum
 
 """
@@ -42,7 +42,7 @@ class Cond_t(Enum):
 @family_closure
 def Cond_fc(family):
     Bit = family.Bit
-    @assemble(family, locals(), globals())
+    @family.assemble(locals(), globals())
     class Cond(Peak):
         @name_outputs(cond=Bit)
         def __call__(self, code: Cond_t, alu: Bit, lut: Bit, Z: Bit, N: Bit, C: Bit, V: Bit) \

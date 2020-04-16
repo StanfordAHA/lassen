@@ -1,8 +1,9 @@
-from dataclasses import dataclass
-from .isa import Inst_fc
 from hwtypes import BitVector, Bit
+from peak.family import PyFamily
 
-Inst = Inst_fc(Bit.get_family())
+from .isa import Inst_fc
+
+Inst = Inst_fc(PyFamily())
 LUT_t = Inst.lut
 Cond_t = Inst.cond
 Mode_t = Inst.rega

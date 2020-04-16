@@ -1,9 +1,13 @@
+import random
+
+import pytest
+
+from hwtypes import SIntVector, UIntVector, BitVector, Bit, FPVector, RoundingMode
+from peak.family import PyFamily
+
 from lassen import PE_fc, Inst_fc
 import lassen.asm as asm
 from lassen.common import *
-from hwtypes import SIntVector, UIntVector, BitVector, Bit, FPVector, RoundingMode
-import pytest
-import random
 
 class HashableDict(dict):
     def __hash__(self):
@@ -11,8 +15,8 @@ class HashableDict(dict):
 
 Data8 = BitVector[32]
 Data = BitVector[DATAWIDTH]
-PE = PE_fc(Bit.get_family())
-Inst = Inst_fc(Bit.get_family())
+PE = PE_fc(PyFamily())
+Inst = Inst_fc(PyFamily())
 pe = PE()
 Mode_t = Inst.rega
 

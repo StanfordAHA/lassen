@@ -13,7 +13,7 @@ MEM = gen_mem()
 TLUT = tlut()
 
 def FDiv_fc(family):
-    PE = PE_fc(Bit.get_family())
+    PE = PE_fc(family)
     class FDiv(Peak):
         def __init__(self):
             self.pe_get_mant  = PE()
@@ -37,7 +37,7 @@ def FDiv_fc(family):
     return FDiv
 
 def FLN_fc(family):
-    PE = PE_fc(Bit.get_family())
+    PE = PE_fc(family)
     class FLN(Peak):
         def __init__(self):
             self.pe_get_mant = PE()

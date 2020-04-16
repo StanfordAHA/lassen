@@ -1,22 +1,27 @@
+from collections import namedtuple
+from itertools import product
+import random
+
+import pytest
+
+from hwtypes import SIntVector, UIntVector, BitVector, Bit
+from magma.bitutils import int2seq
+from peak.family import PyFamily
+
+
 import lassen.asm as asm
 from lassen import PE_fc, Inst_fc
 from lassen.common import DATAWIDTH, BFloat16_fc
-from hwtypes import SIntVector, UIntVector, BitVector, Bit
-from collections import namedtuple
-from itertools import product
 
-import random
-from magma.bitutils import int2seq
 from rtl_utils import rtl_tester, CAD_ENV
-import pytest
 
-Inst = Inst_fc(Bit.get_family())
+Inst = Inst_fc(PyFamily())
 Mode_t = Inst.rega
 
-PE = PE_fc(Bit.get_family())
+PE = PE_fc(PyFamily())
 pe = PE()
 
-BFloat16 = BFloat16_fc(Bit.get_family())
+BFloat16 = BFloat16_fc(PyFamily())
 Data = BitVector[DATAWIDTH]
 
 op = namedtuple("op", ["inst", "func"])

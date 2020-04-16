@@ -1,4 +1,4 @@
-from peak import Peak, gen_register, family_closure, assemble
+from peak import Peak, gen_register, family_closure
 from hwtypes.adt_util import rebind_type
 from functools import lru_cache
 from hwtypes.adt import Enum
@@ -17,7 +17,7 @@ def gen_register_mode(T, init=0):
         T_f = rebind_type(T, family)
         Reg = gen_register(T_f, init)(family)
         Bit = family.Bit
-        @assemble(family, locals(), globals())
+        @family.assemble(locals(), globals())
         class RegisterMode(Peak):
             def __init__(self):
                 self.register: Reg = Reg()

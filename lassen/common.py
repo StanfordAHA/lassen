@@ -1,3 +1,5 @@
+from peak.family import MagmaFamily, SMTFamily
+
 from hwtypes import make_modifier, BitVector
 from hwtypes import SMTFPVector, FPVector, RoundingMode
 from hwtypes import SMTBit
@@ -6,12 +8,12 @@ import magma
 # Current PE has 16-bit data path
 DATAWIDTH = 16
 def BFloat16_fc(family):
-    if family is magma.get_family():
+    if isinstance(family, MagmaFamily):
         BFloat16 =  magma.BFloat[16]
         BFloat16.reinterpret_from_bv = lambda bv: BFloat16(bv)
         BFloat16.reinterpret_as_bv = lambda f: magma.Bits[16](f)
         return BFloat16
-    if family is SMTBit.get_family():
+    elif isinstance(family, SMTFamily):
         FPV = SMTFPVector
     else:
         FPV = FPVector

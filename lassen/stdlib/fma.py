@@ -6,7 +6,7 @@ from peak import Peak
 #This is a complex operation that implements a Fused multiply add
 def FMA_fc(family):
     Data = BitVector[DATAWIDTH]
-    PE = PE_fc(Bit.get_family())
+    PE = PE_fc(family)
     class FMA(Peak):
         def __init__(self):
             self.pe1 = PE()
