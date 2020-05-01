@@ -48,9 +48,25 @@ test_dir = "tests/build"
 # * https://github.com/StanfordAHA/lassen/issues/111
 # We reset the context because tests/test_micro.py calls compile and pollutes
 # the coreir context causing a "redefinition of module" error
+
+magma_opts = {
+    "passes":[
+        "rungenerators",
+        "inline_single_instances",
+        "clock_gate",
+        "inline_single_instances",
+        "removesinglemuxes",
+        "packbitconstants",
+        "fold-constants",
+        "deletedeadinstances",
+        "removeunconnected",
+    ],
+    "inline":True,
+}
+
 magma.backend.coreir_.CoreIRContextSingleton().reset_instance()
 magma.compile(f"{test_dir}/WrappedPE", pe_circuit, output="coreir-verilog",
-              coreir_libs={"float_DW"})
+              coreir_libs={"float_DW"}, **magma_opts)
 
 # check if we need to use ncsim + cw IP
 cw_dir = "/cad/synopsys/dc_shell/J-2014.09-SP3/dw/sim_ver/"   # noqa
@@ -107,6 +123,7 @@ def rtl_tester(test_op, data0=None, data1=None, bit0=None, bit1=None, bit2=None,
         tester.circuit.O0.expect(res)
     if res_p is not None:
         tester.circuit.O1.expect(res_p)
+
     if CAD_ENV:
         # use ncsim
         libs = ["DW_fp_mult.v", "DW_fp_add.v", "DW_fp_addsub.v"]
