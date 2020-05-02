@@ -158,7 +158,8 @@ def ALU_fc(family):
                 if (abs_exp[7] == Bit(1)):
                     scale = SInt[16](7)
                 normmant_mul_left = SInt[16](abs_exp)
-                normmant_mul_right = SInt[16](1) << (SInt[16](7)-scale)
+                #normmant_mul_right = SInt[16](1) << (SInt[16](7)-scale)
+                normmant_mul_right = (SInt[16](7)-scale)
                 normmant_mask = SInt[16](0x7F)
             else: #alu == ALU_t.FCnvInt2F:
                 if signed_ == Signed_t.signed:
@@ -206,13 +207,16 @@ def ALU_fc(family):
                 if (abs_input[15] == Bit(1)):
                     scale = SInt[16](15)
                 normmant_mul_left = SInt[16](abs_input)
-                normmant_mul_right = (SInt[16](1) << (SInt[16](15)-scale))
+                #normmant_mul_right = (SInt[16](1) << (SInt[16](15)-scale))
+                normmant_mul_right = (SInt[16](15)-scale)
                 normmant_mask = SInt[16](0x7f00)
 
             #if (alu == ALU_t.FCnvInt2F) | (alu == ALU_t.FCnvExp2F):
             if (scale >= 0):
+                print("scale ")
+                print (scale, normmant_mul_left, normmant_mul_right);
                 normmant = BitVector[16](
-                    (normmant_mul_left * normmant_mul_right) & normmant_mask)
+                    (normmant_mul_left << normmant_mul_right) & normmant_mask)
             else:
                 normmant = BitVector[16](0)
 
