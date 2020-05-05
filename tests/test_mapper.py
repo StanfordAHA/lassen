@@ -17,6 +17,5 @@ def test_add():
     ir_fc = Add_fc
     arch_mapper = ArchMapper(arch_fc)
     ir_mapper = arch_mapper.process_ir_instruction(ir_fc)
-    solution = ir_mapper.solve('z3')
-    assert solution.solved
-    pretty_print_binding(solution.ibinding)
+    rr = ir_mapper.solve('z3')
+    assert rr is not None
