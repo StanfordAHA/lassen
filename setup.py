@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 import sys
 
 setup(
@@ -9,9 +9,7 @@ setup(
     maintainer='Priyanka Raina',
     maintainer_email='praina@stanford.edu',
     description='PE for the CGRA written in Peak',
-    packages=[
-        "lassen",
-    ],
+    packages=find_packages(),
     install_requires=[
         "peak",
         "mantle"
