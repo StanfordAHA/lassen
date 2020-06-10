@@ -16,7 +16,7 @@ The PE for the second generation CGRA (garnet).
 # install decida
 pip install decida --user
 # install gmpy2 and its dependencies
-sudo apt-get install lmibmpc-dev
+sudo apt-get install libmpc-dev
 pip install mpc --user
 pip install gmpy2 --user
 ```
