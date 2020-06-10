@@ -11,7 +11,16 @@ The PE for the second generation CGRA (garnet).
 ## Instructions to run
 * Make sure you have python 3.7. Peak needs this.
 
-* First install peak
+* Install dependencies for peak
+```
+# install decida
+pip install decida --user
+# install gmpy2 and its dependencies
+sudo apt-get install lmibmpc-dev
+pip install mpc --user
+pip install gmpy2 --user
+```
+* Install peak
 ```
 git clone https://github.com/phanrahan/peak.git
 cd peak
