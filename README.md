@@ -9,7 +9,7 @@ The PE for the second generation CGRA (garnet).
 
 
 ## Instructions to run
-* Make sure you have python 3.7. Peak needs this.
+* Make sure you have python 3.7. Peak needs this. Python 3.6.5 will **not** work.
 
 * First install peak
 ```
