@@ -1,4 +1,4 @@
-from peak import Peak, name_outputs, family_closure
+from peak import Peak, name_outputs, family_closure, Const
 from peak.mapper.utils import rebind_type
 from .common import DATAWIDTH, BFloat16_fc
 from hwtypes.adt import Enum
@@ -103,7 +103,7 @@ def ALU_fc(family):
     @family.assemble(locals(), globals())
     class ALU(Peak):
         #@name_outputs(res=Data, res_p=Bit, Z=Bit, N=Bit, C=Bit, V=Bit)
-        def __call__(self, alu: ALU_t, signed_: Signed_t, a: Data, b: Data, d:Bit) -> (Data, Bit, Bit, Bit, Bit, Bit):
+        def __call__(self, alu: Const(ALU_t), signed_: Const(Signed_t), a: Data, b: Data, d:Bit) -> (Data, Bit, Bit, Bit, Bit, Bit):
             if signed_ == Signed_t.signed:
                 a_s = SData(a)
                 b_s = SData(b)
