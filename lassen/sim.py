@@ -1,4 +1,4 @@
-from peak import Peak, family_closure, name_outputs
+from peak import Peak, family_closure, name_outputs, Const
 from functools import lru_cache
 import magma as m
 
@@ -51,7 +51,7 @@ def PE_fc(family):
             self.lut: LUT = LUT()
 
         @name_outputs(alu_res=Data, res_p=Bit, read_config_data=Data32)
-        def __call__(self, inst: Inst, \
+        def __call__(self, inst: Const(Inst), \
             data0: Data, data1: Data = Data(0), \
             bit0: Bit = Bit(0), bit1: Bit = Bit(0), bit2: Bit = Bit(0), \
             clk_en: Global(Bit) = Bit(1), \

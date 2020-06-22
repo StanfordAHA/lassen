@@ -4,17 +4,17 @@ from peak.mapper import ArchMapper
 from peak.mapper.utils import pretty_print_binding
 
 @family_closure
-def Mul_fc(family):
+def Add_fc(family):
     Data = family.BitVector[16]
     @family.assemble(locals(), globals())
-    class Mul(Peak):
+    class Add(Peak):
         def __call__(self, a: Data, b:Data) -> Data:
-            return a * b
-    return Mul
+            return a + b
+    return Add
 
 def test_mul():
     arch_fc = ALU_fc
-    ir_fc = Mul_fc
+    ir_fc = Add_fc
     arch_mapper = ArchMapper(arch_fc)
     ir_mapper = arch_mapper.process_ir_instruction(ir_fc)
     assert ir_mapper.formula is not None
