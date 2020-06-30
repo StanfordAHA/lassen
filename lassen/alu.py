@@ -254,7 +254,7 @@ def ALU_fc(family):
                 # C, V = a-b?
                 res, res_p = lte_pred.ite(a, b), lte_pred
             elif alu == ALU_t.Abs:
-                res, res_p = abs_pred.ite(a, -SInt[16](a)), Bit(a[-1])
+                res, res_p = abs_pred.ite(a, UInt[16](-SInt[16](a))), Bit(a[-1])
             elif alu == ALU_t.Sel:
                 res, res_p = d.ite(a, b), Bit(0)
             elif alu == ALU_t.And:
