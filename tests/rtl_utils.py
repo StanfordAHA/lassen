@@ -48,7 +48,7 @@ test_dir = "tests/build"
 # * https://github.com/StanfordAHA/lassen/issues/111
 # We reset the context because tests/test_micro.py calls compile and pollutes
 # the coreir context causing a "redefinition of module" error
-magma.frontend.coreir_ import ResetCoreIR()
+magma.frontend.coreir_.ResetCoreIR()
 magma.compile(f"{test_dir}/WrappedPE", pe_circuit, output="coreir-verilog",
               coreir_libs={"float_CW"})
 
