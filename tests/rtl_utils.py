@@ -50,7 +50,7 @@ test_dir = "tests/build"
 # the coreir context causing a "redefinition of module" error
 magma.frontend.coreir_.ResetCoreIR()
 magma.compile(f"{test_dir}/WrappedPE", pe_circuit, output="coreir-verilog",
-              coreir_libs={"float_CW"})
+              coreir_libs={"float_CW"}, sv=True)
 
 
 
