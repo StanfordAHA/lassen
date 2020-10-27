@@ -48,12 +48,14 @@ test_dir = "tests/build"
 # * https://github.com/StanfordAHA/lassen/issues/111
 # We reset the context because tests/test_micro.py calls compile and pollutes
 # the coreir context causing a "redefinition of module" error
-magma.backend.coreir_.CoreIRContextSingleton().reset_instance()
+magma.frontend.coreir_ import ResetCoreIR()
 magma.compile(f"{test_dir}/WrappedPE", pe_circuit, output="coreir-verilog",
               coreir_libs={"float_CW"})
 
+
+
 # check if we need to use ncsim + cw IP
-cw_dir = "/cad/synopsys/dc_shell/J-2014.09-SP3/dw/sim_ver/"   # noqa
+cw_dir = "/cad/cadence/GENUS_19.10.000_lnx86/share/synth/lib/chipware/sim/verilog/CW/"
 CAD_ENV = shutil.which("ncsim") and os.path.isdir(cw_dir)
 
 
