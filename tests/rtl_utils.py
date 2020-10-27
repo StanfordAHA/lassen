@@ -42,7 +42,7 @@ pe_circuit = wrap_with_disassembler(PE_magma, disassembler, width,
 tester = fault.Tester(pe_circuit, clock=pe_circuit.CLK)
 test_dir = "tests/build"
 
-# Explicitly load `float_DW` lib so we get technology specific mapping with
+# Explicitly load `float_CW` lib so we get technology specific mapping with
 # special code for BFloat rounding, for more info:
 # * https://github.com/rdaly525/coreir/pull/753
 # * https://github.com/StanfordAHA/lassen/issues/111
@@ -50,7 +50,7 @@ test_dir = "tests/build"
 # the coreir context causing a "redefinition of module" error
 magma.backend.coreir_.CoreIRContextSingleton().reset_instance()
 magma.compile(f"{test_dir}/WrappedPE", pe_circuit, output="coreir-verilog",
-              coreir_libs={"float_DW"})
+              coreir_libs={"float_CW"})
 
 # check if we need to use ncsim + cw IP
 cw_dir = "/cad/synopsys/dc_shell/J-2014.09-SP3/dw/sim_ver/"   # noqa
@@ -109,7 +109,7 @@ def rtl_tester(test_op, data0=None, data1=None, bit0=None, bit1=None, bit2=None,
         tester.circuit.O1.expect(res_p)
     if CAD_ENV:
         # use ncsim
-        libs = ["DW_fp_mult.v", "DW_fp_add.v", "DW_fp_addsub.v"]
+        libs = ["CW_fp_mult.v", "CW_fp_add.v", "CW_fp_addsub.v"]
         for filename in libs:
             copy_file(os.path.join(cw_dir, filename),
                       os.path.join(test_dir, filename))
@@ -118,7 +118,7 @@ def rtl_tester(test_op, data0=None, data1=None, bit0=None, bit1=None, bit2=None,
                                include_verilog_libraries=libs,
                                skip_compile=True)
     else:
-        libs = ["DW_fp_mult.v", "DW_fp_add.v"]
+        libs = ["CW_fp_mult.v", "CW_fp_add.v"]
         for filename in libs:
             copy_file(os.path.join("stubs", filename),
                       os.path.join(test_dir, filename))

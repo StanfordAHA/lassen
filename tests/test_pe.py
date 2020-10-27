@@ -208,7 +208,7 @@ def test_fp_binary_op(op, args):
     if CAD_ENV:
         rtl_tester(op, data0, data1, res=res)
     else:
-        pytest.skip("Skipping since DW not available")
+        pytest.skip("Skipping since CW not available")
 
 #container for a floating point value easily indexed by sign, exp, and frac
 fpdata = namedtuple("fpdata", ["sign", "exp", "frac"])
@@ -233,7 +233,7 @@ def test_fp_mul():
     if CAD_ENV:
         rtl_tester(inst, data0, data1, res=res)
     else:
-        pytest.skip("Skipping since DW not available")
+        pytest.skip("Skipping since CW not available")
 
 
 @pytest.mark.parametrize("xy",
@@ -259,7 +259,7 @@ def test_fp_cmp(xy, op):
     if CAD_ENV:
         rtl_tester(op, data0, data1, res_p=out)
     else:
-        pytest.skip("Skipping since DW not available")
+        pytest.skip("Skipping since CW not available")
 
 @pytest.mark.parametrize("lut_code", [
     UIntVector.random(8)
