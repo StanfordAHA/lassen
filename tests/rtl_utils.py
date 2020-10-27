@@ -121,7 +121,8 @@ def compile_and_run_tester(tester):
         tester.compile_and_run(target="system-verilog", simulator="ncsim",
                                directory="tests/build/",
                                include_verilog_libraries=libs,
-                               skip_compile=True)
+                               skip_compile=True,
+                               magma_opts=dict(sv=True))
     else:
         libs = ["CW_fp_mult.v", "CW_fp_add.v"]
         for filename in libs:
@@ -134,5 +135,6 @@ def compile_and_run_tester(tester):
                                directory=test_dir,
                                flags=['-Wno-UNUSED', '-Wno-PINNOCONNECT'],
                                skip_compile=True,
-                               skip_verilator=skip_verilator)
+                               skip_verilator=skip_verilator, 
+                               magma_opts=dict(sv=True))
 
