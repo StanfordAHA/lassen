@@ -107,6 +107,9 @@ def rtl_tester(test_op, data0=None, data1=None, bit0=None, bit1=None, bit2=None,
         tester.circuit.O0.expect(res)
     if res_p is not None:
         tester.circuit.O1.expect(res_p)
+    compile_and_run_tester(tester)
+
+def compile_and_run_tester(tester):
     if CAD_ENV:
         # use ncsim
         libs = ["CW_fp_mult.v", "CW_fp_add.v", "CW_fp_addsub.v"]
