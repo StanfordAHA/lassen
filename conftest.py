@@ -1,5 +1,5 @@
 import pytest
-from magma.backend.coreir_ import ResetCoreIR
+from magma.frontend.coreir_ import ResetCoreIR
 
 
 @pytest.fixture(autouse=True)
