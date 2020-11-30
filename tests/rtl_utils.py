@@ -50,7 +50,7 @@ test_dir = "tests/build"
 # the coreir context causing a "redefinition of module" error
 magma.backend.coreir_.CoreIRContextSingleton().reset_instance()
 magma.compile(f"{test_dir}/WrappedPE", pe_circuit, output="coreir-verilog",
-              coreir_libs={"float_DW"})
+              coreir_libs={"float_DW"}, sv=True)
 
 # check if we need to use ncsim + cw IP
 cw_dir = "/cad/synopsys/dc_shell/J-2014.09-SP3/dw/sim_ver/"   # noqa
