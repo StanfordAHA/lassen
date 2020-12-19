@@ -48,7 +48,8 @@ test_dir = "tests/build"
 # * https://github.com/StanfordAHA/lassen/issues/111
 # We reset the context because tests/test_micro.py calls compile and pollutes
 # the coreir context causing a "redefinition of module" error
-magma.backend.coreir_.CoreIRContextSingleton().reset_instance()
+#magma.backend.coreir_.CoreIRContextSingleton().reset_instance()
+magma.frontend.coreir_.ResetCoreIR()
 magma.compile(f"{test_dir}/WrappedPE", pe_circuit, output="coreir-verilog",
               coreir_libs={"float_DW"}, sv=True)
 
@@ -129,5 +130,6 @@ def rtl_tester(test_op, data0=None, data1=None, bit0=None, bit1=None, bit2=None,
                                directory=test_dir,
                                flags=['-Wno-UNUSED', '-Wno-PINNOCONNECT'],
                                skip_compile=True,
-                               skip_verilator=skip_verilator)
+                               skip_verilator=skip_verilator,
+                               ext_model_file="WrappedPE.sv")
 
