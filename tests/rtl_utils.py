@@ -117,7 +117,8 @@ def rtl_tester(test_op, data0=None, data1=None, bit0=None, bit1=None, bit2=None,
         tester.compile_and_run(target="system-verilog", simulator="ncsim",
                                directory="tests/build/",
                                include_verilog_libraries=libs,
-                               skip_compile=True)
+                               skip_compile=True,
+                               ext_model_file="WrappedPE.sv")
     else:
         libs = ["DW_fp_mult.v", "DW_fp_add.v"]
         for filename in libs:
