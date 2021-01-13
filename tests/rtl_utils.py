@@ -110,7 +110,7 @@ def rtl_tester(test_op, data0=None, data1=None, bit0=None, bit1=None, bit2=None,
         tester.circuit.O1.expect(res_p)
     if CAD_ENV:
         # use ncsim
-        libs = ["DW_fp_mult.v", "DW_fp_add.v", "DW_fp_addsub.v"]
+        libs = ["DW_fp_mult.v", "DW_fp_add.v", "DW_fp_addsub.v", "WrappedPE.sv"]
         for filename in libs:
             copy_file(os.path.join(cw_dir, filename),
                       os.path.join(test_dir, filename))
@@ -118,7 +118,8 @@ def rtl_tester(test_op, data0=None, data1=None, bit0=None, bit1=None, bit2=None,
                                directory="tests/build/",
                                include_verilog_libraries=libs,
                                skip_compile=True,
-                               ext_model_file="WrappedPE.v")
+                               ext_model_file=True,
+                               )
     else:
         libs = ["DW_fp_mult.v", "DW_fp_add.v"]
         for filename in libs:
@@ -132,5 +133,5 @@ def rtl_tester(test_op, data0=None, data1=None, bit0=None, bit1=None, bit2=None,
                                flags=['-Wno-UNUSED', '-Wno-PINNOCONNECT'],
                                skip_compile=True,
                                skip_verilator=skip_verilator,
-                               ext_model_file="WrappedPE.sv")
+                               )
 
