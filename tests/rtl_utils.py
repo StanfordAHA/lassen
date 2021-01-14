@@ -33,7 +33,6 @@ assembler = _assembler.assemble
 disassembler = _assembler.disassemble
 width = _assembler.width
 layout = _assembler.layout
-#PE_magma = PE_fc(MagmaFamily(), use_assembler=True)
 PE_magma = PE_fc(MagmaFamily())
 instr_magma_type = type(PE_magma.interface.ports[inst_name])
 pe_circuit = wrap_with_disassembler(PE_magma, disassembler, width,
@@ -48,7 +47,6 @@ test_dir = "tests/build"
 # * https://github.com/StanfordAHA/lassen/issues/111
 # We reset the context because tests/test_micro.py calls compile and pollutes
 # the coreir context causing a "redefinition of module" error
-#magma.backend.coreir_.CoreIRContextSingleton().reset_instance()
 magma.frontend.coreir_.ResetCoreIR()
 magma.compile(f"{test_dir}/WrappedPE", pe_circuit, output="coreir-verilog",
               coreir_libs={"float_DW"}, sv=True)
