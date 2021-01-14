@@ -33,7 +33,6 @@ assembler = _assembler.assemble
 disassembler = _assembler.disassemble
 width = _assembler.width
 layout = _assembler.layout
-#PE_magma = PE_fc(MagmaFamily(), use_assembler=True)
 PE_magma = PE_fc(MagmaFamily())
 instr_magma_type = type(PE_magma.interface.ports[inst_name])
 pe_circuit = wrap_with_disassembler(PE_magma, disassembler, width,
@@ -48,9 +47,9 @@ test_dir = "tests/build"
 # * https://github.com/StanfordAHA/lassen/issues/111
 # We reset the context because tests/test_micro.py calls compile and pollutes
 # the coreir context causing a "redefinition of module" error
-magma.backend.coreir_.CoreIRContextSingleton().reset_instance()
+magma.frontend.coreir_.ResetCoreIR()
 magma.compile(f"{test_dir}/WrappedPE", pe_circuit, output="coreir-verilog",
-              coreir_libs={"float_DW"})
+              coreir_libs={"float_DW"}, sv=True)
 
 # check if we need to use ncsim + cw IP
 cw_dir = "/cad/synopsys/dc_shell/J-2014.09-SP3/dw/sim_ver/"   # noqa
@@ -116,7 +115,9 @@ def rtl_tester(test_op, data0=None, data1=None, bit0=None, bit1=None, bit2=None,
         tester.compile_and_run(target="system-verilog", simulator="ncsim",
                                directory="tests/build/",
                                include_verilog_libraries=libs,
-                               skip_compile=True)
+                               skip_compile=True,
+                               magma_opts={"sv": True},
+                               )
     else:
         libs = ["DW_fp_mult.v", "DW_fp_add.v"]
         for filename in libs:
@@ -129,5 +130,7 @@ def rtl_tester(test_op, data0=None, data1=None, bit0=None, bit1=None, bit2=None,
                                directory=test_dir,
                                flags=['-Wno-UNUSED', '-Wno-PINNOCONNECT'],
                                skip_compile=True,
-                               skip_verilator=skip_verilator)
+                               skip_verilator=skip_verilator,
+                               magma_opts={"sv": True},
+                               )
 
