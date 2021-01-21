@@ -9,7 +9,7 @@ from peak.assembler import Assembler
 from lassen.alu import ALU_fc
 from lassen.cond import Cond_fc
 from lassen.lut import LUT_fc
-from lassen.mode import RegisterMode_fc
+from lassen.mode import gen_register_mode
 from lassen.sim import PE_fc
 
 magma_family = MagmaFamily()
@@ -18,7 +18,7 @@ def test_cond():
     Cond_magma = Cond_fc(magma_family)
 
 def test_mode():
-    rmode_magma = RegisterMode_fc(magma_family)(magma_family.BitVector[16], 0)
+    rmode_magma = gen_register_mode(16, 0)(magma_family)
 
 def test_alu():
     ALU_magma = ALU_fc(magma_family)

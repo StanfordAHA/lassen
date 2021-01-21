@@ -10,12 +10,22 @@ class Mode_t(Enum):
     BYPASS = 2  # Register is bypassed and input value is returned
     DELAY = 3   # Register written with input value, previous value returned
 
-@family_closure
-def RegisterMode_fc(family):
-    @lru_cache(None)
-    def gen_register_mode(T, init):
+
+def gen_bit_mode(init):
+    return gen_register_mode(None, init)
+
+@lru_cache(None)
+def gen_register_mode(width, init):
+    @family_closure
+    def RegisterMode_fc(family):
+        if width is None:
+            T = family.Bit
+        else:
+            T = family.BitVector[width]
+
         Reg = family.gen_register(T, init)
         Bit = family.Bit
+
         @family.assemble(locals(), globals())
         class RegisterMode(Peak):
             def __init__(self):
@@ -40,5 +50,5 @@ def RegisterMode_fc(family):
                 else: # mode == Mode_t.DELAY:
                     return reg_val, reg_val
         return RegisterMode
-    return gen_register_mode
+    return RegisterMode_fc
 
