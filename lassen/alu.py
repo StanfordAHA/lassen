@@ -118,7 +118,7 @@ def ALU_fc(family):
                 mula, mulb = a_u.zext(16), b_u.zext(16)
                 gte_pred = a_u >= b_u
                 lte_pred = a_u <= b_u
-                abs_pred = a_u >= SData(0)
+                abs_pred = Bit(1) # a_u >= UData(0)
                 shr = Data(a_u >> b_u)
             mul = mula * mulb
             a_inf = fp_is_inf(a)

@@ -7,7 +7,7 @@ from peak.family import PyFamily, SMTFamily
 from peak.mapper.utils import aadt_product_to_dict
 
 
-from lassen.mode import gen_register_mode
+from lassen.mode import RegisterMode_fc
 from lassen.alu import ALU_fc
 from lassen.cond import Cond_fc
 from lassen.lut import LUT_fc
@@ -31,7 +31,7 @@ def test_cond():
     outputs = Cond_smt()(**inputs)
 
 def test_mode():
-    rmode_smt = gen_register_mode(BitVector[16], 0)(SMTFamily())
+    rmode_smt = RegisterMode_fc(SMTFamily())(SMTBitVector[16], 0)
     inputs = create_input(rmode_smt.input_t)
     outputs = rmode_smt()(**inputs)
 
