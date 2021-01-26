@@ -31,7 +31,7 @@ def test_cond():
     outputs = Cond_smt()(**inputs)
 
 def test_mode():
-    rmode_smt = gen_register_mode(BitVector[16], 0)(SMTFamily())
+    rmode_smt = gen_register_mode(16, 0)(SMTFamily())
     inputs = create_input(rmode_smt.input_t)
     outputs = rmode_smt()(**inputs)
 
