@@ -1,9 +1,9 @@
-from peak import Peak, family_closure, name_outputs
+from peak import Peak, family_closure, name_outputs, Const
 from functools import lru_cache
 import magma as m
 
 from .common import *
-from .mode import gen_register_mode
+from .mode import gen_register_mode, gen_bit_mode
 from .lut import LUT_fc
 from .alu import ALU_fc
 from .cond import Cond_fc
@@ -21,8 +21,8 @@ def PE_fc(family):
     Data8 = family.BitVector[8]
     Data32 = family.BitVector[32]
     Bit = family.Bit
-    DataReg = gen_register_mode(Data, 0)(family)
-    BitReg = gen_register_mode(Bit, 0)(family)
+    DataReg = gen_register_mode(DATAWIDTH, 0)(family)
+    BitReg = gen_bit_mode(0)(family)
     ALU = ALU_fc(family)
     Cond = Cond_fc(family)
     LUT = LUT_fc(family)
@@ -51,7 +51,7 @@ def PE_fc(family):
             self.lut: LUT = LUT()
 
         @name_outputs(alu_res=Data, res_p=Bit, read_config_data=Data32)
-        def __call__(self, inst: Inst, \
+        def __call__(self, inst: Const(Inst), \
             data0: Data, data1: Data = Data(0), \
             bit0: Bit = Bit(0), bit1: Bit = Bit(0), bit2: Bit = Bit(0), \
             clk_en: Global(Bit) = Bit(1), \

@@ -1,4 +1,5 @@
 from hwtypes import BitVector, SMTBit, SMTBitVector
+from hwtypes.modifiers import strip_modifiers
 
 from peak.assembler.assembler import Assembler
 from peak.assembler.assembled_adt import AssembledADT
@@ -13,6 +14,7 @@ from lassen.lut import LUT_fc
 from lassen.sim import PE_fc
 
 def create_input(T):
+    T = strip_modifiers(T)
     aadt_t = AssembledADT[T, Assembler, SMTBitVector]
     width = Assembler(T).width
     aadt_val = aadt_t(SMTBitVector[width]())
@@ -29,7 +31,7 @@ def test_cond():
     outputs = Cond_smt()(**inputs)
 
 def test_mode():
-    rmode_smt = gen_register_mode(BitVector[16], 0)(SMTFamily())
+    rmode_smt = gen_register_mode(16, 0)(SMTFamily())
     inputs = create_input(rmode_smt.input_t)
     outputs = rmode_smt()(**inputs)
 

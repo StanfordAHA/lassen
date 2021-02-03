@@ -12,21 +12,22 @@ from lassen.lut import LUT_fc
 from lassen.mode import gen_register_mode
 from lassen.sim import PE_fc
 
+magma_family = MagmaFamily()
 
 def test_cond():
-    Cond_magma = Cond_fc(MagmaFamily())
+    Cond_magma = Cond_fc(magma_family)
 
 def test_mode():
-    rmode_magma = gen_register_mode(BitVector[16], 0)(MagmaFamily())
+    rmode_magma = gen_register_mode(16, 0)(magma_family)
 
 def test_alu():
-    ALU_magma = ALU_fc(MagmaFamily())
+    ALU_magma = ALU_fc(magma_family)
 
 def test_PE():
-    PE_magma = PE_fc(MagmaFamily())
+    PE_magma = PE_fc(magma_family)
 
 def test_LUT():
-    LUT_magma = LUT_fc(MagmaFamily())
+    LUT_magma = LUT_fc(magma_family)
 
 
 def test_wrapped_PE():
@@ -42,7 +43,7 @@ def test_wrapped_PE():
     __inputs = OrderedDict(pe.input_t.field_dict)
     __inputs['inst']
     __outputs = OrderedDict(pe.output_t.field_dict)
-    circuit = PE_fc(MagmaFamily())
+    circuit = PE_fc(magma_family)
     __asm = Assembler(__instr_type)
     instr_magma_type = type(circuit.interface.ports[__instr_name])
     __circuit = peak.wrap_with_disassembler(
