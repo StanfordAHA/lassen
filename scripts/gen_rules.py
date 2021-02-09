@@ -1,32 +1,60 @@
-from lassen.sim import gen_pe
-import lassen.asm as asm
-from hwtypes import BitVector
-import coreir
-import metamapper as mm
-import pytest
 import json
 
-def discover(file_name):
+import metamapper.coreir_util as cutil
+from metamapper.irs.coreir import gen_CoreIRNodes
+from metamapper import CoreIRContext
+from peak.mapper import ArchMapper
 
-    c = coreir.Context()
-    mapper = mm.PeakMapper(c,"pe_ns")
-    mapper.add_peak_primitive("PE",gen_pe)
+from lassen.sim import PE_fc
 
-    def bypass_mode(inst):
-        return (
-            inst.rega == type(inst.rega).BYPASS and
-            inst.regb == type(inst.regb).BYPASS and
-            inst.regd == type(inst.regd).BYPASS and
-            inst.rege == type(inst.rege).BYPASS and
-            inst.regf == type(inst.regf).BYPASS and
-            inst.alu.name[0] != 'F' and
-            inst.cond.name[0] != 'F'
-        )
-    mapper.add_discover_constraint(bypass_mode)
-    rrs = mapper.discover_peak_rewrite_rules(width=16,serialize=True,verbose=1)
-    print(rrs)
+c = CoreIRContext(reset=True)
+cutil.load_libs(["commonlib"])
+CoreIRNodes = gen_CoreIRNodes(16)
 
-    with open(file_name,'w') as jfile:
-        json.dump(rrs,jfile,indent=2)
+lassen_ops = (
+    "coreir.const",
+    "corebit.const",
+    "corebit.and_",
+    "coreir.ule",
+    "coreir.sle",
+    "coreir.ult",
+    "coreir.slt",
+    "coreir.ugt",
+    "coreir.sgt",
+    "coreir.uge",
+    "coreir.sge",
+    "coreir.or_",
+    "coreir.mul",
+    "coreir.and_",
+    "commonlib.smax",
+    "commonlib.smin",
+    "commonlib.umax",
+    "commonlib.umin",
+    "coreir.add",
+    "corebit.not_",
+    "corebit.mux",
+    "corebit.or_",
+    "corebit.xor",
+    "coreir.sub",
+    "commonlib.abs",
+    "coreir.eq",
+    "coreir.lshr",
+    "coreir.ashr",
+    "coreir.shl",
+    "coreir.mux",
+)
 
-discover('rules/_all.json')
+all_rrs = {}
+arch_mapper = ArchMapper(PE_fc)
+
+for op in lassen_ops:
+    print(f"Searching for {op}", flush=True)
+    ir_fc = CoreIRNodes.peak_nodes[op]
+    ir_mapper = arch_mapper.process_ir_instruction(ir_fc)
+    rewrite_rule = ir_mapper.solve('z3',external_loop=True)
+    assert rewrite_rule is not None
+    serialized_rr = rewrite_rule.serialize_bindings()
+    all_rrs[op] = serialized_rr
+
+with open("scripts/rewrite_rules/lassen_rewrite_rules.json", "w") as write_file:
+    json.dump(all_rrs, write_file, indent=2)
