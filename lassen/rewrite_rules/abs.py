@@ -14,7 +14,7 @@ def abs_fc(family: AbstractFamily):
     class abs(Peak):
         def __call__(self, in0 : Data) -> Data:
             
-            return Data((SInt(in0) >= SInt(0)).ite(SInt(in0), SInt(in0)*SInt(-1)))
+            return Data((SInt(in0) >= SInt(0)).ite(SInt(in0), SInt(-1)*SInt(in0)))
     
     return abs
     
