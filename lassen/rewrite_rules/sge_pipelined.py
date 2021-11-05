@@ -4,17 +4,17 @@ from peak import family
 from peak.family import AbstractFamily
 
 @family_closure
-def sge_fc(family: AbstractFamily):
+def sge_pipelined_fc(family: AbstractFamily):
     Data = family.BitVector[16]
     Data32 = family.Unsigned[32]
     SInt = family.Signed[16]
     UInt = family.Unsigned[16]
     Bit = family.Bit
     @family.assemble(locals(), globals())
-    class sge(Peak):
+    class sge_pipelined(Peak):
         def __call__(self, in0 : Data, in1 : Data) -> Bit:
             
             return Bit(SInt(in1) >= SInt(in0))
     
-    return sge
+    return sge_pipelined
     
