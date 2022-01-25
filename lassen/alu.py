@@ -211,7 +211,7 @@ def ALU_fc(family):
             #    raise NotImplementedError(alu)
 
             N = Bit(res[-1])
-            if (alu == ALU_t.FP_sub) | (alu == ALU_t.FP_add) | (alu == ALU_t.FP_mult) | (alu==ALU_t.FP_cmp):
+            if (alu == ALU_t.FP_sub) | (alu == ALU_t.FP_add) | (alu == ALU_t.FP_mult) | (alu==ALU_t.FP_cmp) | (alu == ALU_t.FP_div) | (alu == ALU_t.FP_ln) | (alu == ALU_t.FP_exp) | (alu == ALU_t.FP_sin):
                 Z = fp_is_zero(res)
             else:
                 Z = (res == SData(0))
