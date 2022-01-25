@@ -46,6 +46,9 @@ class ALU_t(Enum):
     FP_cmp = 0x18
     FP_mult = 0x19
     FP_div = 0x20
+    FP_ln = 0x21
+    FP_exp = 0x22
+    FP_sin = 0x23
 
 """
 Whether the operation is unsigned (0) or signed (1)
@@ -61,9 +64,11 @@ def overflow(a, b, res):
     return (msb_a & msb_b & ~N) | (~msb_a & ~msb_b & N)
 
 lassen_home = pathlib.Path(__file__).parent.resolve()
-div = f"{lassen_home}/div.v"
-assert os.path.exists(div)
-div = m.define_from_verilog_file(div)[0]
+custom_ops = {}
+for op in ["div", "ln", "exp", "sin"]:
+    f = f"{lassen_home}/{op}.v"
+    assert os.path.exists(f)
+    custom_ops[op] = m.define_from_verilog_file(f)[0]
 
 @family_closure
 def ALU_fc(family):
@@ -188,7 +193,16 @@ def ALU_fc(family):
                 res = float2bv(a_fpmul * b_fpmul)
                 res_p = Bit(0)
             elif alu == ALU_t.FP_div:
-                res = div()(a, b)
+                res = custom_ops["div"]()(a, b)
+                res_p = Bit(0)
+            elif alu == ALU_t.FP_ln:
+                res = custom_ops["ln"]()(a)
+                res_p = Bit(0)
+            elif alu == ALU_t.FP_exp:
+                res = custom_ops["exp"]()(a)
+                res_p = Bit(0)
+            elif alu == ALU_t.FP_sin:
+                res = custom_ops["sin"]()(a)
                 res_p = Bit(0)
             else: #alu == ALU_t.FCnvInt2F:
                 res, res_p = 0, Bit(0)

@@ -1,20 +1,16 @@
-module fp_div (
+module fp_exp (
     input [15:0] a,
-    input [15:0] b,
     output [15:0] o
 );
 
-wire [2:0] rnd = 3'b0;
 wire [7:0] status;
 
-CW_fp_div #(
-    .sig_width(7),
-    .exp_width(8),
+CW_fp_exp #(
+    .sig_width(10),
+    .exp_width(5),
     .ieee_compliance(1'b1)
-) div (
+) exp (
     .a(a),
-    .b(b),
-    .rnd(rnd),
     .z(o),
     .status(status)
 );
