@@ -66,7 +66,7 @@ def overflow(a, b, res):
 lassen_home = pathlib.Path(__file__).parent.resolve()
 custom_ops = {}
 for op in ["div", "ln", "exp", "sin"]:
-    f = f"{lassen_home}/{op}.v"
+    f = f"{lassen_home}/DW_{op}.v"
     assert os.path.exists(f)
     custom_ops[op] = m.define_from_verilog_file(f)[0]
 
