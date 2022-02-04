@@ -1,32 +1,37 @@
-from lassen.sim import gen_pe
-import lassen.asm as asm
-from hwtypes import BitVector
-import coreir
-import metamapper as mm
-import pytest
 import json
+import glob
+import importlib
+from pathlib import Path
 
-def discover(file_name):
+import metamapper.coreir_util as cutil
+from metamapper.irs.coreir import gen_CoreIRNodes
+from metamapper import CoreIRContext
+from peak.mapper import ArchMapper
+from lassen.sim import PE_fc
 
-    c = coreir.Context()
-    mapper = mm.PeakMapper(c,"pe_ns")
-    mapper.add_peak_primitive("PE",gen_pe)
+rrules = glob.glob(f'./lassen/rewrite_rules/zext.py')
 
-    def bypass_mode(inst):
-        return (
-            inst.rega == type(inst.rega).BYPASS and
-            inst.regb == type(inst.regb).BYPASS and
-            inst.regd == type(inst.regd).BYPASS and
-            inst.rege == type(inst.rege).BYPASS and
-            inst.regf == type(inst.regf).BYPASS and
-            inst.alu.name[0] != 'F' and
-            inst.cond.name[0] != 'F'
-        )
-    mapper.add_discover_constraint(bypass_mode)
-    rrs = mapper.discover_peak_rewrite_rules(width=16,serialize=True,verbose=1)
-    print(rrs)
+arch_mapper = ArchMapper(PE_fc)
 
-    with open(file_name,'w') as jfile:
-        json.dump(rrs,jfile,indent=2)
+for rrule in rrules:
+    op = Path(rrule).stem
 
-discover('rules/_all.json')
+    path = Path(f'./lassen/rewrite_rules/{op}.json')
+
+    if not path.is_file():
+
+        print(f"Searching for {op}", flush=True)
+        peak_eq = importlib.import_module(f"lassen.rewrite_rules.{op}")
+
+        ir_fc = getattr(peak_eq, op + "_fc")
+
+        ir_mapper = arch_mapper.process_ir_instruction(ir_fc, simple_formula=True)
+        rewrite_rule = ir_mapper.solve('z3')
+        print(f"Found", flush=True)
+        assert rewrite_rule is not None
+        counter_example = rewrite_rule.verify()
+        assert counter_example == None, f"{op} failed"
+        serialized_rr = rewrite_rule.serialize_bindings()
+
+        with open(f'./lassen/rewrite_rules/{op}.json', "w") as write_file:
+            json.dump(serialized_rr, write_file, indent=2)
