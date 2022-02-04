@@ -36,6 +36,26 @@ def FDiv_fc(family):
             return result
     return FDiv
 
+
+def FMax_fc(family):
+    PE = PE_fc(family)
+    class FMax(Peak):
+        def __init__(self):
+            self.pe_cmp  = PE()
+            self.pe_mux      = PE()
+
+        #result = op_a/op_b;
+        def __call__(self, in0 : Data, in1 : Data) -> Data:
+            inst1 = asm.fp_gt()
+            inst3 = asm.sel()
+            op_a = in0
+            op_b = in1
+            _, cmp_out, _  = self.pe_cmp(inst1, op_a, op_b)
+            result, _, _   = self.pe_mux(inst3, op_a, op_b, cmp_out)
+            return result
+    return FMax
+
+
 def FLN_fc(family):
     PE = PE_fc(family)
     class FLN(Peak):
@@ -94,6 +114,7 @@ def FExp_fc(family):
             ln2_inv = 1.0/math.log(2)
             ln2_inv_bf = int(float2bfbin(ln2_inv), 2)
             const_ln2_inv = Data(ln2_inv_bf)
+            breakpoint()
             div_res, _, _  = self.pe_div_mult(inst1, const_ln2_inv, op_a)
             fint, _, _     = self.pe_get_int(inst2, div_res, Data(0))
             ffrac, _, _    = self.pe_get_frac(inst3, div_res, Data(0))
