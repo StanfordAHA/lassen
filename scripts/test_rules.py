@@ -1,23 +1,29 @@
+
 import json
 import glob
+import importlib
+from pathlib import Path
+import jsonpickle
 import metamapper.coreir_util as cutil
 from metamapper.irs.coreir import gen_CoreIRNodes
 from metamapper import CoreIRContext
-from peak.mapper import ArchMapper
-
+from peak.mapper import ArchMapper, read_serialized_bindings
 from lassen.sim import PE_fc
 
-all_rrs = {}
+rrules = glob.glob(f'./lassen/rewrite_rules/fp_sub*.json')
+
 arch_mapper = ArchMapper(PE_fc)
 
-for op in lassen_ops:
-    print(f"Searching for {op}", flush=True)
-    ir_fc = CoreIRNodes.peak_nodes[op]
-    ir_mapper = arch_mapper.process_ir_instruction(ir_fc)
-    rewrite_rule = ir_mapper.solve()
-    assert rewrite_rule is not None
-    serialized_rr = rewrite_rule.serialize_bindings()
-    all_rrs[op] = serialized_rr
+for rrule in rrules:
+    if "pipelined" not in rrule and "middle" not in rrule:
+        rule_name = Path(rrule).stem
+        print(rule_name)
+        peak_eq = importlib.import_module(f"lassen.rewrite_rules.{rule_name}")
+        ir_fc = getattr(peak_eq, rule_name + "_fc")
 
-with open("scripts/rewrite_rules/lassen_rewrite_rules.json", "w") as write_file:
-    json.dump(all_rrs, write_file, indent=2)
+        with open(rrule, "r") as json_file:
+            rewrite_rule_in = jsonpickle.decode(json_file.read())
+
+        rewrite_rule = read_serialized_bindings(rewrite_rule_in, ir_fc, PE_fc)
+        counter_example = rewrite_rule.verify()
+        assert counter_example == None, f"{rule_name} failed"

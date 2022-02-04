@@ -9,7 +9,7 @@ from metamapper import CoreIRContext
 from peak.mapper import ArchMapper
 from lassen.sim import PE_fc
 
-rrules = glob.glob(f'./lassen/rewrite_rules/*.py')
+rrules = glob.glob(f'./lassen/rewrite_rules/zext.py')
 
 arch_mapper = ArchMapper(PE_fc)
 
@@ -29,6 +29,8 @@ for rrule in rrules:
         rewrite_rule = ir_mapper.solve('z3')
         print(f"Found", flush=True)
         assert rewrite_rule is not None
+        counter_example = rewrite_rule.verify()
+        assert counter_example == None, f"{op} failed"
         serialized_rr = rewrite_rule.serialize_bindings()
 
         with open(f'./lassen/rewrite_rules/{op}.json', "w") as write_file:
