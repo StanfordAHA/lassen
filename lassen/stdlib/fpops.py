@@ -114,7 +114,6 @@ def FExp_fc(family):
             ln2_inv = 1.0/math.log(2)
             ln2_inv_bf = int(float2bfbin(ln2_inv), 2)
             const_ln2_inv = Data(ln2_inv_bf)
-            breakpoint()
             div_res, _, _  = self.pe_div_mult(inst1, const_ln2_inv, op_a)
             fint, _, _     = self.pe_get_int(inst2, div_res, Data(0))
             ffrac, _, _    = self.pe_get_frac(inst3, div_res, Data(0))
