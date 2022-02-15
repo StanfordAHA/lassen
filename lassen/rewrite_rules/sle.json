@@ -1,0 +1,238 @@
+{
+  "ibinding": [
+    [
+      {
+        "type": "BitVector",
+        "width": 8,
+        "value": 6
+      },
+      [
+        "inst",
+        "alu"
+      ]
+    ],
+    [
+      {
+        "type": "BitVector",
+        "width": 1,
+        "value": 1
+      },
+      [
+        "inst",
+        "signed"
+      ]
+    ],
+    [
+      {
+        "type": "BitVector",
+        "width": 8,
+        "value": 6
+      },
+      [
+        "inst",
+        "lut"
+      ]
+    ],
+    [
+      {
+        "type": "BitVector",
+        "width": 5,
+        "value": 11
+      },
+      [
+        "inst",
+        "cond"
+      ]
+    ],
+    [
+      {
+        "type": "BitVector",
+        "width": 2,
+        "value": 2
+      },
+      [
+        "inst",
+        "rega"
+      ]
+    ],
+    [
+      {
+        "type": "BitVector",
+        "width": 2,
+        "value": 2
+      },
+      [
+        "inst",
+        "regb"
+      ]
+    ],
+    [
+      {
+        "type": "BitVector",
+        "width": 2,
+        "value": 1
+      },
+      [
+        "inst",
+        "regd"
+      ]
+    ],
+    [
+      {
+        "type": "BitVector",
+        "width": 2,
+        "value": 1
+      },
+      [
+        "inst",
+        "rege"
+      ]
+    ],
+    [
+      {
+        "type": "BitVector",
+        "width": 2,
+        "value": 1
+      },
+      [
+        "inst",
+        "regf"
+      ]
+    ],
+    [
+      {
+        "type": "BitVector",
+        "width": 16,
+        "value": 0
+      },
+      [
+        "inst",
+        "data0"
+      ]
+    ],
+    [
+      {
+        "type": "BitVector",
+        "width": 16,
+        "value": 0
+      },
+      [
+        "inst",
+        "data1"
+      ]
+    ],
+    [
+      {
+        "type": "Bit",
+        "width": 1,
+        "value": false
+      },
+      [
+        "inst",
+        "bit0"
+      ]
+    ],
+    [
+      {
+        "type": "Bit",
+        "width": 1,
+        "value": false
+      },
+      [
+        "inst",
+        "bit1"
+      ]
+    ],
+    [
+      {
+        "type": "Bit",
+        "width": 1,
+        "value": false
+      },
+      [
+        "inst",
+        "bit2"
+      ]
+    ],
+    [
+      [
+        "in1"
+      ],
+      [
+        "data0"
+      ]
+    ],
+    [
+      [
+        "in0"
+      ],
+      [
+        "data1"
+      ]
+    ],
+    [
+      "unbound",
+      [
+        "bit0"
+      ]
+    ],
+    [
+      "unbound",
+      [
+        "bit1"
+      ]
+    ],
+    [
+      "unbound",
+      [
+        "bit2"
+      ]
+    ],
+    [
+      "unbound",
+      [
+        "config_en"
+      ]
+    ],
+    [
+      "unbound",
+      [
+        "clk_en"
+      ]
+    ],
+    [
+      "unbound",
+      [
+        "config_addr"
+      ]
+    ],
+    [
+      "unbound",
+      [
+        "config_data"
+      ]
+    ]
+  ],
+  "obinding": [
+    [
+      "unbound",
+      [
+        "alu_res"
+      ]
+    ],
+    [
+      [
+        0
+      ],
+      [
+        "res_p"
+      ]
+    ],
+    [
+      "unbound",
+      [
+        "read_config_data"
+      ]
+    ]
+  ]
+}
