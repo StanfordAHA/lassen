@@ -24,7 +24,7 @@ solve_rules()
 
 print("Generating pipelined rules")
 
-rrule_peak_files = glob.glob(f'{rr_path}/ugt.py')
+rrule_peak_files = glob.glob(f'{rr_path}/*.py')
 
 for file_ in rrule_peak_files:
     

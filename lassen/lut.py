@@ -1,6 +1,4 @@
 from peak import Peak, family_closure, name_outputs
-from functools import lru_cache
-
 
 @family_closure
 def LUT_t_fc(family):

@@ -36,7 +36,6 @@ def FDiv_fc(family):
             return result
     return FDiv
 
-
 def FLN_fc(family):
     PE = PE_fc(family)
     class FLN(Peak):

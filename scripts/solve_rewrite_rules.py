@@ -9,7 +9,7 @@ from metamapper.irs.coreir import gen_CoreIRNodes
 from metamapper import CoreIRContext
 from peak.mapper import ArchMapper
 from lassen.sim import PE_fc
-
+from pysmt.logics import QF_BV
 
 def solve_rules():
     dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -36,11 +36,14 @@ def solve_rules():
 
             ir_fc = getattr(peak_eq, op + "_fc")
             simp_formula = "fp_" in op
-            ir_mapper = arch_mapper.process_ir_instruction(ir_fc, simple_formula=simp_formula)
+            ir_mapper = arch_mapper.process_ir_instruction(ir_fc, simple_formula=True)
             
             print(f"Searching for {op}", flush=True)
-            
-            rewrite_rule = ir_mapper.solve('z3')
+
+            if simp_formula:
+                rewrite_rule = ir_mapper.solve('z3')
+            else:
+                rewrite_rule = ir_mapper.solve('btor', logic=QF_BV, external_loop=True, itr_limit=100)
             
             assert rewrite_rule is not None, f"No rewrite rule found for {op}"
            

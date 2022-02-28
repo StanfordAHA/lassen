@@ -5,6 +5,7 @@ from hwtypes import SMTFPVector, FPVector, RoundingMode
 from hwtypes import SMTBit
 import magma
 
+
 # Current PE has 16-bit data path
 DATAWIDTH = 16
 def BFloat16_fc(family):
@@ -19,6 +20,7 @@ def BFloat16_fc(family):
         FPV = FPVector
     BFloat16 = FPV[8, 7, RoundingMode.RNE, False]
     return BFloat16
+
 
 # Global signal modifier.
 Global = make_modifier("Global")
