@@ -1,7 +1,7 @@
 from hwtypes.adt import Enum
 from peak import Peak, family_closure, Const, name_outputs
 from hwtypes import Bit, BitVector
-from ..common import DATAWIDTH, BFloat16_fc
+from peak.float import float_lib_gen, RoundingMode
 
 Data = BitVector[16]
 class FPU_t(Enum):
@@ -10,19 +10,13 @@ class FPU_t(Enum):
     FP_cmp = 2
     FP_mul = 3
 
+float_lib = float_lib_gen(8, 7)
 
 @family_closure
 def FPU_fc(family):
 
-    BFloat16 = BFloat16_fc(family)
-    FPExpBV = family.BitVector[8]
-    FPFracBV = family.BitVector[7]
-
-    def bv2float(bv):
-        return BFloat16.reinterpret_from_bv(bv)
-
-    def float2bv(bvf):
-        return BFloat16.reinterpret_as_bv(bvf)
+    FPAdd = float_lib.const_rm(RoundingMode.RNE).Add_fc(family)
+    FPMul = float_lib.const_rm(RoundingMode.RNE).Mul_fc(family)
 
     def fp_get_exp(val: Data):
         return val[7:15]
@@ -41,6 +35,10 @@ def FPU_fc(family):
 
     @family.assemble(locals(), globals(), set_port_names=True)
     class FPU(Peak):
+        def __init__(self):
+            self.Add: FPAdd = FPAdd()
+            self.Mul: FPMul = FPMul()
+
         @name_outputs(res=Data, N=Bit, Z=Bit)
         def __call__(self, fpu_op: Const(FPU_t), a: Data, b: Data) -> (Data, Bit, Bit):
 
@@ -49,17 +47,16 @@ def FPU_fc(family):
             a_neg = fp_is_neg(a)
             b_neg = fp_is_neg(b)
 
+            neg_b = (fpu_op == FPU_t.FP_sub) | (fpu_op == FPU_t.FP_cmp)
+            if (neg_b):
+                b = b ^ (2**(16-1))
+            Add_val = self.Add(a, b)
+            Mul_val = self.Mul(a, b)
             if (fpu_op == FPU_t.FP_add) | (fpu_op == FPU_t.FP_sub) | (fpu_op == FPU_t.FP_cmp):
-                if (fpu_op == FPU_t.FP_sub) | (fpu_op == FPU_t.FP_cmp):
-                    b = b ^ (2**(16-1))
-                a_fpadd = bv2float(a)
-                b_fpadd = bv2float(b)
-                res = float2bv(a_fpadd + b_fpadd)
-            else: #fpu_op == FPU_t.FP_mul:
-                a_fpmul = bv2float(a)
-                b_fpmul = bv2float(b)
-                res = float2bv(a_fpmul * b_fpmul) 
-            
+                res = Add_val
+            else:
+                res = Mul_val
+
             Z = fp_is_zero(res)
             # Nicely handles infinities for comparisons
             if (fpu_op == FPU_t.FP_cmp):
