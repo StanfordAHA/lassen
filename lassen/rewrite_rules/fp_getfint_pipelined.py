@@ -24,7 +24,7 @@ def BFloat16_fc(family):
     return BFloat16
 
 @family_closure
-def fp_getfint_fc(family: AbstractFamily):
+def fp_getfint_pipelined_fc(family: AbstractFamily):
     Data = family.BitVector[16]
     Data32 = family.Unsigned[32]
     SInt = family.Signed
@@ -58,7 +58,7 @@ def fp_getfint_fc(family: AbstractFamily):
         return Bit(val[-1])
 
     @family.assemble(locals(), globals())
-    class fp_getfint(Peak):
+    class fp_getfint_pipelined(Peak):
         def __call__(self, in0 : Data, in1 : Data) -> Data:
             signa = BitVector[16]((in0 & 0x8000))
             manta = BitVector[16]((in0 & 0x7F)) | 0x80
@@ -79,5 +79,5 @@ def fp_getfint_fc(family: AbstractFamily):
             # We are not checking for overflow when converting to int
             res = signed_res
             return res
-    return fp_getfint
+    return fp_getfint_pipelined
     

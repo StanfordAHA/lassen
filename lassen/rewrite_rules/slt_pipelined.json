@@ -3,11 +3,12 @@
     [
       {
         "type": "BitVector",
-        "width": 8,
+        "width": 5,
         "value": 6
       },
       [
         "inst",
+        "op",
         "alu"
       ]
     ],
@@ -26,7 +27,7 @@
       {
         "type": "BitVector",
         "width": 8,
-        "value": 3
+        "value": 255
       },
       [
         "inst",
@@ -37,7 +38,7 @@
       {
         "type": "BitVector",
         "width": 5,
-        "value": 10
+        "value": 12
       },
       [
         "inst",
@@ -70,7 +71,18 @@
       {
         "type": "BitVector",
         "width": 2,
-        "value": 1
+        "value": 3
+      },
+      [
+        "inst",
+        "regc"
+      ]
+    ],
+    [
+      {
+        "type": "BitVector",
+        "width": 2,
+        "value": 0
       },
       [
         "inst",
@@ -81,7 +93,7 @@
       {
         "type": "BitVector",
         "width": 2,
-        "value": 3
+        "value": 0
       },
       [
         "inst",
@@ -92,7 +104,7 @@
       {
         "type": "BitVector",
         "width": 2,
-        "value": 3
+        "value": 0
       },
       [
         "inst",
@@ -103,7 +115,7 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 0
+        "value": 63017
       },
       [
         "inst",
@@ -114,7 +126,7 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 0
+        "value": 12608
       },
       [
         "inst",
@@ -123,9 +135,20 @@
     ],
     [
       {
+        "type": "BitVector",
+        "width": 16,
+        "value": 36932
+      },
+      [
+        "inst",
+        "data2"
+      ]
+    ],
+    [
+      {
         "type": "Bit",
         "width": 1,
-        "value": false
+        "value": true
       },
       [
         "inst",
@@ -147,7 +170,7 @@
       {
         "type": "Bit",
         "width": 1,
-        "value": false
+        "value": true
       },
       [
         "inst",
@@ -168,6 +191,12 @@
       ],
       [
         "data1"
+      ]
+    ],
+    [
+      "unbound",
+      [
+        "data2"
       ]
     ],
     [
@@ -217,7 +246,7 @@
     [
       "unbound",
       [
-        "alu_res"
+        "res"
       ]
     ],
     [

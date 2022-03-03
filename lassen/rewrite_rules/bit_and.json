@@ -3,11 +3,12 @@
     [
       {
         "type": "BitVector",
-        "width": 8,
+        "width": 5,
         "value": 0
       },
       [
         "inst",
+        "op",
         "alu"
       ]
     ],
@@ -15,7 +16,7 @@
       {
         "type": "BitVector",
         "width": 1,
-        "value": 1
+        "value": 0
       },
       [
         "inst",
@@ -26,7 +27,7 @@
       {
         "type": "BitVector",
         "width": 8,
-        "value": 8
+        "value": 138
       },
       [
         "inst",
@@ -59,11 +60,22 @@
       {
         "type": "BitVector",
         "width": 2,
-        "value": 2
+        "value": 3
       },
       [
         "inst",
         "regb"
+      ]
+    ],
+    [
+      {
+        "type": "BitVector",
+        "width": 2,
+        "value": 0
+      },
+      [
+        "inst",
+        "regc"
       ]
     ],
     [
@@ -92,7 +104,7 @@
       {
         "type": "BitVector",
         "width": 2,
-        "value": 1
+        "value": 0
       },
       [
         "inst",
@@ -103,7 +115,7 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 53248
+        "value": 4101
       },
       [
         "inst",
@@ -114,11 +126,22 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 0
+        "value": 57475
       },
       [
         "inst",
         "data1"
+      ]
+    ],
+    [
+      {
+        "type": "BitVector",
+        "width": 16,
+        "value": 44051
+      },
+      [
+        "inst",
+        "data2"
       ]
     ],
     [
@@ -147,7 +170,7 @@
       {
         "type": "Bit",
         "width": 1,
-        "value": false
+        "value": true
       },
       [
         "inst",
@@ -167,8 +190,14 @@
       ]
     ],
     [
+      "unbound",
       [
-        "in0"
+        "data2"
+      ]
+    ],
+    [
+      [
+        "in1"
       ],
       [
         "bit0"
@@ -176,7 +205,7 @@
     ],
     [
       [
-        "in1"
+        "in0"
       ],
       [
         "bit1"
@@ -217,7 +246,7 @@
     [
       "unbound",
       [
-        "alu_res"
+        "res"
       ]
     ],
     [

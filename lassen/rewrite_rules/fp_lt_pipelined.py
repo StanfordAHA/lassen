@@ -24,7 +24,7 @@ def BFloat16_fc(family):
     return BFloat16
 
 @family_closure
-def fp_lt_fc(family: AbstractFamily):
+def fp_lt_pipelined_fc(family: AbstractFamily):
     Data = family.BitVector[16]
     Data32 = family.Unsigned[32]
     SInt = family.Signed[16]
@@ -57,12 +57,12 @@ def fp_lt_fc(family: AbstractFamily):
         return Bit(val[-1])
 
     @family.assemble(locals(), globals())
-    class fp_lt(Peak):
+    class fp_lt_pipelined(Peak):
         def __call__(self, in0 : Data, in1 : Data) -> Bit:
             
             a_fpadd = bv2float(in0)
             b_fpadd = bv2float(in1)
             return Bit(a_fpadd < b_fpadd)
     
-    return fp_lt
+    return fp_lt_pipelined
     

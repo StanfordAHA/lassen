@@ -3,11 +3,12 @@
     [
       {
         "type": "BitVector",
-        "width": 8,
-        "value": 20
+        "width": 5,
+        "value": 6
       },
       [
         "inst",
+        "op",
         "alu"
       ]
     ],
@@ -15,7 +16,7 @@
       {
         "type": "BitVector",
         "width": 1,
-        "value": 0
+        "value": 1
       },
       [
         "inst",
@@ -26,7 +27,7 @@
       {
         "type": "BitVector",
         "width": 8,
-        "value": 3
+        "value": 223
       },
       [
         "inst",
@@ -74,6 +75,17 @@
       },
       [
         "inst",
+        "regc"
+      ]
+    ],
+    [
+      {
+        "type": "BitVector",
+        "width": 2,
+        "value": 0
+      },
+      [
+        "inst",
         "regd"
       ]
     ],
@@ -81,7 +93,7 @@
       {
         "type": "BitVector",
         "width": 2,
-        "value": 3
+        "value": 0
       },
       [
         "inst",
@@ -92,7 +104,7 @@
       {
         "type": "BitVector",
         "width": 2,
-        "value": 3
+        "value": 0
       },
       [
         "inst",
@@ -103,7 +115,7 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 0
+        "value": 32769
       },
       [
         "inst",
@@ -114,7 +126,7 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 0
+        "value": 32991
       },
       [
         "inst",
@@ -123,9 +135,20 @@
     ],
     [
       {
+        "type": "BitVector",
+        "width": 16,
+        "value": 4
+      },
+      [
+        "inst",
+        "data2"
+      ]
+    ],
+    [
+      {
         "type": "Bit",
         "width": 1,
-        "value": false
+        "value": true
       },
       [
         "inst",
@@ -147,7 +170,7 @@
       {
         "type": "Bit",
         "width": 1,
-        "value": false
+        "value": true
       },
       [
         "inst",
@@ -156,7 +179,7 @@
     ],
     [
       [
-        "in0"
+        "in1"
       ],
       [
         "data0"
@@ -164,10 +187,16 @@
     ],
     [
       [
-        "in1"
+        "in0"
       ],
       [
         "data1"
+      ]
+    ],
+    [
+      "unbound",
+      [
+        "data2"
       ]
     ],
     [
@@ -217,7 +246,7 @@
     [
       "unbound",
       [
-        "alu_res"
+        "res"
       ]
     ],
     [

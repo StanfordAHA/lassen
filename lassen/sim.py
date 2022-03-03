@@ -68,7 +68,7 @@ def PE_fc(family: TypeFamily):
             #Condition code
             self.cond: Cond = Cond()
 
-        @name_outputs(res=DataPy, res_p=BitPy, read_config_data=Data48Py)
+        @name_outputs(res=DataPy, res_p=BitPy, read_config_data=Data32Py)
         def __call__(
             self,
             inst: Const(Inst),
@@ -80,24 +80,26 @@ def PE_fc(family: TypeFamily):
             bit2: BitPy = Bit(0),
             clk_en: Global(BitPy) = Bit(1),
             config_addr : Data8Py = Data8(0),
-            config_data : Data48Py = Data48(0),
+            config_data : Data32Py = Data32(0),
             config_en : BitPy = Bit(0)
-        ) -> (DataPy, BitPy, Data48Py):
+        ) -> (DataPy, BitPy, Data32Py):
 
-            data01_addr = (config_addr[:3] == family.BitVector[3](DATA01_ADDR))
+            data0_addr = (config_addr[:3] == family.BitVector[3](DATA0_ADDR))
+            data1_addr = (config_addr[:3] == family.BitVector[3](DATA1_ADDR))
+            data2_addr = (config_addr[:3] == family.BitVector[3](DATA2_ADDR))
             bit012_addr = (config_addr[:3] == family.BitVector[3](BIT012_ADDR))
 
             #ra
-            ra_we = (data01_addr & config_en)
-            ra_config_wdata = config_data[DATA0_START:DATA0_START+DATA0_WIDTH]
+            ra_we = (data0_addr & config_en)
+            ra_config_wdata = config_data[DATA_START:DATA_START+DATA_WIDTH]
 
             #rb
-            rb_we = ra_we
-            rb_config_wdata = config_data[DATA1_START:DATA1_START+DATA1_WIDTH]
+            rb_we = (data1_addr & config_en)
+            rb_config_wdata = config_data[DATA_START:DATA_START+DATA_WIDTH]
 
             #rc
-            rc_we = ra_we
-            rc_config_wdata = config_data[DATA2_START:DATA2_START+DATA2_WIDTH]
+            rc_we = (data2_addr & config_en)
+            rc_config_wdata = config_data[DATA_START:DATA_START+DATA_WIDTH]
 
             #rd
             rd_we = (bit012_addr & config_en)
@@ -124,6 +126,14 @@ def PE_fc(family: TypeFamily):
                 ra_rdata.concat(rb_rdata).concat(rc_rdata)
             )
 
+            if bit012_addr:
+                read_config_data = BV1(rd_rdata).concat(BV1(re_rdata)).concat(BV1(rf_rdata)).concat(family.BitVector[32-3](0))
+            elif data0_addr:
+                read_config_data = ra_rdata.concat(family.BitVector[16](0))
+            elif data1_addr:
+                read_config_data = rb_rdata.concat(family.BitVector[16](0))
+            else: #elif data2_addr:
+                read_config_data = rc_rdata.concat(family.BitVector[16](0))
             #Compute the outputs
 
             #set default values to each of the op kinds

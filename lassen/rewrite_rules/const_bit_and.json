@@ -3,11 +3,12 @@
     [
       {
         "type": "BitVector",
-        "width": 8,
-        "value": 149
+        "width": 5,
+        "value": 0
       },
       [
         "inst",
+        "op",
         "alu"
       ]
     ],
@@ -48,7 +49,7 @@
       {
         "type": "BitVector",
         "width": 2,
-        "value": 0
+        "value": 3
       },
       [
         "inst",
@@ -59,7 +60,7 @@
       {
         "type": "BitVector",
         "width": 2,
-        "value": 0
+        "value": 3
       },
       [
         "inst",
@@ -70,22 +71,11 @@
       {
         "type": "BitVector",
         "width": 2,
-        "value": 2
+        "value": 0
       },
       [
         "inst",
-        "regd"
-      ]
-    ],
-    [
-      {
-        "type": "BitVector",
-        "width": 2,
-        "value": 3
-      },
-      [
-        "inst",
-        "rege"
+        "regc"
       ]
     ],
     [
@@ -96,6 +86,28 @@
       },
       [
         "inst",
+        "regd"
+      ]
+    ],
+    [
+      {
+        "type": "BitVector",
+        "width": 2,
+        "value": 2
+      },
+      [
+        "inst",
+        "rege"
+      ]
+    ],
+    [
+      {
+        "type": "BitVector",
+        "width": 2,
+        "value": 2
+      },
+      [
+        "inst",
         "regf"
       ]
     ],
@@ -103,7 +115,7 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 16384
+        "value": 36831
       },
       [
         "inst",
@@ -114,7 +126,7 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 50191
+        "value": 57475
       },
       [
         "inst",
@@ -123,10 +135,19 @@
     ],
     [
       {
-        "type": "Bit",
-        "width": 1,
-        "value": false
+        "type": "BitVector",
+        "width": 16,
+        "value": 24839
       },
+      [
+        "inst",
+        "data2"
+      ]
+    ],
+    [
+      [
+        "in0"
+      ],
       [
         "inst",
         "bit0"
@@ -144,9 +165,11 @@
       ]
     ],
     [
-      [
-        "in0"
-      ],
+      {
+        "type": "Bit",
+        "width": 1,
+        "value": false
+      },
       [
         "inst",
         "bit2"
@@ -165,9 +188,13 @@
       ]
     ],
     [
+      "unbound",
       [
-        "in1"
-      ],
+        "data2"
+      ]
+    ],
+    [
+      "unbound",
       [
         "bit0"
       ]
@@ -179,7 +206,9 @@
       ]
     ],
     [
-      "unbound",
+      [
+        "in1"
+      ],
       [
         "bit2"
       ]
@@ -213,7 +242,7 @@
     [
       "unbound",
       [
-        "alu_res"
+        "res"
       ]
     ],
     [

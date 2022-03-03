@@ -24,7 +24,7 @@ def BFloat16_fc(family):
     return BFloat16
 
 @family_closure
-def fp_addiexp_fc(family: AbstractFamily):
+def fp_addiexp_pipelined_fc(family: AbstractFamily):
     Data = family.BitVector[16]
     Data32 = family.Unsigned[32]
     SInt = family.Signed
@@ -58,7 +58,7 @@ def fp_addiexp_fc(family: AbstractFamily):
         return Bit(val[-1])
 
     @family.assemble(locals(), globals())
-    class fp_addiexp(Peak):
+    class fp_addiexp_pipelined(Peak):
         def __call__(self, in0 : Data, in1 : Data) -> Data:
             
             sign = BitVector[16]((in0 & 0x8000))
@@ -75,5 +75,5 @@ def fp_addiexp_fc(family: AbstractFamily):
             res = (sign | exp_shift | mant)
             return res
     
-    return fp_addiexp
+    return fp_addiexp_pipelined
     

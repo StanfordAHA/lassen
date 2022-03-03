@@ -3,11 +3,12 @@
     [
       {
         "type": "BitVector",
-        "width": 8,
-        "value": 10
+        "width": 5,
+        "value": 2
       },
       [
         "inst",
+        "op",
         "alu"
       ]
     ],
@@ -26,7 +27,7 @@
       {
         "type": "BitVector",
         "width": 8,
-        "value": 102
+        "value": 107
       },
       [
         "inst",
@@ -48,7 +49,7 @@
       {
         "type": "BitVector",
         "width": 2,
-        "value": 3
+        "value": 0
       },
       [
         "inst",
@@ -74,6 +75,17 @@
       },
       [
         "inst",
+        "regc"
+      ]
+    ],
+    [
+      {
+        "type": "BitVector",
+        "width": 2,
+        "value": 3
+      },
+      [
+        "inst",
         "regd"
       ]
     ],
@@ -92,7 +104,7 @@
       {
         "type": "BitVector",
         "width": 2,
-        "value": 1
+        "value": 0
       },
       [
         "inst",
@@ -103,7 +115,7 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 0
+        "value": 7998
       },
       [
         "inst",
@@ -114,7 +126,7 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 0
+        "value": 38571
       },
       [
         "inst",
@@ -122,9 +134,22 @@
       ]
     ],
     [
+      {
+        "type": "BitVector",
+        "width": 16,
+        "value": 12866
+      },
       [
-        "in0"
-      ],
+        "inst",
+        "data2"
+      ]
+    ],
+    [
+      {
+        "type": "Bit",
+        "width": 1,
+        "value": false
+      },
       [
         "inst",
         "bit0"
@@ -142,11 +167,9 @@
       ]
     ],
     [
-      {
-        "type": "Bit",
-        "width": 1,
-        "value": false
-      },
+      [
+        "in0"
+      ],
       [
         "inst",
         "bit2"
@@ -167,13 +190,19 @@
     [
       "unbound",
       [
-        "bit0"
+        "data2"
       ]
     ],
     [
       [
         "in1"
       ],
+      [
+        "bit0"
+      ]
+    ],
+    [
+      "unbound",
       [
         "bit1"
       ]
@@ -213,7 +242,7 @@
     [
       "unbound",
       [
-        "alu_res"
+        "res"
       ]
     ],
     [

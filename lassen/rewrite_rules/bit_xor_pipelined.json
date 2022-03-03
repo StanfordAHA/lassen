@@ -3,11 +3,12 @@
     [
       {
         "type": "BitVector",
-        "width": 8,
-        "value": 32
+        "width": 5,
+        "value": 13
       },
       [
         "inst",
+        "op",
         "alu"
       ]
     ],
@@ -15,7 +16,7 @@
       {
         "type": "BitVector",
         "width": 1,
-        "value": 0
+        "value": 1
       },
       [
         "inst",
@@ -26,7 +27,7 @@
       {
         "type": "BitVector",
         "width": 8,
-        "value": 72
+        "value": 111
       },
       [
         "inst",
@@ -48,7 +49,7 @@
       {
         "type": "BitVector",
         "width": 2,
-        "value": 0
+        "value": 3
       },
       [
         "inst",
@@ -70,6 +71,17 @@
       {
         "type": "BitVector",
         "width": 2,
+        "value": 0
+      },
+      [
+        "inst",
+        "regc"
+      ]
+    ],
+    [
+      {
+        "type": "BitVector",
+        "width": 2,
         "value": 3
       },
       [
@@ -81,7 +93,7 @@
       {
         "type": "BitVector",
         "width": 2,
-        "value": 0
+        "value": 3
       },
       [
         "inst",
@@ -92,7 +104,7 @@
       {
         "type": "BitVector",
         "width": 2,
-        "value": 3
+        "value": 0
       },
       [
         "inst",
@@ -103,7 +115,7 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 19140
+        "value": 48893
       },
       [
         "inst",
@@ -114,11 +126,22 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 14400
+        "value": 53653
       },
       [
         "inst",
         "data1"
+      ]
+    ],
+    [
+      {
+        "type": "BitVector",
+        "width": 16,
+        "value": 65395
+      },
+      [
+        "inst",
+        "data2"
       ]
     ],
     [
@@ -136,7 +159,7 @@
       {
         "type": "Bit",
         "width": 1,
-        "value": true
+        "value": false
       },
       [
         "inst",
@@ -147,7 +170,7 @@
       {
         "type": "Bit",
         "width": 1,
-        "value": false
+        "value": true
       },
       [
         "inst",
@@ -167,6 +190,12 @@
       ]
     ],
     [
+      "unbound",
+      [
+        "data2"
+      ]
+    ],
+    [
       [
         "in0"
       ],
@@ -175,15 +204,15 @@
       ]
     ],
     [
-      "unbound",
+      [
+        "in1"
+      ],
       [
         "bit1"
       ]
     ],
     [
-      [
-        "in1"
-      ],
+      "unbound",
       [
         "bit2"
       ]
@@ -217,7 +246,7 @@
     [
       "unbound",
       [
-        "alu_res"
+        "res"
       ]
     ],
     [
