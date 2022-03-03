@@ -31,6 +31,8 @@ def Inst_fc(family):
         data0= Data         # RegA constant (16-bits)
         regb= Mode_t        # RegB mode
         data1= Data         # RegB constant (16-bits)
+        regc= Mode_t        # RegC mode
+        data2= Data         # RegC constant (16-bits)
         regd= Mode_t        # RegD mode
         bit0= Bit           # RegD constant (1-bit)
         rege= Mode_t        # RegE mode
