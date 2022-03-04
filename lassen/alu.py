@@ -140,7 +140,7 @@ def ALU_fc(family):
                 #res, res_p = a << Data(b[:4]), Bit(0)
                 res, res_p = a << b, Bit(0)
             elif alu == ALU_t.MAC:
-                res, res_p = a * b + c, Bit(0)
+                res, res_p = mul[:16] + c, Bit(0)
 
             N = Bit(res[-1])
             Z = (res == SData(0))
