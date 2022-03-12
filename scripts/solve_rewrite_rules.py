@@ -43,7 +43,7 @@ def solve_rules():
             if simp_formula:
                 rewrite_rule = ir_mapper.solve('z3')
             else:
-                rewrite_rule = ir_mapper.solve('btor', logic=QF_BV, external_loop=True, itr_limit=100)
+                rewrite_rule = ir_mapper.solve('btor', logic=QF_BV, external_loop=True, itr_limit=200)
             
             assert rewrite_rule is not None, f"No rewrite rule found for {op}"
            
