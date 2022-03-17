@@ -196,6 +196,12 @@
     [
       "unbound",
       [
+        "data2"
+      ]
+    ],
+    [
+      "unbound",
+      [
         "bit0"
       ]
     ],

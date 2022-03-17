@@ -4,7 +4,7 @@
       {
         "type": "BitVector",
         "width": 5,
-        "value": 5
+        "value": 12
       },
       [
         "inst",
@@ -16,7 +16,7 @@
       {
         "type": "BitVector",
         "width": 1,
-        "value": 1
+        "value": 0
       },
       [
         "inst",
@@ -27,7 +27,7 @@
       {
         "type": "BitVector",
         "width": 8,
-        "value": 21
+        "value": 190
       },
       [
         "inst",
@@ -49,7 +49,7 @@
       {
         "type": "BitVector",
         "width": 2,
-        "value": 0
+        "value": 3
       },
       [
         "inst",
@@ -60,7 +60,7 @@
       {
         "type": "BitVector",
         "width": 2,
-        "value": 0
+        "value": 3
       },
       [
         "inst",
@@ -82,7 +82,7 @@
       {
         "type": "BitVector",
         "width": 2,
-        "value": 0
+        "value": 3
       },
       [
         "inst",
@@ -93,7 +93,7 @@
       {
         "type": "BitVector",
         "width": 2,
-        "value": 2
+        "value": 3
       },
       [
         "inst",
@@ -115,7 +115,7 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 15777
+        "value": 32768
       },
       [
         "inst",
@@ -126,7 +126,7 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 15096
+        "value": 34411
       },
       [
         "inst",
@@ -137,7 +137,7 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 0
+        "value": 59388
       },
       [
         "inst",
@@ -145,9 +145,11 @@
       ]
     ],
     [
-      [
-        "in0"
-      ],
+      {
+        "type": "Bit",
+        "width": 1,
+        "value": false
+      },
       [
         "inst",
         "bit0"
@@ -165,11 +167,9 @@
       ]
     ],
     [
-      {
-        "type": "Bit",
-        "width": 1,
-        "value": false
-      },
+      [
+        "in0"
+      ],
       [
         "inst",
         "bit2"
@@ -185,6 +185,12 @@
       "unbound",
       [
         "data1"
+      ]
+    ],
+    [
+      "unbound",
+      [
+        "data2"
       ]
     ],
     [
