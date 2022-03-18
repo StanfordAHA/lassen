@@ -3,20 +3,20 @@
     [
       {
         "type": "BitVector",
-        "width": 5,
-        "value": 12
+        "width": 2,
+        "value": 0
       },
       [
         "inst",
         "op",
-        "alu"
+        "fpu"
       ]
     ],
     [
       {
         "type": "BitVector",
         "width": 1,
-        "value": 0
+        "value": 1
       },
       [
         "inst",
@@ -27,7 +27,7 @@
       {
         "type": "BitVector",
         "width": 8,
-        "value": 190
+        "value": 127
       },
       [
         "inst",
@@ -49,7 +49,7 @@
       {
         "type": "BitVector",
         "width": 2,
-        "value": 3
+        "value": 0
       },
       [
         "inst",
@@ -60,7 +60,7 @@
       {
         "type": "BitVector",
         "width": 2,
-        "value": 3
+        "value": 0
       },
       [
         "inst",
@@ -82,7 +82,7 @@
       {
         "type": "BitVector",
         "width": 2,
-        "value": 3
+        "value": 0
       },
       [
         "inst",
@@ -93,7 +93,7 @@
       {
         "type": "BitVector",
         "width": 2,
-        "value": 3
+        "value": 0
       },
       [
         "inst",
@@ -115,7 +115,7 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 32768
+        "value": 59650
       },
       [
         "inst",
@@ -126,7 +126,7 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 34411
+        "value": 49710
       },
       [
         "inst",
@@ -137,7 +137,7 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 59388
+        "value": 65402
       },
       [
         "inst",
@@ -156,20 +156,20 @@
       ]
     ],
     [
-      {
-        "type": "Bit",
-        "width": 1,
-        "value": false
-      },
+      [
+        "in0"
+      ],
       [
         "inst",
         "bit1"
       ]
     ],
     [
-      [
-        "in0"
-      ],
+      {
+        "type": "Bit",
+        "width": 1,
+        "value": false
+      },
       [
         "inst",
         "bit2"

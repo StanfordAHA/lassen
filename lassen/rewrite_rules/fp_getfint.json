@@ -38,7 +38,7 @@
       {
         "type": "BitVector",
         "width": 5,
-        "value": 8
+        "value": 4
       },
       [
         "inst",
@@ -60,7 +60,7 @@
       {
         "type": "BitVector",
         "width": 2,
-        "value": 2
+        "value": 3
       },
       [
         "inst",
@@ -186,15 +186,15 @@
       ]
     ],
     [
-      "unbound",
+      [
+        "in1"
+      ],
       [
         "data1"
       ]
     ],
     [
-      [
-        "in1"
-      ],
+      "unbound",
       [
         "data2"
       ]

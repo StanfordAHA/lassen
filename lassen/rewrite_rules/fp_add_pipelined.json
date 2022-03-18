@@ -3,20 +3,20 @@
     [
       {
         "type": "BitVector",
-        "width": 3,
+        "width": 5,
         "value": 0
       },
       [
         "inst",
         "op",
-        "fp_custom"
+        "alu"
       ]
     ],
     [
       {
         "type": "BitVector",
         "width": 1,
-        "value": 1
+        "value": 0
       },
       [
         "inst",
@@ -82,7 +82,7 @@
       {
         "type": "BitVector",
         "width": 2,
-        "value": 0
+        "value": 3
       },
       [
         "inst",
@@ -115,7 +115,7 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 32768
+        "value": 8290
       },
       [
         "inst",
@@ -126,7 +126,7 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 1
+        "value": 800
       },
       [
         "inst",

@@ -38,7 +38,7 @@
       {
         "type": "BitVector",
         "width": 5,
-        "value": 8
+        "value": 4
       },
       [
         "inst",
