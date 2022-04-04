@@ -41,8 +41,7 @@ class ALU_t(Enum):
     Or = 0x12
     And = 0x13
     XOr = 0x14
-    MAC = 0x15
-    TADD = 0x16
+
 
 """
 Whether the operation is unsigned (0) or signed (1)
@@ -74,7 +73,7 @@ def ALU_fc(family):
     @family.assemble(locals(), globals(), set_port_names=True)
     class ALU(Peak):
         @name_outputs(res=Data, res_p=Bit, Z=Bit, N=Bit, C=Bit, V=Bit)
-        def __call__(self, alu: Const(ALU_t), signed_: Const(Signed_t), a: DataPy, b: DataPy, c: DataPy, d: BitPy) -> (DataPy, BitPy, BitPy, BitPy, BitPy, BitPy):
+        def __call__(self, alu: Const(ALU_t), signed_: Const(Signed_t), a: DataPy, b: DataPy, d: BitPy) -> (DataPy, BitPy, BitPy, BitPy, BitPy, BitPy):
             if signed_ == Signed_t.signed:
                 a_s = SData(a)
                 b_s = SData(b)
@@ -143,10 +142,6 @@ def ALU_fc(family):
             elif alu == ALU_t.SHL:
                 #res, res_p = a << Data(b[:4]), Bit(0)
                 res, res_p = a << b, Bit(0)
-            elif alu == ALU_t.MAC:
-                res, res_p = mul[:16] + c, Bit(0)
-            elif alu == ALU_t.TADD:
-                res, res_p = res_tmp + c, Bit(0)
 
             N = Bit(res[-1])
             Z = (res == SData(0))
