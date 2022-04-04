@@ -8,7 +8,6 @@
       },
       [
         "inst",
-        "op",
         "alu"
       ]
     ],
@@ -38,7 +37,7 @@
       {
         "type": "BitVector",
         "width": 5,
-        "value": 15
+        "value": 8
       },
       [
         "inst",
@@ -65,17 +64,6 @@
       [
         "inst",
         "regb"
-      ]
-    ],
-    [
-      {
-        "type": "BitVector",
-        "width": 2,
-        "value": 1
-      },
-      [
-        "inst",
-        "regc"
       ]
     ],
     [
@@ -115,7 +103,7 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 65407
+        "value": 65315
       },
       [
         "inst",
@@ -126,22 +114,11 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 65535
+        "value": 8163
       },
       [
         "inst",
         "data1"
-      ]
-    ],
-    [
-      {
-        "type": "BitVector",
-        "width": 16,
-        "value": 24576
-      },
-      [
-        "inst",
-        "data2"
       ]
     ],
     [
@@ -191,12 +168,6 @@
       ],
       [
         "data1"
-      ]
-    ],
-    [
-      "unbound",
-      [
-        "data2"
       ]
     ],
     [
