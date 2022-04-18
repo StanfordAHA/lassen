@@ -41,7 +41,6 @@ class ALU_t(Enum):
     Or = 0x12
     And = 0x13
     XOr = 0x14
-    MAC = 0x15
     TADD = 0x16
 
 """
@@ -143,8 +142,6 @@ def ALU_fc(family):
             elif alu == ALU_t.SHL:
                 #res, res_p = a << Data(b[:4]), Bit(0)
                 res, res_p = a << b, Bit(0)
-            elif alu == ALU_t.MAC:
-                res, res_p = mul[:16] + c, Bit(0)
             elif alu == ALU_t.TADD:
                 res, res_p = res_tmp + c, Bit(0)
 
