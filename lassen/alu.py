@@ -42,7 +42,6 @@ class ALU_t(Enum):
     And = 0x13
     XOr = 0x14
     MAC = 0x15
-    TADD = 0x16
 
 """
 Whether the operation is unsigned (0) or signed (1)
@@ -145,8 +144,6 @@ def ALU_fc(family):
                 res, res_p = a << b, Bit(0)
             elif alu == ALU_t.MAC:
                 res, res_p = mul[:16] + c, Bit(0)
-            elif alu == ALU_t.TADD:
-                res, res_p = res_tmp + c, Bit(0)
 
             N = Bit(res[-1])
             Z = (res == SData(0))
