@@ -23,18 +23,16 @@ B2 = BitVector[8]([0, 0, 0, 0, 1, 1, 1, 1])
 def inst(alu, signed=Signed_t.unsigned, lut=0, cond=Cond_t.Z,
          ra_mode=Mode_t.BYPASS, ra_const=0,
          rb_mode=Mode_t.BYPASS, rb_const=0,
+         rc_mode=Mode_t.BYPASS, rc_const=0,
          rd_mode=Mode_t.BYPASS, rd_const=0,
          re_mode=Mode_t.BYPASS, re_const=0,
          rf_mode=Mode_t.BYPASS, rf_const=0):
-    """
-    https://github.com/StanfordAHA/CGRAGenerator/wiki/PE-Spec
-    Format a configuration of the PE - sets all fields
-    """
+
     return Inst(alu, signed, LUT_t(lut), cond,
                 Mode_t(ra_mode), DataConst(ra_const), Mode_t(rb_mode),
-                DataConst(rb_const), Mode_t(rd_mode), BitConst(rd_const),
-                Mode_t(re_mode), BitConst(re_const), Mode_t(rf_mode),
-                BitConst(rf_const))
+                DataConst(rb_const), Mode_t(rc_mode), DataConst(rc_const), 
+                Mode_t(rd_mode), BitConst(rd_const), Mode_t(re_mode), 
+                BitConst(re_const), Mode_t(rf_mode), BitConst(rf_const))
 
 # helper functions to format configurations
 
