@@ -125,7 +125,7 @@ def test_ternary(op, args):
     d0 = args[0]
     d1 = args[1]
     b0 = args[2]
-    res, _, _ = pe(inst, d0, d1, b0)
+    res, _, _ = pe(inst, data0=d0, data1=d1, bit0=b0)
     assert res==op.func(d0, d1, b0)
     rtl_tester(inst, d0, d1, b0, res=res)
 

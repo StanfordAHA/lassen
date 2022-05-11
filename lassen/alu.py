@@ -102,14 +102,14 @@ def ALU_fc(family):
                 Cin = d
 
             # factor out comman add
-            res_tmp, C_tmp = UData(a).adc(UData(b), Cin)
+            adder_res, adder_C = UData(a).adc(UData(b), Cin)
 
             C = Bit(0)
             V = Bit(0)
             res, res_p = Data(0x5555), Bit(0)
             if (alu == ALU_t.Add) | (alu == ALU_t.Sub) | (alu == ALU_t.Adc) | (alu == ALU_t.Sbc):
                 #adc needs to be unsigned
-                res, C = res_tmp, C_tmp
+                res, C = adder_res, adder_C
                 V = overflow(a, b, res)
                 res_p = C
             elif alu == ALU_t.Mult0:
@@ -143,10 +143,13 @@ def ALU_fc(family):
             elif alu == ALU_t.SHL:
                 #res, res_p = a << Data(b[:4]), Bit(0)
                 res, res_p = a << b, Bit(0)
-            elif alu == ALU_t.MAC:
-                res, res_p = mul[:16] + c, Bit(0)
-            elif alu == ALU_t.TADD:
-                res, res_p = res_tmp + c, Bit(0)
+            elif (alu == ALU_t.MAC) | (alu == ALU_t.TADD):
+                # Share second adder between MAC and TADD
+                if alu == ALU_t.MAC:
+                    add2_in = mul[:16]
+                elif alu == ALU_t.TADD:
+                    add2_in = adder_res
+                res, res_p = add2_in + c, Bit(0)
 
             N = Bit(res[-1])
             Z = (res == SData(0))
