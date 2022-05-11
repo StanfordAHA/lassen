@@ -68,7 +68,7 @@ def PE_fc(family: TypeFamily):
             #Condition code
             self.cond: Cond = Cond()
 
-        @name_outputs(res=DataPy, res_p=BitPy, read_config_data=Data32Py)
+        @name_outputs(alu_res=DataPy, res_p=BitPy, read_config_data=Data32Py)
         def __call__(
             self,
             inst: Const(Inst),
