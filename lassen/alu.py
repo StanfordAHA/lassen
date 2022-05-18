@@ -147,7 +147,7 @@ def ALU_fc(family):
                 # Share second adder between MAC and TADD
                 if alu == ALU_t.MAC:
                     add2_in = mul[:16]
-                elif alu == ALU_t.TADD:
+                else: #elif alu == ALU_t.TADD:
                     add2_in = adder_res
                 res, res_p = add2_in + c, Bit(0)
 
