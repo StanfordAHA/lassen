@@ -43,6 +43,7 @@ class ALU_t(Enum):
     XOr = 0x14
     MAC = 0x15
     TADD = 0x16
+    CROP = 0x17
 
 """
 Whether the operation is unsigned (0) or signed (1)
@@ -92,6 +93,14 @@ def ALU_fc(family):
                 abs_pred = Bit(1) # a_u >= UData(0)
                 shr = Data(a_u >> b_u)
             mul = mula * mulb
+            
+            max_ab = gte_pred.ite(a, b)
+            min_ab = lte_pred.ite(a, b)
+            if signed_ == Signed_t.signed:
+                lte_c = SData(max_ab) <= SData(c)
+            else: #signed_ == Signed_t.unsigned:
+                lte_c = UData(max_ab) <= UData(c)
+            crop_abc = lte_c.ite(max_ab, c)
 
             Cin = Bit(0)
             if (alu == ALU_t.Sub) | (alu == ALU_t.Sbc):
@@ -123,10 +132,10 @@ def ALU_fc(family):
                 res_p = C
             elif alu == ALU_t.GTE_Max:
                 # C, V = a-b?
-                res, res_p = gte_pred.ite(a, b), gte_pred
+                res, res_p = max_ab, gte_pred
             elif alu == ALU_t.LTE_Min:
                 # C, V = a-b?
-                res, res_p = lte_pred.ite(a, b), lte_pred
+                res, res_p = min_ab, lte_pred
             elif alu == ALU_t.Abs:
                 res, res_p = abs_pred.ite(a, UInt[16](-SInt[16](a))), Bit(a[-1])
             elif alu == ALU_t.Sel:
@@ -150,6 +159,8 @@ def ALU_fc(family):
                 else: #elif alu == ALU_t.TADD:
                     add2_in = adder_res
                 res, res_p = add2_in + c, Bit(0)
+            elif alu == ALU_t.CROP:
+                res, res_p = crop_abc, Bit(0)
 
             N = Bit(res[-1])
             Z = (res == SData(0))
