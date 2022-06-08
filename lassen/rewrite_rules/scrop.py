@@ -13,9 +13,8 @@ def scrop_fc(family: AbstractFamily):
     @family.assemble(locals(), globals())
     class scrop(Peak):
         def __call__(self, in0 : Data, in1 : Data, in2 : Data) -> Data:
-            max_in1_in2 = (SInt(in1) >= SInt(in0)).ite(SInt(in1), SInt(in0))
-            crop_in1_in2_in3 = (SInt(in2) <= max_in1_in2).ite(SInt(in2), max_in1_in2)
-            return Data(crop_in1_in2_in3)
+            min_in0_in1 = (SInt(in0) <= SInt(in1)).ite(SInt(in0), SInt(in1))
+            return Data((SInt(min_in0_in1) >= SInt(in2)).ite(SInt(min_in0_in1), SInt(in2)))
     
     return scrop
     

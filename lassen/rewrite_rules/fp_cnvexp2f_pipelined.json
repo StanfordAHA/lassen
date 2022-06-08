@@ -126,7 +126,7 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 32768
+        "value": 52988
       },
       [
         "inst",

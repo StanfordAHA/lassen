@@ -97,10 +97,11 @@ def ALU_fc(family):
             max_ab = gte_pred.ite(a, b)
             min_ab = lte_pred.ite(a, b)
             if signed_ == Signed_t.signed:
-                lte_c = SData(max_ab) <= SData(c)
+                gte_c = SData(min_ab) >= SData(c)
             else: #signed_ == Signed_t.unsigned:
-                lte_c = UData(max_ab) <= UData(c)
-            crop_abc = lte_c.ite(max_ab, c)
+                gte_c = UData(min_ab) >= UData(c)
+            crop_abc = gte_c.ite(min_ab, c)
+            
 
             Cin = Bit(0)
             if (alu == ALU_t.Sub) | (alu == ALU_t.Sbc):
