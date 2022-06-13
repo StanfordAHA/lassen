@@ -43,12 +43,12 @@ class ALU_t(Enum):
     XOr = 0x14
     MULADD = 0x15
     MULSUB = 0x16
-    MULSHR = 0x17
     TAA = 0x18
     TAS = 0x19
     TSA = 0x1a
     TSS = 0x1b
     CROP = 0x1c
+    # MULSHR = 0x17
 
 """
 Whether the operation is unsigned (0) or signed (1)
@@ -112,7 +112,7 @@ def ALU_fc(family):
             Cin = Bit(0)
             if (alu == ALU_t.Sub) | (alu == ALU_t.Sbc) | (alu == ALU_t.TSA) | (alu == ALU_t.TSS):
                 b = ~b
-            if (alu == ALU_t.Sub):
+            if (alu == ALU_t.Sub) | (alu == ALU_t.TSA) | (alu == ALU_t.TSS):
                 Cin = Bit(1)
             elif (alu == ALU_t.Adc) | (alu == ALU_t.Sbc):
                 Cin = d
@@ -129,18 +129,21 @@ def ALU_fc(family):
             # 2nd input
             if (alu == ALU_t.MULSUB) | (alu == ALU_t.TAS) | (alu == ALU_t.TSS):
                 adder2_in1 = ~c
+                Cin2 = Bit(1)
             else:
                 adder2_in1 = c
-            adder2_res, adder2_C = UData(adder2_in0).adc(adder2_in1, UData(0))
+                Cin2 = Bit(0)
+            adder2_res, adder2_C = UData(adder2_in0).adc(adder2_in1, Cin2)
 
             # mulshift
-            if signed_ == Signed_t.signed:
-                ms_0 = SData(mul[:16])
-                ms_1 = SData(c)
-            else: #signed_ == Signed_t.unsigned:
-                ms_0 = UData(mul[:16])
-                ms_1 = UData(c)
-            mulshfit = Data(ms_0 >> ms_1)
+            # ms_0 = mul[:16]
+            # if signed_ == Signed_t.signed:
+            #     ms_1 = SData(c)
+            #     mulshfit = Data(ms_0 >> ms_1)
+            # else: #signed_ == Signed_t.unsigned:
+            #     ms_1 = UData(c)
+            #     mulshfit = Data(ms_0 >> ms_1)
+            
 
             C = Bit(0)
             V = Bit(0)
@@ -181,12 +184,12 @@ def ALU_fc(family):
             elif alu == ALU_t.SHL:
                 #res, res_p = a << Data(b[:4]), Bit(0)
                 res, res_p = a << b, Bit(0)
-            elif (alu == ALU_t.MACADD) | (alu == ALU_t.MACSUB) | (alu == ALU_t.TAA) | (alu == ALU_t.TSA) | (alu == ALU_t.TAS) | (alu == ALU_t.TSS):
+            elif (alu == ALU_t.MULADD) | (alu == ALU_t.MULSUB) | (alu == ALU_t.TAA) | (alu == ALU_t.TSA) | (alu == ALU_t.TAS) | (alu == ALU_t.TSS):
                 res, res_p = adder2_res, Bit(0)
-            elif (alu == ALU_t.MULSHR):
-                res, res_p = mulshfit, Bit(0)
             elif alu == ALU_t.CROP:
                 res, res_p = crop_abc, Bit(0)
+            # elif (alu == ALU_t.MULSHR):
+            #     res, res_p = mulshfit, Bit(0)
 
             N = Bit(res[-1])
             Z = (res == SData(0))
