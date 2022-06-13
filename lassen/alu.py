@@ -41,9 +41,14 @@ class ALU_t(Enum):
     Or = 0x12
     And = 0x13
     XOr = 0x14
-    MAC = 0x15
-    TADD = 0x16
-    CROP = 0x17
+    MULADD = 0x15
+    MULSUB = 0x16
+    MULSHR = 0x17
+    TAA = 0x18
+    TAS = 0x19
+    TSA = 0x1a
+    TSS = 0x1b
+    CROP = 0x1c
 
 """
 Whether the operation is unsigned (0) or signed (1)
@@ -94,6 +99,7 @@ def ALU_fc(family):
                 shr = Data(a_u >> b_u)
             mul = mula * mulb
             
+            # CROP: min-max or max-min
             max_ab = gte_pred.ite(a, b)
             min_ab = lte_pred.ite(a, b)
             if signed_ == Signed_t.signed:
@@ -104,7 +110,7 @@ def ALU_fc(family):
             
 
             Cin = Bit(0)
-            if (alu == ALU_t.Sub) | (alu == ALU_t.Sbc):
+            if (alu == ALU_t.Sub) | (alu == ALU_t.Sbc) | (alu == ALU_t.TSA) | (alu == ALU_t.TSS):
                 b = ~b
             if (alu == ALU_t.Sub):
                 Cin = Bit(1)
@@ -113,6 +119,28 @@ def ALU_fc(family):
 
             # factor out comman add
             adder_res, adder_C = UData(a).adc(UData(b), Cin)
+
+            # second adder
+            # 1st input
+            if (alu == ALU_t.TAA) | (alu == ALU_t.TAS) | (alu == ALU_t.TSA) | (alu == ALU_t.TSS):
+                adder2_in0 = adder_res
+            else:
+                adder2_in0 = mul[:16]
+            # 2nd input
+            if (alu == ALU_t.MULSUB) | (alu == ALU_t.TAS) | (alu == ALU_t.TSS):
+                adder2_in1 = ~c
+            else:
+                adder2_in1 = c
+            adder2_res, adder2_C = UData(adder2_in0).adc(adder2_in1, UData(0))
+
+            # mulshift
+            if signed_ == Signed_t.signed:
+                ms_0 = SData(mul[:16])
+                ms_1 = SData(c)
+            else: #signed_ == Signed_t.unsigned:
+                ms_0 = UData(mul[:16])
+                ms_1 = UData(c)
+            mulshfit = Data(ms_0 >> ms_1)
 
             C = Bit(0)
             V = Bit(0)
@@ -153,13 +181,10 @@ def ALU_fc(family):
             elif alu == ALU_t.SHL:
                 #res, res_p = a << Data(b[:4]), Bit(0)
                 res, res_p = a << b, Bit(0)
-            elif (alu == ALU_t.MAC) | (alu == ALU_t.TADD):
-                # Share second adder between MAC and TADD
-                if alu == ALU_t.MAC:
-                    add2_in = mul[:16]
-                else: #elif alu == ALU_t.TADD:
-                    add2_in = adder_res
-                res, res_p = add2_in + c, Bit(0)
+            elif (alu == ALU_t.MACADD) | (alu == ALU_t.MACSUB) | (alu == ALU_t.TAA) | (alu == ALU_t.TSA) | (alu == ALU_t.TAS) | (alu == ALU_t.TSS):
+                res, res_p = adder2_res, Bit(0)
+            elif (alu == ALU_t.MULSHR):
+                res, res_p = mulshfit, Bit(0)
             elif alu == ALU_t.CROP:
                 res, res_p = crop_abc, Bit(0)
 
