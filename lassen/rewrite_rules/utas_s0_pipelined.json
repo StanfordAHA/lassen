@@ -16,7 +16,7 @@
       {
         "type": "BitVector",
         "width": 1,
-        "value": 1
+        "value": 0
       },
       [
         "inst",
@@ -115,7 +115,7 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 49154
+        "value": 23620
       },
       [
         "inst",
@@ -126,7 +126,7 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 32774
+        "value": 214
       },
       [
         "inst",
@@ -137,7 +137,7 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 32774
+        "value": 40
       },
       [
         "inst",
