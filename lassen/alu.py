@@ -48,7 +48,7 @@ class ALU_t(Enum):
     TSA = 0x1a
     TSS = 0x1b
     CROP = 0x1c
-    # MULSHR = 0x17
+    MULSHR = 0x17
 
 """
 Whether the operation is unsigned (0) or signed (1)
@@ -136,13 +136,10 @@ def ALU_fc(family):
             adder2_res, adder2_C = UData(adder2_in0).adc(adder2_in1, Cin2)
 
             # mulshift
-            # ms_0 = mul[:16]
-            # if signed_ == Signed_t.signed:
-            #     ms_1 = SData(c)
-            #     mulshfit = Data(ms_0 >> ms_1)
-            # else: #signed_ == Signed_t.unsigned:
-            #     ms_1 = UData(c)
-            #     mulshfit = Data(ms_0 >> ms_1)
+            if signed_ == Signed_t.signed:
+                mulshift = Data(SData(mul[:16]) >> SData(c))
+            else: #signed_ == Signed_t.unsigned:
+                mulshift = Data(UData(mul[:16]) >> UData(c))
             
 
             C = Bit(0)
@@ -188,8 +185,8 @@ def ALU_fc(family):
                 res, res_p = adder2_res, Bit(0)
             elif alu == ALU_t.CROP:
                 res, res_p = crop_abc, Bit(0)
-            # elif (alu == ALU_t.MULSHR):
-            #     res, res_p = mulshfit, Bit(0)
+            elif (alu == ALU_t.MULSHR):
+                res, res_p = mulshift, Bit(0)
 
             N = Bit(res[-1])
             Z = (res == SData(0))

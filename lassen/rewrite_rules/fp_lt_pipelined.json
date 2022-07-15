@@ -3,13 +3,13 @@
     [
       {
         "type": "BitVector",
-        "width": 5,
-        "value": 0
+        "width": 3,
+        "value": 4
       },
       [
         "inst",
         "op",
-        "alu"
+        "fp_custom"
       ]
     ],
     [
@@ -82,7 +82,7 @@
       {
         "type": "BitVector",
         "width": 2,
-        "value": 1
+        "value": 0
       },
       [
         "inst",
@@ -93,7 +93,7 @@
       {
         "type": "BitVector",
         "width": 2,
-        "value": 1
+        "value": 0
       },
       [
         "inst",
@@ -104,7 +104,7 @@
       {
         "type": "BitVector",
         "width": 2,
-        "value": 1
+        "value": 0
       },
       [
         "inst",
@@ -115,7 +115,7 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 37131
+        "value": 6756
       },
       [
         "inst",
@@ -126,7 +126,7 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 55274
+        "value": 49442
       },
       [
         "inst",
@@ -137,7 +137,7 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 2
+        "value": 32769
       },
       [
         "inst",
@@ -185,7 +185,7 @@
     ],
     [
       [
-        "in0"
+        "in1"
       ],
       [
         "data1"
@@ -193,7 +193,7 @@
     ],
     [
       [
-        "in1"
+        "in0"
       ],
       [
         "data2"

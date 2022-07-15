@@ -14,6 +14,6 @@ def staa_s1_fc(family: AbstractFamily):
     class staa_s1(Peak):
         def __call__(self, in2: Data, in1 : Data, in0 : Data) -> Data:
             
-            return Data((SInt(in1) + SInt(in2)) + SInt(in0))
+            return Data(SInt(in1) + (SInt(in2) + SInt(in0)))
     
     return staa_s1

@@ -3,13 +3,13 @@
     [
       {
         "type": "BitVector",
-        "width": 2,
-        "value": 2
+        "width": 5,
+        "value": 28
       },
       [
         "inst",
         "op",
-        "fpu"
+        "alu"
       ]
     ],
     [
@@ -27,7 +27,7 @@
       {
         "type": "BitVector",
         "width": 8,
-        "value": 168
+        "value": 192
       },
       [
         "inst",
@@ -60,7 +60,7 @@
       {
         "type": "BitVector",
         "width": 2,
-        "value": 0
+        "value": 2
       },
       [
         "inst",
@@ -93,7 +93,7 @@
       {
         "type": "BitVector",
         "width": 2,
-        "value": 0
+        "value": 2
       },
       [
         "inst",
@@ -115,7 +115,7 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 30738
+        "value": 23552
       },
       [
         "inst",
@@ -126,7 +126,7 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 2038
+        "value": 56904
       },
       [
         "inst",
@@ -137,7 +137,7 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 49203
+        "value": 8192
       },
       [
         "inst",
@@ -148,7 +148,7 @@
       {
         "type": "Bit",
         "width": 1,
-        "value": true
+        "value": false
       },
       [
         "inst",
@@ -170,7 +170,7 @@
       {
         "type": "Bit",
         "width": 1,
-        "value": true
+        "value": false
       },
       [
         "inst",
@@ -196,15 +196,15 @@
       ]
     ],
     [
-      [
-        "in0"
-      ],
+      "unbound",
       [
         "bit0"
       ]
     ],
     [
-      "unbound",
+      [
+        "in0"
+      ],
       [
         "bit1"
       ]

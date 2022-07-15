@@ -3,13 +3,13 @@
     [
       {
         "type": "BitVector",
-        "width": 5,
-        "value": 28
+        "width": 2,
+        "value": 3
       },
       [
         "inst",
         "op",
-        "alu"
+        "fpu"
       ]
     ],
     [
@@ -115,7 +115,7 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 22519
+        "value": 32802
       },
       [
         "inst",
@@ -126,7 +126,7 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 43017
+        "value": 1
       },
       [
         "inst",
@@ -137,7 +137,7 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 16384
+        "value": 32734
       },
       [
         "inst",
