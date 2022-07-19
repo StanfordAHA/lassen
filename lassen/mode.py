@@ -33,10 +33,8 @@ def gen_register_mode(width, init):
 
             #Outputs <based on mode>, register_value
             def __call__(self, mode: Mode_t, const_: T, value: T,
-                    clk_en: Bit, config_we : Bit, config_data : T) -> (T, T):
-                if config_we:
-                    data, en = config_data, Bit(1)
-                elif mode == Mode_t.DELAY:
+                    clk_en: Bit) -> (T, T):
+                if mode == Mode_t.DELAY:
                     data, en = value, clk_en
                 else:
                     data, en = value, Bit(0)
@@ -44,11 +42,11 @@ def gen_register_mode(width, init):
                 reg_val = self.register(data, en)
 
                 if mode == Mode_t.CONST:
-                    return const_, reg_val
+                    return const_
                 elif mode == Mode_t.BYPASS:
-                    return value, reg_val
+                    return value
                 else: # mode == Mode_t.DELAY:
-                    return reg_val, reg_val
+                    return reg_val
         return RegisterMode
     return RegisterMode_fc
 
