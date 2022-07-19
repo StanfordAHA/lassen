@@ -33,7 +33,7 @@ def gen_register_mode(width, init):
 
             #Outputs <based on mode>, register_value
             def __call__(self, mode: Mode_t, const_: T, value: T,
-                    clk_en: Bit) -> (T, T):
+                    clk_en: Bit) -> (T):
                 if mode == Mode_t.DELAY:
                     data, en = value, clk_en
                 else:
