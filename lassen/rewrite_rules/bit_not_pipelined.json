@@ -214,25 +214,7 @@
     [
       "unbound",
       [
-        "config_en"
-      ]
-    ],
-    [
-      "unbound",
-      [
         "clk_en"
-      ]
-    ],
-    [
-      "unbound",
-      [
-        "config_addr"
-      ]
-    ],
-    [
-      "unbound",
-      [
-        "config_data"
       ]
     ]
   ],
@@ -249,12 +231,6 @@
       ],
       [
         "res_p"
-      ]
-    ],
-    [
-      "unbound",
-      [
-        "read_config_data"
       ]
     ]
   ]
