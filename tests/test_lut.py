@@ -29,7 +29,7 @@ def test_lut_binary(op):
         b1 = Bit(random.choice([0,1]))
         b2 = Bit(random.choice([0,1]))
         data0 = UIntVector.random(DATAWIDTH)
-        _, res_p,_ = pe(inst, data0=data0,bit0=b0,bit1=b1,bit2=b2)
+        _, res_p = pe(inst, data0=data0,bit0=b0,bit1=b1,bit2=b2)
         assert res_p==op.func(b1,b2) #Testing from bit1 and bit2 port
 
 @pytest.mark.parametrize("op", [
@@ -43,7 +43,7 @@ def test_lut_unary(op):
         b1 = Bit(random.choice([0,1]))
         b2 = Bit(random.choice([0,1]))
         data0 = UIntVector.random(DATAWIDTH)
-        _, res_p,_ = pe(inst, data0=data0,bit0=b0,bit1=b1,bit2=b2)
+        _, res_p = pe(inst, data0=data0,bit0=b0,bit1=b1,bit2=b2)
         assert res_p==op.func(b1)
 
 @pytest.mark.parametrize("op", [
@@ -57,7 +57,7 @@ def test_lut_ternary(op):
         d0 = Bit(random.choice([0,1]))
         d1 = Bit(random.choice([0,1]))
         data0 = UIntVector.random(DATAWIDTH)
-        _, res_p,_ = pe(inst, data0=data0,bit0=d0,bit1=d1,bit2=sel)
+        _, res_p = pe(inst, data0=data0,bit0=d0,bit1=d1,bit2=sel)
         assert res_p==op.func(sel,d0,d1)
 
 def test_lut():
@@ -69,7 +69,7 @@ def test_lut():
         b1 = Bit(random.choice([0,1]))
         b2 = Bit(random.choice([0,1]))
         data0 = UIntVector.random(DATAWIDTH)
-        _, res_p,_ = pe(inst, data0=data0,bit0=b0,bit1=b1,bit2=b2)
+        _, res_p = pe(inst, data0=data0,bit0=b0,bit1=b1,bit2=b2)
         assert res_p== lut_val[int(BitVector[3]([b0,b1,b2]))]
 
 

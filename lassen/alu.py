@@ -41,8 +41,14 @@ class ALU_t(Enum):
     Or = 0x12
     And = 0x13
     XOr = 0x14
-    MAC = 0x15
-    TADD = 0x16
+    MULADD = 0x15
+    MULSUB = 0x16
+    TAA = 0x18
+    TAS = 0x19
+    TSA = 0x1a
+    TSS = 0x1b
+    CROP = 0x1c
+    MULSHR = 0x17
 
 """
 Whether the operation is unsigned (0) or signed (1)
@@ -92,17 +98,49 @@ def ALU_fc(family):
                 abs_pred = Bit(1) # a_u >= UData(0)
                 shr = Data(a_u >> b_u)
             mul = mula * mulb
+            
+            # CROP: min-max or max-min
+            max_ab = gte_pred.ite(a, b)
+            min_ab = lte_pred.ite(a, b)
+            if signed_ == Signed_t.signed:
+                gte_c = SData(min_ab) >= SData(c)
+            else: #signed_ == Signed_t.unsigned:
+                gte_c = UData(min_ab) >= UData(c)
+            crop_abc = gte_c.ite(min_ab, c)
+            
 
             Cin = Bit(0)
-            if (alu == ALU_t.Sub) | (alu == ALU_t.Sbc):
+            if (alu == ALU_t.Sub) | (alu == ALU_t.Sbc) | (alu == ALU_t.TSA) | (alu == ALU_t.TSS):
                 b = ~b
-            if (alu == ALU_t.Sub):
+            if (alu == ALU_t.Sub) | (alu == ALU_t.TSA) | (alu == ALU_t.TSS):
                 Cin = Bit(1)
             elif (alu == ALU_t.Adc) | (alu == ALU_t.Sbc):
                 Cin = d
 
             # factor out comman add
             adder_res, adder_C = UData(a).adc(UData(b), Cin)
+
+            # second adder
+            # 1st input
+            if (alu == ALU_t.TAA) | (alu == ALU_t.TAS) | (alu == ALU_t.TSA) | (alu == ALU_t.TSS):
+                adder2_in0 = adder_res
+            else:
+                adder2_in0 = mul[:16]
+            # 2nd input
+            if (alu == ALU_t.MULSUB) | (alu == ALU_t.TAS) | (alu == ALU_t.TSS):
+                adder2_in1 = ~c
+                Cin2 = Bit(1)
+            else:
+                adder2_in1 = c
+                Cin2 = Bit(0)
+            adder2_res, adder2_C = UData(adder2_in0).adc(adder2_in1, Cin2)
+
+            # mulshift
+            if signed_ == Signed_t.signed:
+                mulshift = Data(SData(mul[:16]) >> SData(c))
+            else: #signed_ == Signed_t.unsigned:
+                mulshift = Data(UData(mul[:16]) >> UData(c))
+            
 
             C = Bit(0)
             V = Bit(0)
@@ -123,10 +161,10 @@ def ALU_fc(family):
                 res_p = C
             elif alu == ALU_t.GTE_Max:
                 # C, V = a-b?
-                res, res_p = gte_pred.ite(a, b), gte_pred
+                res, res_p = max_ab, gte_pred
             elif alu == ALU_t.LTE_Min:
                 # C, V = a-b?
-                res, res_p = lte_pred.ite(a, b), lte_pred
+                res, res_p = min_ab, lte_pred
             elif alu == ALU_t.Abs:
                 res, res_p = abs_pred.ite(a, UInt[16](-SInt[16](a))), Bit(a[-1])
             elif alu == ALU_t.Sel:
@@ -143,13 +181,12 @@ def ALU_fc(family):
             elif alu == ALU_t.SHL:
                 #res, res_p = a << Data(b[:4]), Bit(0)
                 res, res_p = a << b, Bit(0)
-            elif (alu == ALU_t.MAC) | (alu == ALU_t.TADD):
-                # Share second adder between MAC and TADD
-                if alu == ALU_t.MAC:
-                    add2_in = mul[:16]
-                else: #elif alu == ALU_t.TADD:
-                    add2_in = adder_res
-                res, res_p = add2_in + c, Bit(0)
+            elif (alu == ALU_t.MULADD) | (alu == ALU_t.MULSUB) | (alu == ALU_t.TAA) | (alu == ALU_t.TSA) | (alu == ALU_t.TAS) | (alu == ALU_t.TSS):
+                res, res_p = adder2_res, Bit(0)
+            elif alu == ALU_t.CROP:
+                res, res_p = crop_abc, Bit(0)
+            elif (alu == ALU_t.MULSHR):
+                res, res_p = mulshift, Bit(0)
 
             N = Bit(res[-1])
             Z = (res == SData(0))

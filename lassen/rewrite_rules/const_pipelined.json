@@ -3,13 +3,13 @@
     [
       {
         "type": "BitVector",
-        "width": 3,
-        "value": 1
+        "width": 5,
+        "value": 26
       },
       [
         "inst",
         "op",
-        "fp_custom"
+        "alu"
       ]
     ],
     [
@@ -82,7 +82,7 @@
       {
         "type": "BitVector",
         "width": 2,
-        "value": 3
+        "value": 0
       },
       [
         "inst",
@@ -214,25 +214,7 @@
     [
       "unbound",
       [
-        "config_en"
-      ]
-    ],
-    [
-      "unbound",
-      [
         "clk_en"
-      ]
-    ],
-    [
-      "unbound",
-      [
-        "config_addr"
-      ]
-    ],
-    [
-      "unbound",
-      [
-        "config_data"
       ]
     ]
   ],
@@ -249,12 +231,6 @@
       "unbound",
       [
         "res_p"
-      ]
-    ],
-    [
-      "unbound",
-      [
-        "read_config_data"
       ]
     ]
   ]

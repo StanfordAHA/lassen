@@ -4,7 +4,7 @@
       {
         "type": "BitVector",
         "width": 2,
-        "value": 0
+        "value": 3
       },
       [
         "inst",
@@ -27,7 +27,7 @@
       {
         "type": "BitVector",
         "width": 8,
-        "value": 127
+        "value": 95
       },
       [
         "inst",
@@ -93,7 +93,7 @@
       {
         "type": "BitVector",
         "width": 2,
-        "value": 0
+        "value": 3
       },
       [
         "inst",
@@ -115,7 +115,7 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 59650
+        "value": 32802
       },
       [
         "inst",
@@ -126,7 +126,7 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 49710
+        "value": 1
       },
       [
         "inst",
@@ -137,22 +137,11 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 65402
+        "value": 32734
       },
       [
         "inst",
         "data2"
-      ]
-    ],
-    [
-      {
-        "type": "Bit",
-        "width": 1,
-        "value": false
-      },
-      [
-        "inst",
-        "bit0"
       ]
     ],
     [
@@ -161,6 +150,17 @@
       ],
       [
         "inst",
+        "bit0"
+      ]
+    ],
+    [
+      {
+        "type": "Bit",
+        "width": 1,
+        "value": false
+      },
+      [
+        "inst",
         "bit1"
       ]
     ],
@@ -214,25 +214,7 @@
     [
       "unbound",
       [
-        "config_en"
-      ]
-    ],
-    [
-      "unbound",
-      [
         "clk_en"
-      ]
-    ],
-    [
-      "unbound",
-      [
-        "config_addr"
-      ]
-    ],
-    [
-      "unbound",
-      [
-        "config_data"
       ]
     ]
   ],
@@ -249,12 +231,6 @@
       ],
       [
         "res_p"
-      ]
-    ],
-    [
-      "unbound",
-      [
-        "read_config_data"
       ]
     ]
   ]
