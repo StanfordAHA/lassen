@@ -29,10 +29,10 @@ def FDiv_fc(family):
             rom_instr = mem_asm.rom([TLUT.div_lut(i) for i in range(0, 128)]+[0x0000]*(depth - 128))
             op_a = in0
             op_b = in1
-            mant, _, _         = self.pe_get_mant(inst1, op_b, Data(0))
+            mant, _         = self.pe_get_mant(inst1, op_b, Data(0))
             lookup_result     = self.rom(rom_instr, mant, Data(0))
-            scaled_result, _, _= self.pe_scale_res(inst2, lookup_result, op_b)
-            result, _, _       = self.pe_mult(inst3, scaled_result, op_a)
+            scaled_result, _= self.pe_scale_res(inst2, lookup_result, op_b)
+            result, _       = self.pe_mult(inst3, scaled_result, op_a)
             return result
     return FDiv
 
@@ -57,11 +57,11 @@ def FLN_fc(family):
             ln2 = math.log(2)
             ln2_bf = int(float2bfbin(ln2), 2)
             const_ln2 = Data(ln2_bf)
-            mant, _, _     = self.pe_get_mant(inst1, op_a, Data(0))
-            fexp, _, _     = self.pe_get_exp(inst2, op_a, Data(0))
+            mant, _     = self.pe_get_mant(inst1, op_a, Data(0))
+            fexp, _     = self.pe_get_exp(inst2, op_a, Data(0))
             lookup_result = self.rom(rom_instr, mant, Data(0))
-            mult, _, _     = self.pe_mult(inst3, fexp, const_ln2)
-            result, _, _   = self.pe_mult(inst4, lookup_result, mult)
+            mult, _     = self.pe_mult(inst3, fexp, const_ln2)
+            result, _   = self.pe_mult(inst4, lookup_result, mult)
             return result
     return FLN
 
@@ -94,12 +94,12 @@ def FExp_fc(family):
             ln2_inv = 1.0/math.log(2)
             ln2_inv_bf = int(float2bfbin(ln2_inv), 2)
             const_ln2_inv = Data(ln2_inv_bf)
-            div_res, _, _  = self.pe_div_mult(inst1, const_ln2_inv, op_a)
-            fint, _, _     = self.pe_get_int(inst2, div_res, Data(0))
-            ffrac, _, _    = self.pe_get_frac(inst3, div_res, Data(0))
-            idx, _, _      = self.pe_rom_idx(inst4, ffrac, Data(0xFF))
+            div_res, _  = self.pe_div_mult(inst1, const_ln2_inv, op_a)
+            fint, _     = self.pe_get_int(inst2, div_res, Data(0))
+            ffrac, _    = self.pe_get_frac(inst3, div_res, Data(0))
+            idx, _      = self.pe_rom_idx(inst4, ffrac, Data(0xFF))
             lookup_result = self.rom(rom_instr, idx, Data(0))
-            result, _, _   = self.pe_incr_exp(inst5, lookup_result, fint)
+            result, _   = self.pe_incr_exp(inst5, lookup_result, fint)
             return result
     return FExp
 
