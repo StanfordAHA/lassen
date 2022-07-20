@@ -240,7 +240,7 @@ def test_sint_to_float(args):
     in0 = SIntVector[16](args[0])
     in1 = args[1]
     correct = BFloat16(float(args[0])).reinterpret_as_bv()
-    res, _(inst, in0, in1)
+    res, _ = pe(inst, in0, in1)
     assert correct == res
     rtl_tester(inst, in0, in1, res=correct)
 
@@ -253,6 +253,6 @@ def test_uint_to_float(args):
     in0 = UIntVector[16](args[0])
     in1 = args[1]
     correct = BFloat16(float(args[0])).reinterpret_as_bv()
-    res, _(inst, in0, in1)
+    res, _ = pe(inst, in0, in1)
     assert correct == res
     rtl_tester(inst, in0, in1, res=correct)

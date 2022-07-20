@@ -44,7 +44,7 @@ NTESTS = 4
 ])
 def test_unsigned_binary(op, args):
     x, y = args
-    res, _(op.inst, Data(x), Data(y))
+    res, _ = pe(op.inst, Data(x), Data(y))
     assert res==op.func(x, y)
     rtl_tester(op, x, y, res=res)
 
@@ -60,7 +60,7 @@ def test_unsigned_binary(op, args):
 )
 def test_signed_binary(op, args):
     x, y = args
-    res, _(op.inst, Data(x), Data(y))
+    res, _ = pe(op.inst, Data(x), Data(y))
     assert res==op.func(x, y)
     rtl_tester(op, x, y, res=res)
 
@@ -72,7 +72,7 @@ def test_signed_binary(op, args):
 )
 def test_signed_unary(op, args):
     x = args
-    res, _(op.inst, Data(x))
+    res, _ = pe(op.inst, Data(x))
     assert res == op.func(x)
     rtl_tester(op, x, 0, res=res)
 
@@ -125,7 +125,7 @@ def test_ternary(op, args):
     d0 = args[0]
     d1 = args[1]
     b0 = args[2]
-    res, _(inst, data0=d0, data1=d1, bit0=b0)
+    res, _ = pe(inst, data0=d0, data1=d1, bit0=b0)
     assert res==op.func(d0, d1, b0)
     rtl_tester(inst, d0, d1, b0, res=res)
 
@@ -142,13 +142,13 @@ def test_smult(args):
     smult2 = asm.smult2()
     x, y = args
     xy = mul(x, y)
-    res, _(smult0, Data(x), Data(y))
+    res, _ = pe(smult0, Data(x), Data(y))
     assert res == xy[0:DATAWIDTH]
     rtl_tester(smult0, x, y, res=res)
-    res, _(smult1, Data(x), Data(y))
+    res, _ = pe(smult1, Data(x), Data(y))
     assert res == xy[DATAWIDTH//2:DATAWIDTH//2+DATAWIDTH]
     rtl_tester(smult1, x, y, res=res)
-    res, _(smult2, Data(x), Data(y))
+    res, _ = pe(smult2, Data(x), Data(y))
     assert res == xy[DATAWIDTH:]
     rtl_tester(smult2, x, y, res=res)
 
@@ -166,13 +166,13 @@ def test_umult(args):
     umult2 = asm.umult2()
     x, y = args
     xy = mul(x, y)
-    res, _(umult0, Data(x), Data(y))
+    res, _ = pe(umult0, Data(x), Data(y))
     assert res == xy[0:DATAWIDTH]
     rtl_tester(umult0, x, y, res=res)
-    res, _(umult1, Data(x), Data(y))
+    res, _ = pe(umult1, Data(x), Data(y))
     assert res == xy[DATAWIDTH//2:DATAWIDTH//2+DATAWIDTH]
     rtl_tester(umult1, x, y, res=res)
-    res, _(umult2, Data(x), Data(y))
+    res, _ = pe(umult2, Data(x), Data(y))
     assert res == xy[DATAWIDTH:]
     rtl_tester(umult2, x, y, res=res)
 
