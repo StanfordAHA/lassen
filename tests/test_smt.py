@@ -22,26 +22,16 @@ def create_input(T):
 
 def test_LUT():
     LUT_smt = LUT_fc(SMTFamily())
-    inputs = create_input(LUT_smt.input_t)
-    outputs = LUT_smt()(**inputs)
 
 def test_cond():
     Cond_smt = Cond_fc(SMTFamily())
-    inputs = create_input(Cond_smt.input_t)
-    outputs = Cond_smt()(**inputs)
 
 def test_mode():
     rmode_smt = gen_register_mode(16, 0)(SMTFamily())
-    inputs = create_input(rmode_smt.input_t)
-    outputs = rmode_smt()(**inputs)
 
 def test_alu():
     ALU_smt = ALU_fc(SMTFamily())
-    inputs = create_input(ALU_smt.input_t)
-    outputs = ALU_smt()(**inputs)
 
 def test_PE():
     PE_smt = PE_fc(SMTFamily())
-    inputs = create_input(PE_smt.input_t)
-    outputs = PE_smt()(**inputs)
 

@@ -68,7 +68,7 @@ def PE_fc(family: TypeFamily):
             #Condition code
             self.cond: Cond = Cond()
 
-        @name_outputs(res=DataPy, res_p=BitPy, read_config_data=Data32Py)
+        @name_outputs(res=DataPy, res_p=BitPy, reg0_config_data=DataPy, reg1_config_data=DataPy, reg2_config_data=DataPy)
         def __call__(
             self,
             inst: Const(Inst),
@@ -78,63 +78,17 @@ def PE_fc(family: TypeFamily):
             bit0: BitPy = Bit(0),
             bit1: BitPy = Bit(0),
             bit2: BitPy = Bit(0),
-            clk_en: Global(BitPy) = Bit(1),
-            config_addr : Data8Py = Data8(0),
-            config_data : Data32Py = Data32(0),
-            config_en : BitPy = Bit(0)
-        ) -> (DataPy, BitPy, Data32Py):
+            clk_en: Global(BitPy) = Bit(1)
+        ) -> (DataPy, BitPy, DataPy, DataPy, DataPy):
 
-            data0_addr = (config_addr[:3] == family.BitVector[3](DATA0_ADDR))
-            data1_addr = (config_addr[:3] == family.BitVector[3](DATA1_ADDR))
-            data2_addr = (config_addr[:3] == family.BitVector[3](DATA2_ADDR))
-            bit012_addr = (config_addr[:3] == family.BitVector[3](BIT012_ADDR))
+      
+            ra, ra_rdata = self.rega(inst.rega, inst.data0, data0, clk_en)
+            rb, rb_rdata = self.regb(inst.regb, inst.data1, data1, clk_en)
+            rc, rc_rdata = self.regc(inst.regc, inst.data2, data2, clk_en)
 
-            #ra
-            ra_we = (data0_addr & config_en)
-            ra_config_wdata = config_data[DATA_START:DATA_START+DATA_WIDTH]
-
-            #rb
-            rb_we = (data1_addr & config_en)
-            rb_config_wdata = config_data[DATA_START:DATA_START+DATA_WIDTH]
-
-            #rc
-            rc_we = (data2_addr & config_en)
-            rc_config_wdata = config_data[DATA_START:DATA_START+DATA_WIDTH]
-
-            #rd
-            rd_we = (bit012_addr & config_en)
-            rd_config_wdata = config_data[BIT0_START]
-
-            #re
-            re_we = rd_we
-            re_config_wdata = config_data[BIT1_START]
-
-            #rf
-            rf_we = rd_we
-            rf_config_wdata = config_data[BIT2_START]
-            ra, ra_rdata = self.rega(inst.rega, inst.data0, data0, clk_en, ra_we, ra_config_wdata)
-            rb, rb_rdata = self.regb(inst.regb, inst.data1, data1, clk_en, rb_we, rb_config_wdata)
-            rc, rc_rdata = self.regc(inst.regc, inst.data2, data2, clk_en, rc_we, rc_config_wdata)
-
-            rd, rd_rdata = self.regd(inst.regd, inst.bit0, bit0, clk_en, rd_we, rd_config_wdata)
-            re, re_rdata = self.rege(inst.rege, inst.bit1, bit1, clk_en, re_we, re_config_wdata)
-            rf, rf_rdata = self.regf(inst.regf, inst.bit2, bit2, clk_en, rf_we, rf_config_wdata)
-
-            #Calculate read_config_data
-            read_config_data = bit012_addr.ite(
-                BV1(rd_rdata).concat(BV1(re_rdata)).concat(BV1(rf_rdata)).concat(family.BitVector[48-3](0)),
-                ra_rdata.concat(rb_rdata).concat(rc_rdata)
-            )
-
-            if bit012_addr:
-                read_config_data = BV1(rd_rdata).concat(BV1(re_rdata)).concat(BV1(rf_rdata)).concat(family.BitVector[32-3](0))
-            elif data0_addr:
-                read_config_data = ra_rdata.concat(family.BitVector[16](0))
-            elif data1_addr:
-                read_config_data = rb_rdata.concat(family.BitVector[16](0))
-            else: #elif data2_addr:
-                read_config_data = rc_rdata.concat(family.BitVector[16](0))
-            #Compute the outputs
+            rd, rd_rdata = self.regd(inst.regd, inst.bit0, bit0, clk_en)
+            re, re_rdata = self.rege(inst.rege, inst.bit1, bit1, clk_en)
+            rf, rf_rdata = self.regf(inst.regf, inst.bit2, bit2, clk_en)
 
             #set default values to each of the op kinds
             alu_op = ALU_t_c(ALU_t.Add)
@@ -174,8 +128,6 @@ def PE_fc(family: TypeFamily):
                 res_p = fpc_res_p
                 res = fpc_res
 
-
-
             # calculate lut results
             lut_res = self.lut(inst.lut, rd, re, rf)
 
@@ -183,5 +135,5 @@ def PE_fc(family: TypeFamily):
             cond = self.cond(inst.cond, res_p, lut_res, Z, N, C, V)
 
             # return 16-bit result, 1-bit result
-            return res, cond, read_config_data
+            return res, cond, ra_rdata, rb_rdata, rc_rdata
     return PE
