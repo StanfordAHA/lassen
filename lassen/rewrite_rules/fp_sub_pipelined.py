@@ -24,7 +24,7 @@ def BFloat16_fc(family):
     return BFloat16
 
 @family_closure
-def fp_sub_fc(family: AbstractFamily):
+def fp_sub_pipelined_fc(family: AbstractFamily):
     Data = family.BitVector[16]
     Data32 = family.Unsigned[32]
     SInt = family.Signed[16]
@@ -57,12 +57,12 @@ def fp_sub_fc(family: AbstractFamily):
         return Bit(val[-1])
 
     @family.assemble(locals(), globals())
-    class fp_sub(Peak):
+    class fp_sub_pipelined(Peak):
         def __call__(self, in0 : Data, in1 : Data) -> Data:
             
             a_fpadd = bv2float(in0)
             b_fpadd = bv2float(in1)
             return Data(float2bv(a_fpadd - b_fpadd))
     
-    return fp_sub
+    return fp_sub_pipelined
     

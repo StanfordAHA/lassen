@@ -3,11 +3,12 @@
     [
       {
         "type": "BitVector",
-        "width": 8,
-        "value": 24
+        "width": 5,
+        "value": 8
       },
       [
         "inst",
+        "op",
         "alu"
       ]
     ],
@@ -26,7 +27,7 @@
       {
         "type": "BitVector",
         "width": 8,
-        "value": 3
+        "value": 0
       },
       [
         "inst",
@@ -37,7 +38,7 @@
       {
         "type": "BitVector",
         "width": 5,
-        "value": 17
+        "value": 8
       },
       [
         "inst",
@@ -48,7 +49,7 @@
       {
         "type": "BitVector",
         "width": 2,
-        "value": 2
+        "value": 0
       },
       [
         "inst",
@@ -59,7 +60,7 @@
       {
         "type": "BitVector",
         "width": 2,
-        "value": 2
+        "value": 0
       },
       [
         "inst",
@@ -70,7 +71,18 @@
       {
         "type": "BitVector",
         "width": 2,
-        "value": 2
+        "value": 0
+      },
+      [
+        "inst",
+        "regc"
+      ]
+    ],
+    [
+      {
+        "type": "BitVector",
+        "width": 2,
+        "value": 0
       },
       [
         "inst",
@@ -81,7 +93,7 @@
       {
         "type": "BitVector",
         "width": 2,
-        "value": 2
+        "value": 0
       },
       [
         "inst",
@@ -92,7 +104,7 @@
       {
         "type": "BitVector",
         "width": 2,
-        "value": 2
+        "value": 0
       },
       [
         "inst",
@@ -123,6 +135,17 @@
     ],
     [
       {
+        "type": "BitVector",
+        "width": 16,
+        "value": 0
+      },
+      [
+        "inst",
+        "data2"
+      ]
+    ],
+    [
+      {
         "type": "Bit",
         "width": 1,
         "value": false
@@ -155,9 +178,7 @@
       ]
     ],
     [
-      [
-        "in1"
-      ],
+      "unbound",
       [
         "data0"
       ]
@@ -171,6 +192,14 @@
       ]
     ],
     [
+      [
+        "in1"
+      ],
+      [
+        "data2"
+      ]
+    ],
+    [
       "unbound",
       [
         "bit0"
@@ -191,25 +220,7 @@
     [
       "unbound",
       [
-        "config_en"
-      ]
-    ],
-    [
-      "unbound",
-      [
         "clk_en"
-      ]
-    ],
-    [
-      "unbound",
-      [
-        "config_addr"
-      ]
-    ],
-    [
-      "unbound",
-      [
-        "config_data"
       ]
     ]
   ],
@@ -217,7 +228,7 @@
     [
       "unbound",
       [
-        "alu_res"
+        "res"
       ]
     ],
     [
@@ -231,7 +242,19 @@
     [
       "unbound",
       [
-        "read_config_data"
+        "reg0_config_data"
+      ]
+    ],
+    [
+      "unbound",
+      [
+        "reg1_config_data"
+      ]
+    ],
+    [
+      "unbound",
+      [
+        "reg2_config_data"
       ]
     ]
   ]

@@ -1,8 +1,8 @@
 import glob, os
 from solve_rewrite_rules import solve_rules
 
-if input("This will delete all saved rewrite rules, only do this if you are changing the PE hardware, are you sure you want to continue? (y/n)") != "y":
-        exit()
+# if input("This will delete all saved rewrite rules, only do this if you are changing the PE hardware, are you sure you want to continue? (y/n)") != "y":
+#         exit()
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
@@ -24,9 +24,14 @@ solve_rules()
 
 print("Generating pipelined rules")
 
-rrule_peak_files = glob.glob(f'{rr_path}/ugt.py')
+rrule_peak_files = glob.glob(f'{rr_path}/*.py')
+i = 0
+for file_ in rrule_peak_files:
+    print(f"{i:3}: {file_}")
+    i=i+1
 
 for file_ in rrule_peak_files:
+        print(f"{file_} : ", end="")
     
         op = os.path.basename(file_).split(".")[0]
         file_name = os.path.basename(file_).split(".")[0]

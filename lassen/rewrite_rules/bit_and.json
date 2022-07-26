@@ -3,11 +3,12 @@
     [
       {
         "type": "BitVector",
-        "width": 8,
-        "value": 0
+        "width": 5,
+        "value": 28
       },
       [
         "inst",
+        "op",
         "alu"
       ]
     ],
@@ -15,7 +16,7 @@
       {
         "type": "BitVector",
         "width": 1,
-        "value": 1
+        "value": 0
       },
       [
         "inst",
@@ -26,7 +27,7 @@
       {
         "type": "BitVector",
         "width": 8,
-        "value": 8
+        "value": 192
       },
       [
         "inst",
@@ -70,6 +71,17 @@
       {
         "type": "BitVector",
         "width": 2,
+        "value": 0
+      },
+      [
+        "inst",
+        "regc"
+      ]
+    ],
+    [
+      {
+        "type": "BitVector",
+        "width": 2,
         "value": 2
       },
       [
@@ -92,7 +104,7 @@
       {
         "type": "BitVector",
         "width": 2,
-        "value": 1
+        "value": 2
       },
       [
         "inst",
@@ -103,7 +115,7 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 53248
+        "value": 23552
       },
       [
         "inst",
@@ -114,11 +126,22 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 0
+        "value": 56904
       },
       [
         "inst",
         "data1"
+      ]
+    ],
+    [
+      {
+        "type": "BitVector",
+        "width": 16,
+        "value": 8192
+      },
+      [
+        "inst",
+        "data2"
       ]
     ],
     [
@@ -167,11 +190,23 @@
       ]
     ],
     [
+      "unbound",
+      [
+        "data2"
+      ]
+    ],
+    [
+      "unbound",
+      [
+        "bit0"
+      ]
+    ],
+    [
       [
         "in0"
       ],
       [
-        "bit0"
+        "bit1"
       ]
     ],
     [
@@ -179,19 +214,7 @@
         "in1"
       ],
       [
-        "bit1"
-      ]
-    ],
-    [
-      "unbound",
-      [
         "bit2"
-      ]
-    ],
-    [
-      "unbound",
-      [
-        "config_en"
       ]
     ],
     [
@@ -199,25 +222,13 @@
       [
         "clk_en"
       ]
-    ],
-    [
-      "unbound",
-      [
-        "config_addr"
-      ]
-    ],
-    [
-      "unbound",
-      [
-        "config_data"
-      ]
     ]
   ],
   "obinding": [
     [
       "unbound",
       [
-        "alu_res"
+        "res"
       ]
     ],
     [
@@ -231,7 +242,19 @@
     [
       "unbound",
       [
-        "read_config_data"
+        "reg0_config_data"
+      ]
+    ],
+    [
+      "unbound",
+      [
+        "reg1_config_data"
+      ]
+    ],
+    [
+      "unbound",
+      [
+        "reg2_config_data"
       ]
     ]
   ]

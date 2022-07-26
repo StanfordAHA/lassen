@@ -3,19 +3,20 @@
     [
       {
         "type": "BitVector",
-        "width": 8,
-        "value": 32
+        "width": 3,
+        "value": 5
       },
       [
         "inst",
-        "alu"
+        "op",
+        "fp_custom"
       ]
     ],
     [
       {
         "type": "BitVector",
         "width": 1,
-        "value": 0
+        "value": 1
       },
       [
         "inst",
@@ -26,7 +27,7 @@
       {
         "type": "BitVector",
         "width": 8,
-        "value": 72
+        "value": 111
       },
       [
         "inst",
@@ -74,18 +75,7 @@
       },
       [
         "inst",
-        "regd"
-      ]
-    ],
-    [
-      {
-        "type": "BitVector",
-        "width": 2,
-        "value": 0
-      },
-      [
-        "inst",
-        "rege"
+        "regc"
       ]
     ],
     [
@@ -96,6 +86,28 @@
       },
       [
         "inst",
+        "regd"
+      ]
+    ],
+    [
+      {
+        "type": "BitVector",
+        "width": 2,
+        "value": 3
+      },
+      [
+        "inst",
+        "rege"
+      ]
+    ],
+    [
+      {
+        "type": "BitVector",
+        "width": 2,
+        "value": 0
+      },
+      [
+        "inst",
         "regf"
       ]
     ],
@@ -103,7 +115,7 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 19140
+        "value": 3031
       },
       [
         "inst",
@@ -114,7 +126,7 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 14400
+        "value": 32641
       },
       [
         "inst",
@@ -123,9 +135,20 @@
     ],
     [
       {
+        "type": "BitVector",
+        "width": 16,
+        "value": 16522
+      },
+      [
+        "inst",
+        "data2"
+      ]
+    ],
+    [
+      {
         "type": "Bit",
         "width": 1,
-        "value": false
+        "value": true
       },
       [
         "inst",
@@ -147,7 +170,7 @@
       {
         "type": "Bit",
         "width": 1,
-        "value": false
+        "value": true
       },
       [
         "inst",
@@ -167,17 +190,9 @@
       ]
     ],
     [
-      [
-        "in0"
-      ],
-      [
-        "bit0"
-      ]
-    ],
-    [
       "unbound",
       [
-        "bit1"
+        "data2"
       ]
     ],
     [
@@ -185,13 +200,21 @@
         "in1"
       ],
       [
-        "bit2"
+        "bit0"
+      ]
+    ],
+    [
+      [
+        "in0"
+      ],
+      [
+        "bit1"
       ]
     ],
     [
       "unbound",
       [
-        "config_en"
+        "bit2"
       ]
     ],
     [
@@ -199,25 +222,13 @@
       [
         "clk_en"
       ]
-    ],
-    [
-      "unbound",
-      [
-        "config_addr"
-      ]
-    ],
-    [
-      "unbound",
-      [
-        "config_data"
-      ]
     ]
   ],
   "obinding": [
     [
       "unbound",
       [
-        "alu_res"
+        "res"
       ]
     ],
     [
@@ -231,7 +242,19 @@
     [
       "unbound",
       [
-        "read_config_data"
+        "reg0_config_data"
+      ]
+    ],
+    [
+      "unbound",
+      [
+        "reg1_config_data"
+      ]
+    ],
+    [
+      "unbound",
+      [
+        "reg2_config_data"
       ]
     ]
   ]

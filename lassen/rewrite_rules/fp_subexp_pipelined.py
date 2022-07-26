@@ -24,7 +24,7 @@ def BFloat16_fc(family):
     return BFloat16
 
 @family_closure
-def fp_subexp_fc(family: AbstractFamily):
+def fp_subexp_pipelined_fc(family: AbstractFamily):
     Data = family.BitVector[16]
     Data32 = family.Unsigned[32]
     SInt = family.Signed
@@ -58,7 +58,7 @@ def fp_subexp_fc(family: AbstractFamily):
         return Bit(val[-1])
 
     @family.assemble(locals(), globals())
-    class fp_subexp(Peak):
+    class fp_subexp_pipelined(Peak):
         def __call__(self, in0 : Data, in1 : Data) -> Data:
             signa = BitVector[16]((in0 & 0x8000))
             expa = UInt(in0)[7:15]
@@ -70,5 +70,5 @@ def fp_subexp_fc(family: AbstractFamily):
             manta = BitVector[16]((in0 & 0x7F))
             res = ((signa | signb) | exp_shift | manta)
             return res
-    return fp_subexp
+    return fp_subexp_pipelined
     

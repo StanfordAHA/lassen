@@ -8,7 +8,7 @@ from peak.family import MagmaFamily, SMTFamily
 import magma
 
 @family_closure
-def fp_getmant_fc(family: AbstractFamily):
+def fp_getmant_pipelined_fc(family: AbstractFamily):
     Data = family.BitVector[16]
     Data32 = family.Unsigned[32]
     SInt = family.Signed[16]
@@ -16,8 +16,8 @@ def fp_getmant_fc(family: AbstractFamily):
     Bit = family.Bit
 
     @family.assemble(locals(), globals())
-    class fp_getmant(Peak):
+    class fp_getmant_pipelined(Peak):
         def __call__(self, in0 : Data, in1 : Data) -> Data:
             return Data(in0 & 0x7F)
-    return fp_getmant
+    return fp_getmant_pipelined
     

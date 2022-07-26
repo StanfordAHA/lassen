@@ -24,7 +24,7 @@ def BFloat16_fc(family):
     return BFloat16
 
 @family_closure
-def fp_cnvint2f_fc(family: AbstractFamily):
+def fp_cnvint2f_pipelined_fc(family: AbstractFamily):
     Data = family.BitVector[16]
     Data32 = family.Unsigned[32]
     SInt = family.Signed
@@ -58,7 +58,7 @@ def fp_cnvint2f_fc(family: AbstractFamily):
         return Bit(val[-1])
 
     @family.assemble(locals(), globals())
-    class fp_cnvint2f(Peak):
+    class fp_cnvint2f_pipelined(Peak):
         def __call__(self, in0 : Data, in1 : Data) -> Data:
             
             sign = BitVector[16](0)
@@ -121,5 +121,5 @@ def fp_cnvint2f_fc(family: AbstractFamily):
                     0xFF << 7)) | normmant)
 
             return to_float_result
-    return fp_cnvint2f
+    return fp_cnvint2f_pipelined
     
