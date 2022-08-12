@@ -91,7 +91,7 @@ def PE_fc(family: TypeFamily):
             rf, rf_rdata = self.regf(inst.regf, inst.bit2, bit2, clk_en)
 
             #set default values to each of the op kinds
-            alu_op = ALU_t_c(ALU_t.Add)
+            alu_op = ALU_t_c(ALU_t.Adc)
             fpu_op = FPU_t_c(FPU_t.FP_add)
             fp_custom_op = FPCustom_t_c(FPCustom_t.FGetMant)
             if inst.op.alu.match:

@@ -4,7 +4,7 @@
       {
         "type": "BitVector",
         "width": 5,
-        "value": 6
+        "value": 17
       },
       [
         "inst",
@@ -27,7 +27,7 @@
       {
         "type": "BitVector",
         "width": 8,
-        "value": 12
+        "value": 139
       },
       [
         "inst",
@@ -82,7 +82,7 @@
       {
         "type": "BitVector",
         "width": 2,
-        "value": 2
+        "value": 0
       },
       [
         "inst",
@@ -104,7 +104,7 @@
       {
         "type": "BitVector",
         "width": 2,
-        "value": 0
+        "value": 2
       },
       [
         "inst",
@@ -115,7 +115,7 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 63101
+        "value": 56509
       },
       [
         "inst",
@@ -126,7 +126,7 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 59697
+        "value": 39133
       },
       [
         "inst",
@@ -137,11 +137,20 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 3347
+        "value": 65049
       },
       [
         "inst",
         "data2"
+      ]
+    ],
+    [
+      [
+        "in0"
+      ],
+      [
+        "inst",
+        "bit0"
       ]
     ],
     [
@@ -150,15 +159,6 @@
         "width": 1,
         "value": false
       },
-      [
-        "inst",
-        "bit0"
-      ]
-    ],
-    [
-      [
-        "in0"
-      ],
       [
         "inst",
         "bit1"
@@ -226,14 +226,6 @@
       ]
     ],
     [
-      [
-        0
-      ],
-      [
-        "res_p"
-      ]
-    ],
-    [
       "unbound",
       [
         "reg0_config_data"
@@ -249,6 +241,14 @@
       "unbound",
       [
         "reg2_config_data"
+      ]
+    ],
+    [
+      [
+        0
+      ],
+      [
+        "res_p"
       ]
     ]
   ]

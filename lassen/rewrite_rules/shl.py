@@ -14,7 +14,7 @@ def shl_fc(family: AbstractFamily):
     class shl(Peak):
         def __call__(self, in0 : Data, in1 : Data) -> Data:
             
-            return Data(SInt(in1) >> SInt(in0))
+            return Data(SInt(in1) << SInt(in0))
     
     return shl
     
