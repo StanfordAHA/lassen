@@ -27,8 +27,8 @@ class ALU_t(Enum):
     MULSHR = Enum.Auto()
 
 class Signed_t(Enum):
-    unsigned = Enum.Auto()
-    signed = Enum.Auto()
+    unsigned = 0
+    signed = 1
 
 def overflow(a, b, res):
     msb_a = a[-1]
