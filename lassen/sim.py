@@ -72,7 +72,7 @@ def PE_fc(family: TypeFamily):
         def __call__(
             self,
             inst: Const(Inst),
-            data0: DataPy,
+            data0: DataPy = Data(0),
             data1: DataPy = Data(0),
             data2: DataPy = Data(0),
             bit0: BitPy = Bit(0),

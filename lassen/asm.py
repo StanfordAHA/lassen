@@ -162,34 +162,34 @@ def smax(**kwargs):
     return inst(Op_t(alu=ALU_t.CROP), signed=Signed_t.signed, cond=Cond_t.ALU, **kwargs)
 
 def eq(**kwargs):
-    return inst(Op_t(alu=ALU_t.Sbc), cond=Cond_t.Z, **kwargs)
+    return inst(Op_t(alu=ALU_t.Sbc), rd_mode=Mode_t.CONST, rd_const=1, cond=Cond_t.Z, **kwargs)
 
 def ne(**kwargs):
-    return inst(Op_t(alu=ALU_t.Sbc), cond=Cond_t.Z_n, **kwargs)
+    return inst(Op_t(alu=ALU_t.Sbc), rd_mode=Mode_t.CONST, rd_const=1, cond=Cond_t.Z_n, **kwargs)
 
 def ult(**kwargs):
-    return inst(Op_t(alu=ALU_t.Sbc), cond=Cond_t.ULT, **kwargs)
+    return inst(Op_t(alu=ALU_t.Sbc), rd_mode=Mode_t.CONST, rd_const=1, cond=Cond_t.ULT, **kwargs)
 
 def ule(**kwargs):
-    return inst(Op_t(alu=ALU_t.Sbc), cond=Cond_t.ULE, **kwargs)
+    return inst(Op_t(alu=ALU_t.Sbc), rd_mode=Mode_t.CONST, rd_const=1, cond=Cond_t.ULE, **kwargs)
 
 def ugt(**kwargs):
-    return inst(Op_t(alu=ALU_t.Sbc), cond=Cond_t.UGT, **kwargs)
+    return inst(Op_t(alu=ALU_t.Sbc), rd_mode=Mode_t.CONST, rd_const=1, cond=Cond_t.UGT, **kwargs)
 
 def uge(**kwargs):
-    return inst(Op_t(alu=ALU_t.Sbc), cond=Cond_t.UGE, **kwargs)
+    return inst(Op_t(alu=ALU_t.Sbc), rd_mode=Mode_t.CONST, rd_const=1, cond=Cond_t.UGE, **kwargs)
 
 def slt(**kwargs):
-    return inst(Op_t(alu=ALU_t.Sbc), cond=Cond_t.SLT, **kwargs)
+    return inst(Op_t(alu=ALU_t.Sbc), rd_mode=Mode_t.CONST, rd_const=1, cond=Cond_t.SLT, **kwargs)
 
 def sle(**kwargs):
-    return inst(Op_t(alu=ALU_t.Sbc), cond=Cond_t.SLE, **kwargs)
+    return inst(Op_t(alu=ALU_t.Sbc), rd_mode=Mode_t.CONST, rd_const=1, cond=Cond_t.SLE, **kwargs)
 
 def sgt(**kwargs):
-    return inst(Op_t(alu=ALU_t.Sbc), cond=Cond_t.SGT, **kwargs)
+    return inst(Op_t(alu=ALU_t.Sbc), rd_mode=Mode_t.CONST, rd_const=1, cond=Cond_t.SGT, **kwargs)
 
 def sge(**kwargs):
-    return inst(Op_t(alu=ALU_t.Sbc), cond=Cond_t.SGE, **kwargs)
+    return inst(Op_t(alu=ALU_t.Sbc), rd_mode=Mode_t.CONST, rd_const=1, cond=Cond_t.SGE, **kwargs)
 
 # implements a constant using a register and add by zero
 def const(val):

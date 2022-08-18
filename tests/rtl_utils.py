@@ -120,7 +120,7 @@ def rtl_tester(test_op, data0=None, data1=None, data2=None, bit0=None, bit1=None
                                directory="tests/build/",
                                include_verilog_libraries=libs,
                                skip_compile=True,
-                               magma_opts={"sv": True},
+                               magma_opts={"sv": True}
                                )
     else:
         libs = ["DW_fp_mult.v", "DW_fp_add.v"]
