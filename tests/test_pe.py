@@ -34,7 +34,6 @@ NTESTS = 4
     op(asm.add(), lambda x, y: x+y),
     op(asm.sub(), lambda x, y: x-y),
     op(asm.lsl(), lambda x, y: x << y),
-    op(asm.lsr(), lambda x, y: x >> y),
     op(asm.umin(), lambda x, y: (x < y).ite(x, y)),
     op(asm.umax(), lambda x, y: (x > y).ite(x, y))
 ])
@@ -49,8 +48,20 @@ def test_unsigned_binary(op, args):
     rtl_tester(op, x, y, res=res)
 
 @pytest.mark.parametrize("op", [
+    op(asm.lsr(), lambda x, y: x >> y)
+])
+@pytest.mark.parametrize("args", [
+    (UIntVector.random(DATAWIDTH), UIntVector.random(DATAWIDTH))
+        for _ in range(NTESTS)
+])
+def test_unsigned_binary(op, args):
+    x, y = args
+    res, _, _, _, _ = pe(op.inst, data0=Data(x), data2=Data(y))
+    assert res==op.func(x, y)
+    rtl_tester(op, x, data2=y, res=res)
+
+@pytest.mark.parametrize("op", [
     op(asm.lsl(), lambda x, y: x << y),
-    op(asm.asr(), lambda x, y: x >> y),
     op(asm.smin(), lambda x, y: (x < y).ite(x, y)),
     op(asm.smax(), lambda x, y: (x > y).ite(x, y)),
 ])
@@ -63,6 +74,19 @@ def test_signed_binary(op, args):
     res, _, _, _, _ = pe(op.inst, Data(x), Data(y))
     assert res==op.func(x, y)
     rtl_tester(op, x, y, res=res)
+
+@pytest.mark.parametrize("op", [
+    op(asm.asr(), lambda x, y: x >> y)
+])
+@pytest.mark.parametrize("args", [
+    (SIntVector.random(DATAWIDTH), SIntVector.random(DATAWIDTH))
+        for _ in range(NTESTS) ]
+)
+def test_signed_binary(op, args):
+    x, y = args
+    res, _, _, _, _ = pe(op.inst, Data(x), data2=Data(y))
+    assert res==op.func(x, y)
+    rtl_tester(op, x, data2=y, res=res)
 
 @pytest.mark.parametrize("op", [
     op(asm.abs(), lambda x: x if x > 0 else -x),
@@ -127,7 +151,7 @@ def test_ternary(op, args):
     b0 = args[2]
     res, _, _, _, _ = pe(inst, data0=d0, data1=d1, bit0=b0)
     assert res==op.func(d0, d1, b0)
-    rtl_tester(inst, d0, d1, b0, res=res)
+    rtl_tester(inst, data0=d0, data1=d1, bit0=b0, res=res)
 
 @pytest.mark.parametrize("args", [
     (SIntVector.random(DATAWIDTH), SIntVector.random(DATAWIDTH))

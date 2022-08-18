@@ -37,10 +37,10 @@ def inst(alu, signed=Signed_t.unsigned, lut=0, cond=Cond_t.Z,
 # helper functions to format configurations
 
 def add(**kwargs):
-    return inst(Op_t(alu=ALU_t.Add), **kwargs)
+    return inst(Op_t(alu=ALU_t.Adc), **kwargs)
 
 def sub(**kwargs):
-    return inst(Op_t(alu=ALU_t.Sub), **kwargs)
+    return inst(Op_t(alu=ALU_t.Sbc), rd_mode=Mode_t.CONST, rd_const=1, **kwargs)
 
 def adc(**kwargs):
     return inst(Op_t(alu=ALU_t.Adc), **kwargs)
@@ -138,7 +138,7 @@ def lsl(**kwargs):
     return inst(Op_t(alu=ALU_t.SHL), **kwargs)
 
 def lsr(**kwargs):
-    return inst(Op_t(alu=ALU_t.SHR), **kwargs)
+    return inst(Op_t(alu=ALU_t.SHR), signed=Signed_t.unsigned, **kwargs)
 
 def asr(**kwargs):
     return inst(Op_t(alu=ALU_t.SHR), signed=Signed_t.signed, **kwargs)
@@ -150,55 +150,55 @@ def abs(**kwargs):
     return inst(Op_t(alu=ALU_t.Abs), signed=Signed_t.signed, **kwargs)
 
 def umin(**kwargs):
-    return inst(Op_t(alu=ALU_t.LTE_Min), cond=Cond_t.ALU, **kwargs)
+    return inst(Op_t(alu=ALU_t.CROP), cond=Cond_t.ALU, **kwargs)
 
 def umax(**kwargs):
-    return inst(Op_t(alu=ALU_t.GTE_Max), cond=Cond_t.ALU, **kwargs)
+    return inst(Op_t(alu=ALU_t.CROP), cond=Cond_t.ALU, **kwargs)
 
 def smin(**kwargs):
-    return inst(Op_t(alu=ALU_t.LTE_Min), signed=Signed_t.signed, cond=Cond_t.ALU, **kwargs)
+    return inst(Op_t(alu=ALU_t.CROP), signed=Signed_t.signed, cond=Cond_t.ALU, **kwargs)
 
 def smax(**kwargs):
-    return inst(Op_t(alu=ALU_t.GTE_Max), signed=Signed_t.signed, cond=Cond_t.ALU, **kwargs)
+    return inst(Op_t(alu=ALU_t.CROP), signed=Signed_t.signed, cond=Cond_t.ALU, **kwargs)
 
 def eq(**kwargs):
-    return inst(Op_t(alu=ALU_t.Sub), cond=Cond_t.Z, **kwargs)
+    return inst(Op_t(alu=ALU_t.Sbc), cond=Cond_t.Z, **kwargs)
 
 def ne(**kwargs):
-    return inst(Op_t(alu=ALU_t.Sub), cond=Cond_t.Z_n, **kwargs)
+    return inst(Op_t(alu=ALU_t.Sbc), cond=Cond_t.Z_n, **kwargs)
 
 def ult(**kwargs):
-    return inst(Op_t(alu=ALU_t.Sub), cond=Cond_t.ULT, **kwargs)
+    return inst(Op_t(alu=ALU_t.Sbc), cond=Cond_t.ULT, **kwargs)
 
 def ule(**kwargs):
-    return inst(Op_t(alu=ALU_t.Sub), cond=Cond_t.ULE, **kwargs)
+    return inst(Op_t(alu=ALU_t.Sbc), cond=Cond_t.ULE, **kwargs)
 
 def ugt(**kwargs):
-    return inst(Op_t(alu=ALU_t.Sub), cond=Cond_t.UGT, **kwargs)
+    return inst(Op_t(alu=ALU_t.Sbc), cond=Cond_t.UGT, **kwargs)
 
 def uge(**kwargs):
-    return inst(Op_t(alu=ALU_t.Sub), cond=Cond_t.UGE, **kwargs)
+    return inst(Op_t(alu=ALU_t.Sbc), cond=Cond_t.UGE, **kwargs)
 
 def slt(**kwargs):
-    return inst(Op_t(alu=ALU_t.Sub), cond=Cond_t.SLT, **kwargs)
+    return inst(Op_t(alu=ALU_t.Sbc), cond=Cond_t.SLT, **kwargs)
 
 def sle(**kwargs):
-    return inst(Op_t(alu=ALU_t.Sub), cond=Cond_t.SLE, **kwargs)
+    return inst(Op_t(alu=ALU_t.Sbc), cond=Cond_t.SLE, **kwargs)
 
 def sgt(**kwargs):
-    return inst(Op_t(alu=ALU_t.Sub), cond=Cond_t.SGT, **kwargs)
+    return inst(Op_t(alu=ALU_t.Sbc), cond=Cond_t.SGT, **kwargs)
 
 def sge(**kwargs):
-    return inst(Op_t(alu=ALU_t.Sub), cond=Cond_t.SGE, **kwargs)
+    return inst(Op_t(alu=ALU_t.Sbc), cond=Cond_t.SGE, **kwargs)
 
 # implements a constant using a register and add by zero
 def const(val):
-    return inst(Op_t(alu=ALU_t.Add),
+    return inst(Op_t(alu=ALU_t.Adc),
                 ra_mode=Mode_t.CONST, ra_const=val,
                 rb_mode=Mode_t.CONST, rb_const=0)
 
 def lut(val):
-    return inst(Op_t(alu=ALU_t.Add), lut=val, cond=Cond_t.LUT)
+    return inst(Op_t(alu=ALU_t.Adc), lut=val, cond=Cond_t.LUT)
 
 #Using bit1 and bit2 since bit0 can be used in the ALU_t
 def lut_and():

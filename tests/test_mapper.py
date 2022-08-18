@@ -9,10 +9,10 @@ def Add_fc(family):
     @family.assemble(locals(), globals())
     class Add(Peak):
         def __call__(self, a: Data, b:Data) -> Data:
-            return a + b
+            return a >> b
     return Add
 
-def test_mul():
+def test_add():
     arch_fc = ALU_fc
     ir_fc = Add_fc
     arch_mapper = ArchMapper(arch_fc)
