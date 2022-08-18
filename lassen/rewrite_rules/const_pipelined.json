@@ -4,7 +4,7 @@
       {
         "type": "BitVector",
         "width": 5,
-        "value": 26
+        "value": 16
       },
       [
         "inst",
@@ -112,9 +112,11 @@
       ]
     ],
     [
-      [
-        "in0"
-      ],
+      {
+        "type": "BitVector",
+        "width": 16,
+        "value": 0
+      },
       [
         "inst",
         "data0"
@@ -132,11 +134,9 @@
       ]
     ],
     [
-      {
-        "type": "BitVector",
-        "width": 16,
-        "value": 0
-      },
+      [
+        "in0"
+      ],
       [
         "inst",
         "data2"
@@ -230,12 +230,6 @@
     [
       "unbound",
       [
-        "res_p"
-      ]
-    ],
-    [
-      "unbound",
-      [
         "reg0_config_data"
       ]
     ],
@@ -249,6 +243,12 @@
       "unbound",
       [
         "reg2_config_data"
+      ]
+    ],
+    [
+      "unbound",
+      [
+        "res_p"
       ]
     ]
   ]

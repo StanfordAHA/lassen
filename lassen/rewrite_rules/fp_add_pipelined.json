@@ -3,20 +3,20 @@
     [
       {
         "type": "BitVector",
-        "width": 5,
+        "width": 3,
         "value": 0
       },
       [
         "inst",
         "op",
-        "alu"
+        "fp_custom"
       ]
     ],
     [
       {
         "type": "BitVector",
         "width": 1,
-        "value": 0
+        "value": 1
       },
       [
         "inst",
@@ -60,7 +60,7 @@
       {
         "type": "BitVector",
         "width": 2,
-        "value": 0
+        "value": 3
       },
       [
         "inst",
@@ -71,7 +71,7 @@
       {
         "type": "BitVector",
         "width": 2,
-        "value": 0
+        "value": 1
       },
       [
         "inst",
@@ -115,7 +115,7 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 3662
+        "value": 48650
       },
       [
         "inst",
@@ -126,7 +126,7 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 36289
+        "value": 0
       },
       [
         "inst",
@@ -137,7 +137,7 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 8
+        "value": 0
       },
       [
         "inst",
@@ -186,15 +186,15 @@
       ]
     ],
     [
-      "unbound",
+      [
+        "in1"
+      ],
       [
         "data1"
       ]
     ],
     [
-      [
-        "in1"
-      ],
+      "unbound",
       [
         "data2"
       ]
@@ -226,17 +226,9 @@
   ],
   "obinding": [
     [
-      [
-        0
-      ],
-      [
-        "res"
-      ]
-    ],
-    [
       "unbound",
       [
-        "res_p"
+        "res"
       ]
     ],
     [
@@ -246,7 +238,9 @@
       ]
     ],
     [
-      "unbound",
+      [
+        0
+      ],
       [
         "reg1_config_data"
       ]
@@ -255,6 +249,12 @@
       "unbound",
       [
         "reg2_config_data"
+      ]
+    ],
+    [
+      "unbound",
+      [
+        "res_p"
       ]
     ]
   ]

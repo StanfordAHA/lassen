@@ -1,11 +1,9 @@
-
-
-
 from peak import Peak, family_closure, Const
 from peak import family
 from peak.family import AbstractFamily
 from peak.family import MagmaFamily, SMTFamily
 import magma
+
 
 @family_closure
 def fp_getmant_pipelined_fc(family: AbstractFamily):
@@ -17,7 +15,7 @@ def fp_getmant_pipelined_fc(family: AbstractFamily):
 
     @family.assemble(locals(), globals())
     class fp_getmant_pipelined(Peak):
-        def __call__(self, in0 : Data, in1 : Data) -> Data:
+        def __call__(self, in0: Data, in1: Data) -> Data:
             return Data(in0 & 0x7F)
+
     return fp_getmant_pipelined
-    

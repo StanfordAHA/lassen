@@ -4,7 +4,7 @@
       {
         "type": "BitVector",
         "width": 5,
-        "value": 25
+        "value": 17
       },
       [
         "inst",
@@ -16,7 +16,7 @@
       {
         "type": "BitVector",
         "width": 1,
-        "value": 1
+        "value": 0
       },
       [
         "inst",
@@ -27,7 +27,7 @@
       {
         "type": "BitVector",
         "width": 8,
-        "value": 223
+        "value": 111
       },
       [
         "inst",
@@ -60,7 +60,7 @@
       {
         "type": "BitVector",
         "width": 2,
-        "value": 0
+        "value": 3
       },
       [
         "inst",
@@ -71,7 +71,7 @@
       {
         "type": "BitVector",
         "width": 2,
-        "value": 3
+        "value": 0
       },
       [
         "inst",
@@ -115,7 +115,7 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 65115
+        "value": 39936
       },
       [
         "inst",
@@ -126,7 +126,7 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 0
+        "value": 3712
       },
       [
         "inst",
@@ -137,7 +137,7 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 49150
+        "value": 65535
       },
       [
         "inst",
@@ -148,7 +148,7 @@
       {
         "type": "Bit",
         "width": 1,
-        "value": true
+        "value": false
       },
       [
         "inst",
@@ -179,22 +179,22 @@
     ],
     [
       [
-        "in1"
+        "in0"
       ],
       [
         "data0"
       ]
     ],
     [
-      "unbound",
+      [
+        "in1"
+      ],
       [
         "data1"
       ]
     ],
     [
-      [
-        "in0"
-      ],
+      "unbound",
       [
         "data2"
       ]
@@ -232,14 +232,6 @@
       ]
     ],
     [
-      [
-        0
-      ],
-      [
-        "res_p"
-      ]
-    ],
-    [
       "unbound",
       [
         "reg0_config_data"
@@ -255,6 +247,14 @@
       "unbound",
       [
         "reg2_config_data"
+      ]
+    ],
+    [
+      [
+        0
+      ],
+      [
+        "res_p"
       ]
     ]
   ]

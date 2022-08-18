@@ -10,26 +10,16 @@ from .isa import Inst_fc, ALU_t, FPU_t, FPCustom_t
 from hwtypes import TypeFamily
 from hwtypes import BitVector, Bit as BitPy
 
+
 @family_closure
 def PE_fc(family: TypeFamily):
 
-    #Hack
-    def BV1(bit):
-        return bit.ite(family.BitVector[1](1), family.BitVector[1](0))
     Data = family.BitVector[DATAWIDTH]
-    Data8 = family.BitVector[8]
-    Data32 = family.BitVector[32]
-    Data48 = family.BitVector[48]
     Bit = family.Bit
-
     DataPy = BitVector[DATAWIDTH]
-    Data8Py = BitVector[8]
-    Data32Py = BitVector[32]
-    Data48Py = BitVector[48]
 
     DataReg = gen_register_mode(DATAWIDTH, 0)(family)
     BitReg = gen_bit_mode(0)(family)
-
 
     ALU = ALU_fc(family)
     FPU = FPU_fc(family)
@@ -57,31 +47,36 @@ def PE_fc(family: TypeFamily):
             self.rege: BitReg = BitReg()
             self.regf: BitReg = BitReg()
 
-            #Execution
+            # Execution
             self.alu: ALU = ALU()
             self.fpu: FPU = FPU()
             self.fp_custom: FPCustom = FPCustom()
 
-            #Lut
+            # Lut
             self.lut: LUT = LUT()
 
-            #Condition code
+            # Condition code
             self.cond: Cond = Cond()
 
-        @name_outputs(res=DataPy, res_p=BitPy, reg0_config_data=DataPy, reg1_config_data=DataPy, reg2_config_data=DataPy)
+        @name_outputs(
+            res=DataPy,
+            res_p=BitPy,
+            reg0_config_data=DataPy,
+            reg1_config_data=DataPy,
+            reg2_config_data=DataPy,
+        )
         def __call__(
             self,
             inst: Const(Inst),
-            data0: DataPy,
+            data0: DataPy = Data(0),
             data1: DataPy = Data(0),
             data2: DataPy = Data(0),
             bit0: BitPy = Bit(0),
             bit1: BitPy = Bit(0),
             bit2: BitPy = Bit(0),
-            clk_en: Global(BitPy) = Bit(1)
+            clk_en: Global(BitPy) = Bit(1),
         ) -> (DataPy, BitPy, DataPy, DataPy, DataPy):
 
-      
             ra, ra_rdata = self.rega(inst.rega, inst.data0, data0, clk_en)
             rb, rb_rdata = self.regb(inst.regb, inst.data1, data1, clk_en)
             rc, rc_rdata = self.regc(inst.regc, inst.data2, data2, clk_en)
@@ -90,23 +85,27 @@ def PE_fc(family: TypeFamily):
             re, re_rdata = self.rege(inst.rege, inst.bit1, bit1, clk_en)
             rf, rf_rdata = self.regf(inst.regf, inst.bit2, bit2, clk_en)
 
-            #set default values to each of the op kinds
-            alu_op = ALU_t_c(ALU_t.Add)
+            # set default values to each of the op kinds
+            alu_op = ALU_t_c(ALU_t.Adc)
             fpu_op = FPU_t_c(FPU_t.FP_add)
             fp_custom_op = FPCustom_t_c(FPCustom_t.FGetMant)
             if inst.op.alu.match:
                 alu_op = inst.op.alu.value
             elif inst.op.fpu.match:
                 fpu_op = inst.op.fpu.value
-            else: #inst.op.fp_custom.match:
+            else:  # inst.op.fp_custom.match:
                 fp_custom_op = inst.op.fp_custom.value
 
             # calculate alu results
-            alu_res, alu_res_p, alu_Z, alu_N, C, alu_V = self.alu(alu_op, inst.signed, ra, rb, rc, rd)
+            alu_res, alu_res_p, alu_Z, alu_N, C, alu_V = self.alu(
+                alu_op, inst.signed, ra, rb, rc, rd
+            )
 
             fpu_res, fpu_N, fpu_Z = self.fpu(fpu_op, ra, rb)
 
-            fpc_res, fpc_res_p, fpc_V = self.fp_custom(fp_custom_op, inst.signed, ra, rb)
+            fpc_res, fpc_res_p, fpc_V = self.fp_custom(
+                fp_custom_op, inst.signed, ra, rb
+            )
 
             Z = Bit(0)
             N = Bit(0)
@@ -123,7 +122,7 @@ def PE_fc(family: TypeFamily):
                 N = fpu_N
                 Z = fpu_Z
                 res = fpu_res
-            else: #inst.op.fp_custom.match:
+            else:  # inst.op.fp_custom.match:
                 V = fpc_V
                 res_p = fpc_res_p
                 res = fpc_res
@@ -136,4 +135,5 @@ def PE_fc(family: TypeFamily):
 
             # return 16-bit result, 1-bit result
             return res, cond, ra_rdata, rb_rdata, rc_rdata
+
     return PE

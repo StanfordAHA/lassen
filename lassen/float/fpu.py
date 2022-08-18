@@ -4,13 +4,17 @@ from hwtypes import Bit, BitVector
 from peak.float import float_lib_gen, RoundingMode
 
 Data = BitVector[16]
+
+
 class FPU_t(Enum):
     FP_add = 0
     FP_sub = 1
     FP_cmp = 2
     FP_mul = 3
 
+
 float_lib = float_lib_gen(8, 7)
+
 
 @family_closure
 def FPU_fc(family):
@@ -48,21 +52,26 @@ def FPU_fc(family):
             b_neg = fp_is_neg(b)
 
             neg_b = (fpu_op == FPU_t.FP_sub) | (fpu_op == FPU_t.FP_cmp)
-            if (neg_b):
-                b = b ^ (2**(16-1))
+            if neg_b:
+                b = b ^ (2 ** (16 - 1))
             Add_val = self.Add(a, b)
             Mul_val = self.Mul(a, b)
-            if (fpu_op == FPU_t.FP_add) | (fpu_op == FPU_t.FP_sub) | (fpu_op == FPU_t.FP_cmp):
+            if (
+                (fpu_op == FPU_t.FP_add)
+                | (fpu_op == FPU_t.FP_sub)
+                | (fpu_op == FPU_t.FP_cmp)
+            ):
                 res = Add_val
             else:
                 res = Mul_val
 
             Z = fp_is_zero(res)
             # Nicely handles infinities for comparisons
-            if (fpu_op == FPU_t.FP_cmp):
+            if fpu_op == FPU_t.FP_cmp:
                 if (a_inf & b_inf) & (a_neg == b_neg):
                     Z = family.Bit(1)
 
             N = family.Bit(res[-1])
             return res, N, Z
+
     return FPU

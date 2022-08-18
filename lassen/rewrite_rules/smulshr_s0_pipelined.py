@@ -4,7 +4,7 @@ from peak.family import AbstractFamily
 
 
 @family_closure
-def ule_pipelined_fc(family: AbstractFamily):
+def smulshr_s0_pipelined_fc(family: AbstractFamily):
     Data = family.BitVector[16]
     Data32 = family.Unsigned[32]
     SInt = family.Signed[16]
@@ -12,9 +12,9 @@ def ule_pipelined_fc(family: AbstractFamily):
     Bit = family.Bit
 
     @family.assemble(locals(), globals())
-    class ule_pipelined(Peak):
-        def __call__(self, in0: Data, in1: Data) -> Bit:
+    class smulshr_s0_pipelined(Peak):
+        def __call__(self, in2: Data, in1: Data, in0: Data) -> Data:
 
-            return Bit(UInt(in1) <= UInt(in0))
+            return Data((SInt(in0) * SInt(in1)) >> SInt(in2))
 
-    return ule_pipelined
+    return smulshr_s0_pipelined

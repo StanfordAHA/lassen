@@ -3,20 +3,20 @@
     [
       {
         "type": "BitVector",
-        "width": 3,
-        "value": 5
+        "width": 5,
+        "value": 16
       },
       [
         "inst",
         "op",
-        "fp_custom"
+        "alu"
       ]
     ],
     [
       {
         "type": "BitVector",
         "width": 1,
-        "value": 1
+        "value": 0
       },
       [
         "inst",
@@ -27,7 +27,7 @@
       {
         "type": "BitVector",
         "width": 8,
-        "value": 111
+        "value": 56
       },
       [
         "inst",
@@ -71,7 +71,7 @@
       {
         "type": "BitVector",
         "width": 2,
-        "value": 2
+        "value": 0
       },
       [
         "inst",
@@ -82,7 +82,7 @@
       {
         "type": "BitVector",
         "width": 2,
-        "value": 2
+        "value": 0
       },
       [
         "inst",
@@ -104,7 +104,7 @@
       {
         "type": "BitVector",
         "width": 2,
-        "value": 0
+        "value": 2
       },
       [
         "inst",
@@ -115,7 +115,7 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 3031
+        "value": 51949
       },
       [
         "inst",
@@ -126,7 +126,7 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 32641
+        "value": 25197
       },
       [
         "inst",
@@ -137,7 +137,7 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 16522
+        "value": 34568
       },
       [
         "inst",
@@ -159,7 +159,7 @@
       {
         "type": "Bit",
         "width": 1,
-        "value": true
+        "value": false
       },
       [
         "inst",
@@ -170,7 +170,7 @@
       {
         "type": "Bit",
         "width": 1,
-        "value": true
+        "value": false
       },
       [
         "inst",
@@ -196,9 +196,7 @@
       ]
     ],
     [
-      [
-        "in1"
-      ],
+      "unbound",
       [
         "bit0"
       ]
@@ -212,7 +210,9 @@
       ]
     ],
     [
-      "unbound",
+      [
+        "in1"
+      ],
       [
         "bit2"
       ]
@@ -232,14 +232,6 @@
       ]
     ],
     [
-      [
-        0
-      ],
-      [
-        "res_p"
-      ]
-    ],
-    [
       "unbound",
       [
         "reg0_config_data"
@@ -255,6 +247,14 @@
       "unbound",
       [
         "reg2_config_data"
+      ]
+    ],
+    [
+      [
+        0
+      ],
+      [
+        "res_p"
       ]
     ]
   ]
