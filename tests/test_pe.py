@@ -200,6 +200,26 @@ def test_umult(args):
     assert res == xy[DATAWIDTH:]
     rtl_tester(umult2, x, y, res=res)
 
+@pytest.mark.parametrize("op", [
+    op(asm.crop(), lambda x, y, z: ((x < y).ite(x, y) > z).ite((x < y).ite(x, y), z)),
+    op(asm.mulshr(), lambda x, y, z: (x * y) >> z),
+    op(asm.taa(), lambda x, y, z: x + y + z),
+    op(asm.tas(), lambda x, y, z: x + y - z),
+    op(asm.tsa(), lambda x, y, z: x - y + z),
+    op(asm.tss(), lambda x, y, z: x - y - z),
+    op(asm.muladd(), lambda x, y, z: x * y + z),
+    op(asm.mulsub(), lambda x, y, z: x * y - z),
+])
+@pytest.mark.parametrize("args", [
+    (UIntVector.random(DATAWIDTH), UIntVector.random(DATAWIDTH), UIntVector.random(DATAWIDTH))
+        for _ in range(NTESTS)
+])
+def test_three_input_ops(op, args):
+    x, y, z = args
+    res, _, _, _, _ = pe(op.inst, Data(x), Data(y), Data(z))
+    assert res==op.func(x, y, z)
+    rtl_tester(op, x, y, z, res=res)
+
 #
 # floating point
 #

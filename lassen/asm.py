@@ -37,7 +37,7 @@ def inst(alu, signed=Signed_t.unsigned, lut=0, cond=Cond_t.Z,
 # helper functions to format configurations
 
 def add(**kwargs):
-    return inst(Op_t(alu=ALU_t.Adc), **kwargs)
+    return inst(Op_t(alu=ALU_t.Adc), rd_mode=Mode_t.CONST, rd_const=0, **kwargs)
 
 def sub(**kwargs):
     return inst(Op_t(alu=ALU_t.Sbc), rd_mode=Mode_t.CONST, rd_const=1, **kwargs)
@@ -47,6 +47,24 @@ def adc(**kwargs):
 
 def sbc(**kwargs):
     return inst(Op_t(alu=ALU_t.Sbc), **kwargs)
+
+def taa(**kwargs):
+    return inst(Op_t(alu=ALU_t.TAA), rd_mode=Mode_t.CONST, rd_const=0, **kwargs)
+
+def tas(**kwargs):
+    return inst(Op_t(alu=ALU_t.TAS), rd_mode=Mode_t.CONST, rd_const=0, **kwargs)
+
+def tsa(**kwargs):
+    return inst(Op_t(alu=ALU_t.TSA), rd_mode=Mode_t.CONST, rd_const=1, **kwargs)
+
+def tss(**kwargs):
+    return inst(Op_t(alu=ALU_t.TSS), rd_mode=Mode_t.CONST, rd_const=1, **kwargs)
+
+def muladd(**kwargs):
+    return inst(Op_t(alu=ALU_t.MULADD), **kwargs)
+
+def mulsub(**kwargs):
+    return inst(Op_t(alu=ALU_t.MULSUB), **kwargs)
 
 def neg(**kwargs):
     return inst(Op_t(alu=ALU_t.Sub), **kwargs)
@@ -143,11 +161,17 @@ def lsr(**kwargs):
 def asr(**kwargs):
     return inst(Op_t(alu=ALU_t.SHR), signed=Signed_t.signed, **kwargs)
 
+def mulshr(**kwargs):
+    return inst(Op_t(alu=ALU_t.MULSHR), **kwargs)
+
 def sel(**kwargs):
     return inst(Op_t(alu=ALU_t.Sel), **kwargs)
 
 def abs(**kwargs):
     return inst(Op_t(alu=ALU_t.Abs), signed=Signed_t.signed, **kwargs)
+
+def crop(**kwargs):
+    return inst(Op_t(alu=ALU_t.CROP), cond=Cond_t.ALU, **kwargs)
 
 def umin(**kwargs):
     return inst(Op_t(alu=ALU_t.CROP), cond=Cond_t.ALU, **kwargs)

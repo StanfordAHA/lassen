@@ -13,23 +13,12 @@ from hwtypes import BitVector, Bit as BitPy
 @family_closure
 def PE_fc(family: TypeFamily):
 
-    #Hack
-    def BV1(bit):
-        return bit.ite(family.BitVector[1](1), family.BitVector[1](0))
     Data = family.BitVector[DATAWIDTH]
-    Data8 = family.BitVector[8]
-    Data32 = family.BitVector[32]
-    Data48 = family.BitVector[48]
     Bit = family.Bit
-
     DataPy = BitVector[DATAWIDTH]
-    Data8Py = BitVector[8]
-    Data32Py = BitVector[32]
-    Data48Py = BitVector[48]
 
     DataReg = gen_register_mode(DATAWIDTH, 0)(family)
     BitReg = gen_bit_mode(0)(family)
-
 
     ALU = ALU_fc(family)
     FPU = FPU_fc(family)
