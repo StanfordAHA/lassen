@@ -4,6 +4,7 @@ from .common import DATAWIDTH, BFloat16_fc
 from hwtypes.adt import Enum
 from hwtypes import BitVector, Bit as BitPy
 
+
 class ALU_t(Enum):
     Adc = Enum.Auto()
     Sbc = Enum.Auto()
@@ -26,15 +27,18 @@ class ALU_t(Enum):
     CROP = Enum.Auto()
     MULSHR = Enum.Auto()
 
+
 class Signed_t(Enum):
     unsigned = 0
     signed = 1
+
 
 def overflow(a, b, res):
     msb_a = a[-1]
     msb_b = b[-1]
     N = res[-1]
     return (msb_a & msb_b & ~N) | (~msb_a & ~msb_b & N)
+
 
 @family_closure
 def ALU_fc(family):
@@ -49,21 +53,28 @@ def ALU_fc(family):
 
     DataPy = BitVector[DATAWIDTH]
 
-
     @family.assemble(locals(), globals(), set_port_names=True)
     class ALU(Peak):
         @name_outputs(res=Data, res_p=Bit, Z=Bit, N=Bit, C=Bit, V=Bit)
-        def __call__(self, alu: Const(ALU_t), signed_: Const(Signed_t), a: DataPy, b: DataPy, c: DataPy, d: BitPy) -> (DataPy, BitPy, BitPy, BitPy, BitPy, BitPy):
-            
+        def __call__(
+            self,
+            alu: Const(ALU_t),
+            signed_: Const(Signed_t),
+            a: DataPy,
+            b: DataPy,
+            c: DataPy,
+            d: BitPy,
+        ) -> (DataPy, BitPy, BitPy, BitPy, BitPy, BitPy):
+
             # MUL
             if signed_ == Signed_t.signed:
                 mula = UData32(SData(a).sext(16))
                 mulb = UData32(SData(b).sext(16))
-            else: #signed_ == Signed_t.unsigned:
+            else:  # signed_ == Signed_t.unsigned:
                 mula = UData(a).zext(16)
                 mulb = UData(b).zext(16)
             mul = mula * mulb
-            
+
             # LTE and min
             if signed_ == Signed_t.signed:
                 lte_pred = SData(a) <= SData(b)
@@ -74,7 +85,7 @@ def ALU_fc(family):
             # CROP (min -> max)
             if alu == ALU_t.CROP:
                 max_in0 = min_ab
-            else: 
+            else:
                 max_in0 = b
 
             # GTE and min
@@ -83,7 +94,7 @@ def ALU_fc(family):
             else:
                 gte_pred = UData(max_in0) >= UData(c)
             max_bc = gte_pred.ite(max_in0, c)
-              
+
             # mulshift
             if alu == ALU_t.MULSHR:
                 shr_in0 = mul[:16]
@@ -92,7 +103,7 @@ def ALU_fc(family):
 
             if signed_ == Signed_t.signed:
                 shr = Data(SData(shr_in0) >> SData(c))
-            else: #signed_ == Signed_t.unsigned:
+            else:  # signed_ == Signed_t.unsigned:
                 shr = Data(UData(shr_in0) >> UData(c))
 
             if (alu == ALU_t.Sbc) | (alu == ALU_t.TSA) | (alu == ALU_t.TSS):
@@ -105,7 +116,12 @@ def ALU_fc(family):
 
             # second adder
             # 1st input
-            if (alu == ALU_t.TAA) | (alu == ALU_t.TAS) | (alu == ALU_t.TSA) | (alu == ALU_t.TSS):
+            if (
+                (alu == ALU_t.TAA)
+                | (alu == ALU_t.TAS)
+                | (alu == ALU_t.TSA)
+                | (alu == ALU_t.TSS)
+            ):
                 adder2_in0 = adder_res
             else:
                 adder2_in0 = mul[:16]
@@ -117,9 +133,9 @@ def ALU_fc(family):
             else:
                 adder2_in1 = c
                 Cin2 = Bit(0)
-            
+
             adder2_res, adder2_C = UData(adder2_in0).adc(adder2_in1, Cin2)
-        
+
             C = Bit(0)
             V = Bit(0)
             if (alu == ALU_t.Adc) | (alu == ALU_t.Sbc):
@@ -150,15 +166,22 @@ def ALU_fc(family):
                 res, res_p = shr, Bit(0)
             elif alu == ALU_t.SHL:
                 res, res_p = a << b, Bit(0)
-            elif (alu == ALU_t.MULADD) | (alu == ALU_t.MULSUB) | (alu == ALU_t.TAA) | (alu == ALU_t.TSA) | (alu == ALU_t.TAS) | (alu == ALU_t.TSS):
+            elif (
+                (alu == ALU_t.MULADD)
+                | (alu == ALU_t.MULSUB)
+                | (alu == ALU_t.TAA)
+                | (alu == ALU_t.TSA)
+                | (alu == ALU_t.TAS)
+                | (alu == ALU_t.TSS)
+            ):
                 res, res_p = adder2_res, Bit(0)
             elif alu == ALU_t.CROP:
                 res, res_p = max_bc, Bit(0)
-            else: # (alu == ALU_t.MULSHR):
+            else:  # (alu == ALU_t.MULSHR):
                 res, res_p = shr, Bit(0)
 
             N = Bit(res[-1])
-            Z = (res == SData(0))
+            Z = res == SData(0)
 
             return res, res_p, Z, N, C, V
 

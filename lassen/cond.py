@@ -4,16 +4,18 @@ from hwtypes.adt import Enum
 """
 Condition code field - selects which 1-bit result is retuned
 """
+
+
 class Cond_t(Enum):
-    Z = 0    # EQ
+    Z = 0  # EQ
     Z_n = 1  # NE
-    C = 2    # UGE
+    C = 2  # UGE
     C_n = 3  # ULT
     # Prefix _N because it clobbers magma's `.N` field used in the array
     # types
-    _N = 4    # <  0
+    _N = 4  # <  0
     _N_n = 5  # >= 0
-    V = 6    # Overflow
+    V = 6  # Overflow
     V_n = 7  # No overflow
     EQ = 0
     NE = 1
@@ -33,6 +35,8 @@ class Cond_t(Enum):
     FP_GT = 17
     FP_LE = 18
     FP_LT = 19
+
+
 #
 # Implement condition code logic
 #
@@ -42,11 +46,13 @@ class Cond_t(Enum):
 @family_closure
 def Cond_fc(family):
     Bit = family.Bit
+
     @family.assemble(locals(), globals())
     class Cond(Peak):
         @name_outputs(cond=Bit)
-        def __call__(self, code: Cond_t, alu: Bit, lut: Bit, Z: Bit, N: Bit, C: Bit, V: Bit) \
-                -> Bit:
+        def __call__(
+            self, code: Cond_t, alu: Bit, lut: Bit, Z: Bit, N: Bit, C: Bit, V: Bit
+        ) -> Bit:
             if code == Cond_t.Z:
                 return Z
             elif code == Cond_t.Z_n:
@@ -85,7 +91,7 @@ def Cond_fc(family):
                 return ~N & ~Z
             elif code == Cond_t.FP_LE:
                 return N | Z
-            else: #code == Cond_t.FP_LT:
+            else:  # code == Cond_t.FP_LT:
                 return N & ~Z
 
     return Cond

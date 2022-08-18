@@ -1,6 +1,3 @@
-
-
-
 from peak import Peak, family_closure, Const
 from peak import family
 from peak.family import AbstractFamily
@@ -10,9 +7,11 @@ from hwtypes import SMTFPVector, FPVector, RoundingMode
 
 
 DATAWIDTH = 16
+
+
 def BFloat16_fc(family):
     if isinstance(family, MagmaFamily):
-        BFloat16 =  magma.BFloat[16]
+        BFloat16 = magma.BFloat[16]
         BFloat16.reinterpret_from_bv = lambda bv: BFloat16(bv)
         BFloat16.reinterpret_as_bv = lambda f: magma.Bits[16](f)
         return BFloat16
@@ -22,6 +21,7 @@ def BFloat16_fc(family):
         FPV = FPVector
     BFloat16 = FPV[8, 7, RoundingMode.RNE, False]
     return BFloat16
+
 
 @family_closure
 def fp_addiexp_pipelined_fc(family: AbstractFamily):
@@ -42,25 +42,25 @@ def fp_addiexp_pipelined_fc(family: AbstractFamily):
     def float2bv(bvf):
         return BFloat16.reinterpret_as_bv(bvf)
 
-    def fp_get_exp(val : Data):
+    def fp_get_exp(val: Data):
         return val[7:15]
 
-    def fp_get_frac(val : Data):
+    def fp_get_frac(val: Data):
         return val[:7]
 
-    def fp_is_zero(val : Data):
+    def fp_is_zero(val: Data):
         return (fp_get_exp(val) == FPExpBV(0)) & (fp_get_frac(val) == FPFracBV(0))
 
-    def fp_is_inf(val : Data):
+    def fp_is_inf(val: Data):
         return (fp_get_exp(val) == FPExpBV(-1)) & (fp_get_frac(val) == FPFracBV(0))
 
-    def fp_is_neg(val : Data):
+    def fp_is_neg(val: Data):
         return Bit(val[-1])
 
     @family.assemble(locals(), globals())
     class fp_addiexp_pipelined(Peak):
-        def __call__(self, in0 : Data, in1 : Data) -> Data:
-            
+        def __call__(self, in0: Data, in1: Data) -> Data:
+
             sign = BitVector[16]((in0 & 0x8000))
             exp = UInt(in0)[7:15]
             exp_check = exp.zext(1)
@@ -72,8 +72,7 @@ def fp_addiexp_pipelined_fc(family: AbstractFamily):
             exp_shift = BitVector[16](exp)
             exp_shift = exp_shift << 7
             mant = BitVector[16]((in0 & 0x7F))
-            res = (sign | exp_shift | mant)
+            res = sign | exp_shift | mant
             return res
-    
+
     return fp_addiexp_pipelined
-    

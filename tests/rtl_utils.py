@@ -12,9 +12,11 @@ from peak.family import PyFamily, MagmaFamily
 from lassen import PE_fc, Inst_fc
 from lassen.common import DATAWIDTH, BFloat16_fc
 
+
 class HashableDict(dict):
     def __hash__(self):
         return hash(tuple(sorted(self.keys())))
+
 
 Inst = Inst_fc(PyFamily())
 Mode_t = Inst.rega
@@ -25,7 +27,7 @@ BFloat16 = BFloat16_fc(PyFamily())
 Data = BitVector[DATAWIDTH]
 
 # create these variables in global space so that we can reuse them easily
-inst_name = 'inst'
+inst_name = "inst"
 inst_type = PE_bv.input_t.field_dict[inst_name]
 
 _assembler = Assembler(inst_type)
@@ -35,9 +37,9 @@ width = _assembler.width
 layout = _assembler.layout
 PE_magma = PE_fc(MagmaFamily())
 instr_magma_type = type(PE_magma.interface.ports[inst_name])
-pe_circuit = wrap_with_disassembler(PE_magma, disassembler, width,
-                                         HashableDict(layout),
-                                         instr_magma_type)
+pe_circuit = wrap_with_disassembler(
+    PE_magma, disassembler, width, HashableDict(layout), instr_magma_type
+)
 tester = fault.Tester(pe_circuit, clock=pe_circuit.CLK)
 test_dir = "tests/build"
 
@@ -48,11 +50,16 @@ test_dir = "tests/build"
 # We reset the context because tests/test_micro.py calls compile and pollutes
 # the coreir context causing a "redefinition of module" error
 magma.frontend.coreir_.ResetCoreIR()
-magma.compile(f"{test_dir}/WrappedPE", pe_circuit, output="coreir-verilog",
-              coreir_libs={"float_DW"}, sv=True)
+magma.compile(
+    f"{test_dir}/WrappedPE",
+    pe_circuit,
+    output="coreir-verilog",
+    coreir_libs={"float_DW"},
+    sv=True,
+)
 
 # check if we need to use ncsim + cw IP
-cw_dir = "/cad/synopsys/dc_shell/J-2014.09-SP3/dw/sim_ver/"   # noqa
+cw_dir = "/cad/synopsys/dc_shell/J-2014.09-SP3/dw/sim_ver/"  # noqa
 CAD_ENV = shutil.which("ncsim") and os.path.isdir(cw_dir)
 
 
@@ -62,9 +69,22 @@ def copy_file(src_filename, dst_filename, override=False):
     shutil.copy(src_filename, dst_filename)
 
 
-def rtl_tester(test_op, data0=None, data1=None, data2=None, bit0=None, bit1=None, bit2=None,
-               res=None, res_p=None, clk_en=1, delay=0,
-               data0_delay_values=None, data1_delay_values=None, data2_delay_values=None):
+def rtl_tester(
+    test_op,
+    data0=None,
+    data1=None,
+    data2=None,
+    bit0=None,
+    bit1=None,
+    bit2=None,
+    res=None,
+    res_p=None,
+    clk_en=1,
+    delay=0,
+    data0_delay_values=None,
+    data1_delay_values=None,
+    data2_delay_values=None,
+):
     tester.clear()
     # Advance timestep past 0 for fp functional model (see rnd logic)
     tester.circuit.ASYNCRESET = 0
@@ -114,27 +134,28 @@ def rtl_tester(test_op, data0=None, data1=None, data2=None, bit0=None, bit1=None
         # use ncsim
         libs = ["DW_fp_mult.v", "DW_fp_add.v", "DW_fp_addsub.v"]
         for filename in libs:
-            copy_file(os.path.join(cw_dir, filename),
-                      os.path.join(test_dir, filename))
-        tester.compile_and_run(target="system-verilog", simulator="ncsim",
-                               directory="tests/build/",
-                               include_verilog_libraries=libs,
-                               skip_compile=True,
-                               magma_opts={"sv": True}
-                               )
+            copy_file(os.path.join(cw_dir, filename), os.path.join(test_dir, filename))
+        tester.compile_and_run(
+            target="system-verilog",
+            simulator="ncsim",
+            directory="tests/build/",
+            include_verilog_libraries=libs,
+            skip_compile=True,
+            magma_opts={"sv": True},
+        )
     else:
         libs = ["DW_fp_mult.v", "DW_fp_add.v"]
         for filename in libs:
-            copy_file(os.path.join("stubs", filename),
-                      os.path.join(test_dir, filename))
+            copy_file(os.path.join("stubs", filename), os.path.join(test_dir, filename))
         # detect if the PE circuit has been built
-        skip_verilator = os.path.isfile(os.path.join(test_dir, "obj_dir",
-                                                     "VWrappedPE__ALL.a"))
-        tester.compile_and_run(target="verilator",
-                               directory=test_dir,
-                               flags=['-Wno-UNUSED', '-Wno-PINNOCONNECT'],
-                               skip_compile=True,
-                               skip_verilator=skip_verilator,
-                               magma_opts={"sv": True},
-                               )
-
+        skip_verilator = os.path.isfile(
+            os.path.join(test_dir, "obj_dir", "VWrappedPE__ALL.a")
+        )
+        tester.compile_and_run(
+            target="verilator",
+            directory=test_dir,
+            flags=["-Wno-UNUSED", "-Wno-PINNOCONNECT"],
+            skip_compile=True,
+            skip_verilator=skip_verilator,
+            magma_opts={"sv": True},
+        )

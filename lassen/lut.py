@@ -1,10 +1,12 @@
 from peak import Peak, family_closure, name_outputs
 
+
 @family_closure
 def LUT_t_fc(family):
     LUT_t = family.BitVector[8]
     IDX_t = family.BitVector[3]
     return LUT_t, IDX_t
+
 
 @family_closure
 def LUT_fc(family):
@@ -18,4 +20,5 @@ def LUT_fc(family):
             i = IDX_t([bit0, bit1, bit2])
             i = i.zext(5)
             return ((lut >> i) & 1)[0]
+
     return LUT

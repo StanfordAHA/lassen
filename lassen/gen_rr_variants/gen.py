@@ -1,8 +1,7 @@
-
 signs = ["s", "u"]
 ops = ["AA", "AS", "SA", "SS"]
 
-code="""
+code = """
 from peak import Peak, family_closure, Const
 from peak import family
 from peak.family import AbstractFamily
@@ -23,7 +22,7 @@ def {0}_fc(family: AbstractFamily):
     return {0}
 """
 
-compute="({0}Int(in{3}) {1} {0}Int(in{4})) {2} {0}Int(in{5})"
+compute = "({0}Int(in{3}) {1} {0}Int(in{4})) {2} {0}Int(in{5})"
 
 s = [0, 1, 2]
 
@@ -31,8 +30,8 @@ for sign in signs:
     for op in ops:
         for shape in ["0", "1"]:
             rule_name = sign + "t" + op.lower() + "_s" + shape
-            op0 = "+" if op[0]=="A" else "-"
-            op1 = "+" if op[1]=="A" else "-"
+            op0 = "+" if op[0] == "A" else "-"
+            op1 = "+" if op[1] == "A" else "-"
             if shape == "0":
                 s = [0, 1, 2]
             else:
@@ -44,6 +43,3 @@ for sign in signs:
             file_name = rule_name + ".py"
             with open(file_name, "w") as fd:
                 fd.write(str_code)
-            
-
-
