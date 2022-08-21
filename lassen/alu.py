@@ -6,26 +6,26 @@ from hwtypes import BitVector, Bit as BitPy
 
 
 class ALU_t(Enum):
-    Adc = 1
-    Sbc = 2
-    Abs = 3
-    Sel = 4
-    Mult0 = 5
-    Mult1 = 6
-    Mult2 = 7
-    SHR = 8
-    SHL = 9
-    Or = 10
-    And = 11
-    XOr = 12
-    MULADD = 13
-    MULSUB = 14
-    TAA = 15
-    TAS = 16
-    TSA = 17
-    TSS = 18
-    CROP = 19
-    MULSHR = 20
+    Adc = 0
+    Sbc = 1
+    Abs = 2
+    Sel = 3
+    Mult0 = 4
+    Mult1 = 5
+    Mult2 = 6
+    SHR = 7
+    SHL = 8
+    Or = 9
+    And = 10
+    XOr = 11
+    MULADD = 12
+    MULSUB = 13
+    TAA = 14
+    TAS = 15
+    TSA = 16
+    TSS = 17
+    CROP = 18
+    MULSHR = 19
 
 
 class Signed_t(Enum):
