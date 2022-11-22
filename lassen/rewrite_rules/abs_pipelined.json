@@ -219,7 +219,7 @@
       {
         "type": "Bit",
         "width": 1,
-        "value": false
+        "value": true
       },
 
       [
