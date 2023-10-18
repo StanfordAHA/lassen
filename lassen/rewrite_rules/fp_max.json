@@ -9,7 +9,7 @@
       [
         "inst",
         "op",
-        "fp_custom"
+        "fpu"
       ]
     ],
     [
@@ -38,7 +38,7 @@
       {
         "type": "BitVector",
         "width": 5,
-        "value": 8
+        "value": 4
       },
       [
         "inst",
@@ -60,7 +60,7 @@
       {
         "type": "BitVector",
         "width": 2,
-        "value": 3
+        "value": 2
       },
       [
         "inst",
@@ -115,7 +115,7 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 0
+        "value": 48650
       },
       [
         "inst",
@@ -186,15 +186,15 @@
       ]
     ],
     [
-      "unbound",
+      [
+        "in1"
+      ],
       [
         "data1"
       ]
     ],
     [
-      [
-        "in1"
-      ],
+      "unbound",
       [
         "data2"
       ]
@@ -232,7 +232,7 @@
   "obinding": [
     [
       [
-        0
+      0
       ],
       [
         "res"

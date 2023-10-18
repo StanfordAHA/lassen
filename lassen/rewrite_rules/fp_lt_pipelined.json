@@ -3,13 +3,13 @@
     [
       {
         "type": "BitVector",
-        "width": 3,
-        "value": 4
+        "width": 5,
+        "value": 0
       },
       [
         "inst",
         "op",
-        "fpu"
+        "alu"
       ]
     ],
     [
@@ -27,7 +27,7 @@
       {
         "type": "BitVector",
         "width": 8,
-        "value": 142
+        "value": 128
       },
       [
         "inst",
@@ -38,7 +38,7 @@
       {
         "type": "BitVector",
         "width": 5,
-        "value": 4
+        "value": 0
       },
       [
         "inst",
@@ -82,7 +82,7 @@
       {
         "type": "BitVector",
         "width": 2,
-        "value": 3
+        "value": 0
       },
       [
         "inst",
@@ -115,7 +115,7 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 411
+        "value": 2048
       },
       [
         "inst",
@@ -126,7 +126,7 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 12420
+        "value": 5113
       },
       [
         "inst",
@@ -137,11 +137,22 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 1024
+        "value": 36
       },
       [
         "inst",
         "data2"
+      ]
+    ],
+    [
+      {
+        "type": "Bit",
+        "width": 1,
+        "value": true
+      },
+      [
+        "inst",
+        "bit0"
       ]
     ],
     [
@@ -152,17 +163,6 @@
       },
       [
         "inst",
-        "bit0"
-      ]
-    ],
-    [
-      {
-        "type": "Bit",
-        "width": 1,
-        "value": true
-      },
-      [
-        "inst",
         "bit1"
       ]
     ],
@@ -170,7 +170,7 @@
       {
         "type": "Bit",
         "width": 1,
-        "value": true
+        "value": false
       },
       [
         "inst",
@@ -179,7 +179,7 @@
     ],
     [
       [
-        "in0"
+        "in1"
       ],
       [
         "data0"
@@ -193,7 +193,7 @@
     ],
     [
       [
-        "in1"
+        "in0"
       ],
       [
         "data2"
@@ -218,7 +218,12 @@
       ]
     ],
     [
-      "unbound",
+      {
+        "type": "Bit",
+        "width": 1,
+        "value": true
+      },
+
       [
         "clk_en"
       ]

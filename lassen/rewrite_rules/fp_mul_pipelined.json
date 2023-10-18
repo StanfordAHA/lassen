@@ -1,7 +1,7 @@
 {
   "ibinding": [
     [
-      {
+    {
         "type": "BitVector",
         "width": 3,
         "value": 3
@@ -9,8 +9,8 @@
       [
         "inst",
         "op",
-        "fp_custom"
-      ]
+        "fpu"
+      ] 
     ],
     [
       {
@@ -38,7 +38,7 @@
       {
         "type": "BitVector",
         "width": 5,
-        "value": 4
+        "value": 0
       },
       [
         "inst",
@@ -49,7 +49,7 @@
       {
         "type": "BitVector",
         "width": 2,
-        "value": 0
+        "value": 3
       },
       [
         "inst",
@@ -60,7 +60,7 @@
       {
         "type": "BitVector",
         "width": 2,
-        "value": 0
+        "value": 3
       },
       [
         "inst",
@@ -71,7 +71,7 @@
       {
         "type": "BitVector",
         "width": 2,
-        "value": 3
+        "value": 0
       },
       [
         "inst",
@@ -115,7 +115,7 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 18465
+        "value": 0
       },
       [
         "inst",
@@ -126,7 +126,7 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 35016
+        "value": 0
       },
       [
         "inst",
@@ -137,7 +137,7 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 128
+        "value": 0
       },
       [
         "inst",
@@ -186,15 +186,15 @@
       ]
     ],
     [
-      "unbound",
+      [
+        "in1"
+      ],
       [
         "data1"
       ]
     ],
     [
-      [
-        "in1"
-      ],
+      "unbound",
       [
         "data2"
       ]
@@ -218,7 +218,12 @@
       ]
     ],
     [
-      "unbound",
+      {
+        "type": "Bit",
+        "width": 1,
+        "value": true
+      },
+
       [
         "clk_en"
       ]
@@ -226,7 +231,9 @@
   ],
   "obinding": [
     [
-      "unbound",
+      [
+        0
+      ],
       [
         "res"
       ]
@@ -238,9 +245,7 @@
       ]
     ],
     [
-      [
-        0
-      ],
+      "unbound",
       [
         "reg1_config_data"
       ]
