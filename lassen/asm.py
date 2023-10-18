@@ -104,7 +104,7 @@ def mulsub(**kwargs):
 
 
 def neg(**kwargs):
-    return inst(Op_t(alu=ALU_t.Sub), **kwargs)
+    return inst(Op_t(alu=ALU_t.Sbc), **kwargs)
 
 
 def umult0(**kwargs):
@@ -150,6 +150,11 @@ def fp_mul(**kwargs):
 def fp_cmp(cond, **kwargs):
     return inst(Op_t(fpu=FPU_t.FP_cmp), cond=cond, **kwargs)
 
+def fp_max(**kwargs):
+    return inst(Op_t(fpu=FPU_t.FP_max), **kwargs)
+
+def fp_relu(**kwargs):
+    return inst(Op_t(fpu=FPU_t.FP_max), rb_mode=Mode_t.CONST, rb_const=0, **kwargs)
 
 def fp_gt(**kwargs):
     return fp_cmp(Cond_t.FP_GT, **kwargs)
@@ -182,7 +187,7 @@ def faddiexp(**kwargs):
 def fsubexp(**kwargs):
     return inst(Op_t(fp_custom=FPCustom_t.FSubExp), **kwargs)
 
-
+ 
 def fcnvexp2f(**kwargs):
     return inst(Op_t(fp_custom=FPCustom_t.FCnvExp2F), **kwargs)
 
@@ -250,7 +255,7 @@ def umin(**kwargs):
 
 
 def umax(**kwargs):
-    return inst(Op_t(alu=ALU_t.CROP), cond=Cond_t.ALU, **kwargs)
+    return inst(Op_t(alu=ALU_t.CROP), ra_mode=Mode_t.CONST, ra_const=10, rc_mode=Mode_t.CONST, rc_const=0, cond=Cond_t.ALU, **kwargs)
 
 
 def smin(**kwargs):
@@ -258,7 +263,7 @@ def smin(**kwargs):
 
 
 def smax(**kwargs):
-    return inst(Op_t(alu=ALU_t.CROP), signed=Signed_t.signed, cond=Cond_t.ALU, **kwargs)
+    return inst(Op_t(alu=ALU_t.CROP), ra_mode=Mode_t.CONST, ra_const=10, rc_mode=Mode_t.CONST, rc_const=0, signed=Signed_t.signed, cond=Cond_t.ALU, **kwargs)
 
 
 def eq(**kwargs):

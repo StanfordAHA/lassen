@@ -11,6 +11,7 @@ class FPU_t(Enum):
     FP_sub = 1
     FP_cmp = 2
     FP_mul = 3
+    FP_max = 4
 
 
 float_lib = float_lib_gen(8, 7)
@@ -51,7 +52,8 @@ def FPU_fc(family):
             a_neg = fp_is_neg(a)
             b_neg = fp_is_neg(b)
 
-            neg_b = (fpu_op == FPU_t.FP_sub) | (fpu_op == FPU_t.FP_cmp)
+            old_b = b
+            neg_b = (fpu_op == FPU_t.FP_sub) | (fpu_op == FPU_t.FP_cmp) | (fpu_op == FPU_t.FP_max)
             if neg_b:
                 b = b ^ (2 ** (16 - 1))
             Add_val = self.Add(a, b)
@@ -62,6 +64,12 @@ def FPU_fc(family):
                 | (fpu_op == FPU_t.FP_cmp)
             ):
                 res = Add_val
+            elif (fpu_op == FPU_t.FP_max):
+                # if add_val negative then b is bigger
+                if family.Bit(Add_val[-1]):
+                    res = old_b
+                else:
+                    res = a
             else:
                 res = Mul_val
 
