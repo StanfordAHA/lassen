@@ -13,6 +13,7 @@ setup(
         "lassen",
     ],
     install_requires=[
+        "py",
         "peak",
         "mantle"
     ],
