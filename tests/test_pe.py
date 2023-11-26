@@ -309,7 +309,7 @@ fp_inf_vec = [BV("inf"), BV("-inf")]
         op(asm.fp_sub(), lambda x, y: x - y),
         op(asm.fp_mul(), lambda x, y: x * y),
         op(asm.fp_max(), lambda x, y: (x >= y).ite(x, y)),
-        op(asm.fp_relu(), lambda x, y: (x >= 0).ite(x, 0)),
+        op(asm.fp_relu(), lambda x, y: (x >= BV(0.0)).ite(x, BV(0.0))),
     ],
 )
 @pytest.mark.parametrize(
