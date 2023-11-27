@@ -330,6 +330,66 @@ def test_fp_binary_op(op, args):
         pytest.skip("Skipping since DW not available")
 
 
+@pytest.mark.parametrize(
+    "op",
+    [
+        op(asm.fp_max(), None)
+    ],
+)
+@pytest.mark.parametrize(
+    "args",
+    [(BFloat16.random(), BFloat16.random()) for _ in range(NTESTS)]
+    + list(product(fp_sign_vec + fp_zero_vec, fp_sign_vec + fp_zero_vec)),
+)
+def test_fp_max(op, args):
+    inst = op.inst
+    in0 = args[0]
+    in1 = args[1]
+    sub = BFloat16.reinterpret_as_bv(in0 - in1)
+    if sub[-1]:
+        out = BFloat16.reinterpret_as_bv(in1)
+    else:
+        out = BFloat16.reinterpret_as_bv(in0)
+    data0 = BFloat16.reinterpret_as_bv(in0)
+    data1 = BFloat16.reinterpret_as_bv(in1)
+    res, res_p, _, _, _ = pe(inst, data0, data1)
+    assert res == out
+    if CAD_ENV:
+        rtl_tester(op, data0, data1, res=res)
+    else:
+        pytest.skip("Skipping since DW not available")
+
+@pytest.mark.parametrize(
+    "op",
+    [
+        op(asm.fp_relu(), None),
+    ],
+)
+@pytest.mark.parametrize(
+    "args",
+    [(BFloat16.random(), BV(0.0)) for _ in range(NTESTS)]
+    + list(product(fp_sign_vec + fp_zero_vec, fp_sign_vec + fp_zero_vec)),
+)
+def test_fp_relu(op, args):
+    inst = op.inst
+    in0 = args[0]
+    in1 = BV(0.0)
+    sub = BFloat16.reinterpret_as_bv(in0 - in1)
+    if sub[-1]:
+        out = BFloat16.reinterpret_as_bv(in1)
+    else:
+        out = BFloat16.reinterpret_as_bv(in0)
+    data0 = BFloat16.reinterpret_as_bv(in0)
+    data1 = BFloat16.reinterpret_as_bv(in1)
+    res, _, _, _, _ = pe(inst, data0)
+    if res != out:
+        breakpoint()
+    assert res == out
+    if CAD_ENV:
+        rtl_tester(op, data0, data1, res=res)
+    else:
+        pytest.skip("Skipping since DW not available")
+
 # container for a floating point value easily indexed by sign, exp, and frac
 fpdata = namedtuple("fpdata", ["sign", "exp", "frac"])
 
