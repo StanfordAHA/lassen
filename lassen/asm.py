@@ -263,8 +263,7 @@ def smin(**kwargs):
 
 
 def smax(**kwargs):
-    return inst(Op_t(alu=ALU_t.CROP), ra_mode=Mode_t.CONST, ra_const=10, rc_mode=Mode_t.CONST, rc_const=0, signed=Signed_t.signed, cond=Cond_t.ALU, **kwargs)
-
+    return inst(Op_t(alu=ALU_t.CROP), ra_mode=Mode_t.CONST, ra_const=32767, rc_mode=Mode_t.CONST, rc_const=0, signed=Signed_t.signed, cond=Cond_t.ALU, **kwargs)
 
 def eq(**kwargs):
     return inst(
