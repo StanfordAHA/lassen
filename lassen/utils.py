@@ -26,7 +26,8 @@ def float2bfbin(fnum):
         lfrac = "0" + fstr[9:16]
         hfrac = fstr[16:]
         # Enable rounding
-        if hfrac[0] == "1":  # bit 8 of the float mantissa is set, so round up
+        if (hfrac[0] == "1" and (hfrac[1] == "1" or hfrac[2] == "1")) or (lfrac[7] == "1" and hfrac[0] == "1"):  
+            # bit 8 of the float mantissa is set, so round up
             if lfrac[1:8] == "1111111":  # roll over mantissa and increase exp if needed
                 exp = "{:08b}".format((int(exp, 2) + 1))  # exp overflow?
             lfrac = "{:08b}".format((int(lfrac, 2) + 1))
