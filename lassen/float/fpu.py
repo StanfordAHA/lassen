@@ -2,6 +2,8 @@ from hwtypes.adt import Enum
 from peak import Peak, family_closure, Const, name_outputs
 from hwtypes import Bit, BitVector
 from peak.float import float_lib_gen, RoundingMode
+from peak.family import PyFamily
+from lassen.utils import bfbin2float, float2bfbin
 
 Data = BitVector[16]
 
@@ -13,15 +15,32 @@ class FPU_t(Enum):
     FP_mul = 3
     FP_max = 4
 
-
 float_lib = float_lib_gen(8, 7)
-
 
 @family_closure
 def FPU_fc(family):
 
     FPAdd = float_lib.const_rm(RoundingMode.RNE).Add_fc(family)
     FPMul = float_lib.const_rm(RoundingMode.RNE).Mul_fc(family)
+
+    class FPU_Mul_10_Bit_Rounding(Peak):
+        def __init__(self):
+            self.Mul: FPMul = FPMul()
+
+        @name_outputs(res=Data)
+        def __call__(self, a: Data, b: Data) -> Data:
+            if family == PyFamily():
+
+                a_float = bfbin2float("{:016b}".format(int(a)))
+                b_float = bfbin2float("{:016b}".format(int(b)))
+
+                res_float = float(a_float) * float(b_float)
+                bin_float = float2bfbin(res_float)
+
+
+                return Data(int(bin_float, 2))
+            else:
+                return self.Mul(a, b)
 
     def fp_get_exp(val: Data):
         return val[7:15]
@@ -37,12 +56,12 @@ def FPU_fc(family):
 
     def fp_is_neg(val: Data):
         return family.Bit(val[-1])
-
+    
     @family.assemble(locals(), globals(), set_port_names=True)
     class FPU(Peak):
         def __init__(self):
             self.Add: FPAdd = FPAdd()
-            self.Mul: FPMul = FPMul()
+            self.Mul: FPU_Mul_10_Bit_Rounding = FPU_Mul_10_Bit_Rounding()
 
         @name_outputs(res=Data, N=Bit, Z=Bit)
         def __call__(self, fpu_op: Const(FPU_t), a: Data, b: Data) -> (Data, Bit, Bit):

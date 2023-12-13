@@ -4,3 +4,4 @@
 -e git+https://github.com/phanrahan/mantle#egg=mantle
 cosa
 -e git+https://github.com/leonardt/hwtypes#egg=hwtypes
+importlib_resources

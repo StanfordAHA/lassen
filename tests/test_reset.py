@@ -1,9 +1,6 @@
 from lassen.mode import Mode_t
-
-# from lassen.isa import Inst_fc
-# from lassen.sim import PE_fc
 from lassen.asm import add
-from rtl_utils import pe_circuit, assembler
+from rtl_utils import pe_circuit, assembler, compile_and_run_tester
 import magma as m
 import fault
 import hwtypes
@@ -23,7 +20,8 @@ def test_reset():
     tester.circuit.CLK = 0
     tester.circuit.clk_en = 1
     tester.circuit.ASYNCRESET = 0
-    tester.step(1)
+    tester.eval()
+    tester.step(2)
     tester.circuit.O0.expect(data[0] + data[1])
     tester.circuit.ASYNCRESET = 1
     tester.eval()
@@ -33,9 +31,4 @@ def test_reset():
     tester.circuit.ASYNCRESET = 0
     tester.step(2)
     tester.circuit.O0.expect(data[0] + data[1])
-    tester.compile_and_run(
-        "verilator",
-        flags=["-Wno-UNUSED", "-Wno-fatal"],
-        directory="tests/build",
-        magma_opts={"coreir_libs": {"float_DW"}},
-    )
+    compile_and_run_tester(tester)
