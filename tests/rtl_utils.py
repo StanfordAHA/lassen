@@ -54,12 +54,12 @@ magma.compile(
     f"{test_dir}/WrappedPE",
     pe_circuit,
     output="coreir-verilog",
-    coreir_libs={"float_DW"},
+    coreir_libs={"float_CW"},
     sv=True,
 )
 
 # check if we need to use ncsim + cw IP
-cw_dir = "/cad/synopsys/dc_shell/J-2014.09-SP3/dw/sim_ver/"  # noqa
+cw_dir = "/cad/cadence/GENUS_19.10.000_lnx86/share/synth/lib/chipware/sim/verilog/CW/"  # noqa
 CAD_ENV = shutil.which("ncsim") and os.path.isdir(cw_dir)
 
 
@@ -130,32 +130,16 @@ def rtl_tester(
         tester.circuit.O0.expect(res)
     if res_p is not None:
         tester.circuit.O1.expect(res_p)
-    if CAD_ENV:
-        # use ncsim
-        libs = ["DW_fp_mult.v", "DW_fp_add.v", "DW_fp_addsub.v"]
-        for filename in libs:
-            copy_file(os.path.join(cw_dir, filename), os.path.join(test_dir, filename))
-        tester.compile_and_run(
-            target="system-verilog",
-            simulator="ncsim",
-            directory="tests/build/",
-            include_verilog_libraries=libs,
-            skip_compile=True,
-            magma_opts={"sv": True},
-        )
-    else:
-        libs = ["DW_fp_mult.v", "DW_fp_add.v"]
-        for filename in libs:
-            copy_file(os.path.join("stubs", filename), os.path.join(test_dir, filename))
-        # detect if the PE circuit has been built
-        skip_verilator = os.path.isfile(
-            os.path.join(test_dir, "obj_dir", "VWrappedPE__ALL.a")
-        )
-        tester.compile_and_run(
-            target="verilator",
-            directory=test_dir,
-            flags=["-Wno-UNUSED", "-Wno-PINNOCONNECT"],
-            skip_compile=True,
-            skip_verilator=skip_verilator,
-            magma_opts={"sv": True},
-        )
+
+    # use ncsim
+    libs = ["CW_fp_mult.v", "CW_fp_add.v"]
+    for filename in libs:
+        copy_file(os.path.join(cw_dir, filename), os.path.join(test_dir, filename))
+    tester.compile_and_run(
+        target="system-verilog",
+        simulator="ncsim",
+        directory="tests/build/",
+        include_verilog_libraries=libs,
+        skip_compile=True,
+        magma_opts={"sv": True},
+    )

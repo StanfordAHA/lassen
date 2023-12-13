@@ -11,11 +11,11 @@ def float2bfbin(fnum):
         sign = "1"
         exp = "11111111"
         lfrac = "11111111"
-    elif fnum == "Inf":
+    elif fnum == "Inf" or fnum > 3.402823466e+38:
         sign = "0"
         exp = "11111111"
         lfrac = "00000000"
-    elif fnum == "-Inf":
+    elif fnum == "-Inf" or fnum < -3.402823466e+38:
         sign = "1"
         exp = "11111111"
         lfrac = "00000000"
@@ -40,13 +40,17 @@ def bfbin2float(bfstr):
     exp = bfstr[1:9]
     lfrac = bfstr[9:16]
     if sign == "0" and exp == "11111111" and lfrac != "0000000":
-        return "NaN"
+        return float('nan')
     elif sign == "1" and exp == "11111111" and lfrac != "0000000":
-        return "-NaN"
+        return -float('nan')
     elif sign == "0" and exp == "11111111" and lfrac == "0000000":
-        return "Inf"
+        return float('inf')
     elif sign == "1" and exp == "11111111" and lfrac == "0000000":
-        return "-Inf"
+        return -float('inf')
+    elif sign == "0" and exp == "00000000" and lfrac == "0000000":
+        return float(0)
+    elif sign == "1" and exp == "00000000" and lfrac == "0000000":
+        return -float(0)
     else:
         mult = 1
         if sign == "1":

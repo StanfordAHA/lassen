@@ -23,7 +23,8 @@ def test_reset():
     tester.circuit.CLK = 0
     tester.circuit.clk_en = 1
     tester.circuit.ASYNCRESET = 0
-    tester.step(1)
+    tester.eval()
+    tester.step(2)
     tester.circuit.O0.expect(data[0] + data[1])
     tester.circuit.ASYNCRESET = 1
     tester.eval()
@@ -33,9 +34,11 @@ def test_reset():
     tester.circuit.ASYNCRESET = 0
     tester.step(2)
     tester.circuit.O0.expect(data[0] + data[1])
+    libs = ["CW_fp_mult.v", "CW_fp_add.v"]
     tester.compile_and_run(
-        "verilator",
-        flags=["-Wno-UNUSED", "-Wno-fatal"],
-        directory="tests/build",
-        magma_opts={"coreir_libs": {"float_DW"}},
+        target="system-verilog",
+        simulator="ncsim",
+        directory="tests/build/",
+        include_verilog_libraries=libs,
+        magma_opts={"sv": True},
     )
