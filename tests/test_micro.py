@@ -128,7 +128,7 @@ def test_sub_exp_targeted():
     rtl_tester(inst, data0, data1, res=0x7F0A)
 
 
-@pytest.mark.skip("Not sure the exact op semantics")
+#@pytest.mark.skip("Not sure the exact op semantics")
 @pytest.mark.parametrize(
     "args", [(random_bfloat(), SIntVector.random(DATAWIDTH)) for _ in range(NTESTS)]
 )
