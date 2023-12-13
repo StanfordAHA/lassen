@@ -69,9 +69,22 @@ def copy_file(src_filename, dst_filename, override=False):
     shutil.copy(src_filename, dst_filename)
 
 
-def rtl_tester(test_op, data0=None, data1=None, bit0=None, bit1=None, bit2=None,
-               res=None, res_p=None, clk_en=1, delay=0,
-               data0_delay_values=None, data1_delay_values=None):
+def rtl_tester(
+    test_op,
+    data0=None,
+    data1=None,
+    data2=None,
+    bit0=None,
+    bit1=None,
+    bit2=None,
+    res=None,
+    res_p=None,
+    clk_en=1,
+    delay=0,
+    data0_delay_values=None,
+    data1_delay_values=None,
+    data2_delay_values=None,
+):
     tester.clear()
     # Advance timestep past 0 for fp functional model (see rnd logic)
     tester.circuit.ASYNCRESET = 0
@@ -92,14 +105,16 @@ def rtl_tester(test_op, data0=None, data1=None, bit0=None, bit1=None, bit2=None,
     if data1 is not None:
         data1 = BitVector[16](data1)
         tester.circuit.data1 = data1
+    if data2 is not None:
+        data2 = BitVector[16](data2)
+        tester.circuit.data2 = data2
     if bit0 is not None:
         tester.circuit.bit0 = Bit(bit0)
     if bit1 is not None:
         tester.circuit.bit1 = Bit(bit1)
     if bit2 is not None:
         tester.circuit.bit2 = Bit(bit2)
-    #make sure config_en is off
-    tester.circuit.config_en = Bit(0)
+
     tester.eval()
 
     for i in range(delay):
@@ -108,6 +123,8 @@ def rtl_tester(test_op, data0=None, data1=None, bit0=None, bit1=None, bit2=None,
             tester.circuit.data0 = data0_delay_values[i]
         if data1_delay_values is not None:
             tester.circuit.data1 = data1_delay_values[i]
+        if data2_delay_values is not None:
+            tester.circuit.data2 = data2_delay_values[i]
 
     if res is not None:
         tester.circuit.O0.expect(res)
@@ -141,3 +158,4 @@ def compile_and_run_tester(tester):
                                skip_compile=True,
                                skip_verilator=skip_verilator, 
                                magma_opts=dict(sv=True))
+
