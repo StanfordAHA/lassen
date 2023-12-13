@@ -327,7 +327,7 @@ def test_fp_binary_op(op, args):
     if CAD_ENV:
         rtl_tester(op, data0, data1, res=res)
     else:
-        pytest.skip("Skipping since DW not available")
+        pytest.skip("Skipping since CW not available")
 
 
 @pytest.mark.parametrize(
@@ -415,7 +415,7 @@ def test_fp_mul():
     if CAD_ENV:
         rtl_tester(inst, data0, data1, res=res)
     else:
-        pytest.skip("Skipping since DW not available")
+        pytest.skip("Skipping since CW not available")
 
 
 @pytest.mark.parametrize(
@@ -452,7 +452,7 @@ def test_fp_cmp(xy, op):
     if CAD_ENV:
         rtl_tester(op, data0, data1, res_p=out)
     else:
-        pytest.skip("Skipping since DW not available")
+        pytest.skip("Skipping since CW not available")
 
 
 @pytest.mark.parametrize("lut_code", [UIntVector.random(8) for _ in range(NTESTS)])

@@ -43,7 +43,7 @@ pe_circuit = wrap_with_disassembler(
 tester = fault.Tester(pe_circuit, clock=pe_circuit.CLK)
 test_dir = "tests/build"
 
-# Explicitly load `float_DW` lib so we get technology specific mapping with
+# Explicitly load `float_CW` lib so we get technology specific mapping with
 # special code for BFloat rounding, for more info:
 # * https://github.com/rdaly525/coreir/pull/753
 # * https://github.com/StanfordAHA/lassen/issues/111
@@ -69,22 +69,9 @@ def copy_file(src_filename, dst_filename, override=False):
     shutil.copy(src_filename, dst_filename)
 
 
-def rtl_tester(
-    test_op,
-    data0=None,
-    data1=None,
-    data2=None,
-    bit0=None,
-    bit1=None,
-    bit2=None,
-    res=None,
-    res_p=None,
-    clk_en=1,
-    delay=0,
-    data0_delay_values=None,
-    data1_delay_values=None,
-    data2_delay_values=None,
-):
+def rtl_tester(test_op, data0=None, data1=None, bit0=None, bit1=None, bit2=None,
+               res=None, res_p=None, clk_en=1, delay=0,
+               data0_delay_values=None, data1_delay_values=None):
     tester.clear()
     # Advance timestep past 0 for fp functional model (see rnd logic)
     tester.circuit.ASYNCRESET = 0
@@ -105,16 +92,14 @@ def rtl_tester(
     if data1 is not None:
         data1 = BitVector[16](data1)
         tester.circuit.data1 = data1
-    if data2 is not None:
-        data2 = BitVector[16](data2)
-        tester.circuit.data2 = data2
     if bit0 is not None:
         tester.circuit.bit0 = Bit(bit0)
     if bit1 is not None:
         tester.circuit.bit1 = Bit(bit1)
     if bit2 is not None:
         tester.circuit.bit2 = Bit(bit2)
-
+    #make sure config_en is off
+    tester.circuit.config_en = Bit(0)
     tester.eval()
 
     for i in range(delay):
@@ -123,23 +108,36 @@ def rtl_tester(
             tester.circuit.data0 = data0_delay_values[i]
         if data1_delay_values is not None:
             tester.circuit.data1 = data1_delay_values[i]
-        if data2_delay_values is not None:
-            tester.circuit.data2 = data2_delay_values[i]
 
     if res is not None:
         tester.circuit.O0.expect(res)
     if res_p is not None:
         tester.circuit.O1.expect(res_p)
+    compile_and_run_tester(tester)
 
-    # use ncsim
-    libs = ["CW_fp_mult.v", "CW_fp_add.v"]
-    for filename in libs:
-        copy_file(os.path.join(cw_dir, filename), os.path.join(test_dir, filename))
-    tester.compile_and_run(
-        target="system-verilog",
-        simulator="ncsim",
-        directory="tests/build/",
-        include_verilog_libraries=libs,
-        skip_compile=True,
-        magma_opts={"sv": True},
-    )
+def compile_and_run_tester(tester):
+    if CAD_ENV:
+        # use ncsim
+        libs = ["CW_fp_mult.v", "CW_fp_add.v", "CW_fp_addsub.v"]
+        for filename in libs:
+            copy_file(os.path.join(cw_dir, filename),
+                      os.path.join(test_dir, filename))
+        tester.compile_and_run(target="system-verilog", simulator="ncsim",
+                               directory="tests/build/",
+                               include_verilog_libraries=libs,
+                               skip_compile=True,
+                               magma_opts=dict(sv=True))
+    else:
+        libs = ["CW_fp_mult.v", "CW_fp_add.v"]
+        for filename in libs:
+            copy_file(os.path.join("stubs", filename),
+                      os.path.join(test_dir, filename))
+        # detect if the PE circuit has been built
+        skip_verilator = os.path.isfile(os.path.join(test_dir, "obj_dir",
+                                                     "VWrappedPE__ALL.a"))
+        tester.compile_and_run(target="verilator",
+                               directory=test_dir,
+                               flags=['-Wno-UNUSED', '-Wno-PINNOCONNECT'],
+                               skip_compile=True,
+                               skip_verilator=skip_verilator, 
+                               magma_opts=dict(sv=True))

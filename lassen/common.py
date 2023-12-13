@@ -20,7 +20,7 @@ def BFloat16_fc(family):
         FPV = SMTFPVector
     else:
         FPV = FPVector
-    BFloat16 = FPV[8, 7, RoundingMode.RNE, False]
+    BFloat16 = FPV[8, 7, RoundingMode.RNE, True]
     return BFloat16
 
 
