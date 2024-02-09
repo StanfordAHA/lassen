@@ -1,22 +1,22 @@
 {
   "ibinding": [
     [
-      {
+    {
         "type": "BitVector",
-        "width": 5,
-        "value": 17
+        "width": 3,
+        "value": 2
       },
       [
         "inst",
         "op",
-        "alu"
-      ]
+        "fpu"
+      ] 
     ],
     [
       {
         "type": "BitVector",
         "width": 1,
-        "value": 1
+        "value": 0
       },
       [
         "inst",
@@ -38,7 +38,7 @@
       {
         "type": "BitVector",
         "width": 5,
-        "value": 8
+        "value": 0
       },
       [
         "inst",
@@ -49,7 +49,7 @@
       {
         "type": "BitVector",
         "width": 2,
-        "value": 3
+        "value": 2
       },
       [
         "inst",
@@ -60,7 +60,7 @@
       {
         "type": "BitVector",
         "width": 2,
-        "value": 3
+        "value": 2
       },
       [
         "inst",
@@ -71,7 +71,7 @@
       {
         "type": "BitVector",
         "width": 2,
-        "value": 3
+        "value": 0
       },
       [
         "inst",
@@ -115,7 +115,7 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 39407
+        "value": 0
       },
       [
         "inst",
@@ -126,7 +126,7 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 65465
+        "value": 0
       },
       [
         "inst",
@@ -137,7 +137,7 @@
       {
         "type": "BitVector",
         "width": 16,
-        "value": 32782
+        "value": 0
       },
       [
         "inst",
@@ -148,7 +148,7 @@
       {
         "type": "Bit",
         "width": 1,
-        "value": true
+        "value": false
       },
       [
         "inst",
@@ -194,9 +194,7 @@
       ]
     ],
     [
-      [
-        "in2"
-      ],
+      "unbound",
       [
         "data2"
       ]
@@ -233,9 +231,7 @@
   ],
   "obinding": [
     [
-      [
-        0
-      ],
+      "unbound",
       [
         "res"
       ]
@@ -259,7 +255,9 @@
       ]
     ],
     [
-      "unbound",
+      [
+        0
+      ],
       [
         "res_p"
       ]

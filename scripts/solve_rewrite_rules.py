@@ -37,7 +37,7 @@ def solve_rule(rrule):
             rewrite_rule = ir_mapper.solve("z3")
         else:
             rewrite_rule = ir_mapper.solve(
-                "btor", logic=QF_BV, external_loop=True, itr_limit=200
+                "z3", logic=QF_BV, external_loop=False, itr_limit=200
             )
 
         assert rewrite_rule is not None, f"No rewrite rule found for {op}"
