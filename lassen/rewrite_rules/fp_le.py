@@ -24,10 +24,11 @@ def BFloat16_fc(family):
     return BFloat16
 
 @family_closure
-def fp_max_fc(family: AbstractFamily):
+def fp_le_fc(family: AbstractFamily):
 
     FPAdd = float_lib.const_rm(RoundingMode.RNE).Add_fc(family)
     Data = family.BitVector[16]
+    Bit = family.Bit
 
     def fp_get_exp(val: Data):
         return val[7:15]
@@ -45,25 +46,25 @@ def fp_max_fc(family: AbstractFamily):
         return family.Bit(val[-1])
 
     @family.assemble(locals(), globals())
-    class fp_max(Peak):
+    class fp_le(Peak):
         def __init__(self):
             self.Add: FPAdd = FPAdd()
 
-        def __call__(self, in0 : Data, in1 : Data) -> Data:
+        def __call__(self, in0 : Data, in1 : Data) -> Bit:
             a_inf = fp_is_inf(in0)
             b_inf = fp_is_inf(in1)
             a_neg = fp_is_neg(in0)
             b_neg = fp_is_neg(in1)
 
-            in1_neg = in1 ^ (2 ** (16 - 1))
-            res = Data(self.Add(in0, in1_neg))
+            in1 = in1 ^ (2 ** (16 - 1))
+            res = Data(self.Add(in0, in1))
+
+            Z = fp_is_zero(res)
+            if (a_inf & b_inf) & (a_neg == b_neg):
+                Z = family.Bit(1)
+
             N = res[-1]
 
-            if N:
-                ret = in1
-            else:
-                ret = in0
-
-            return ret
+            return N | Z
     
-    return fp_max
+    return fp_le

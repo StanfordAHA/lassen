@@ -13,7 +13,7 @@ def bit_not_fc(family: AbstractFamily):
 
     @family.assemble(locals(), globals())
     class bit_not(Peak):
-        def __call__(self, in0: Const(Bit)) -> Bit:
+        def __call__(self, in0: Bit) -> Bit:
 
             return Bit(~in0)
 
