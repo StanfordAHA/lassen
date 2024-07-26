@@ -13,8 +13,8 @@ def fp_mux_fc(family: AbstractFamily):
 
     @family.assemble(locals(), globals())
     class fp_mux(Peak):
-        def __call__(self, in1: Data, in0: Data, sel: Bit) -> Data:
+        def __call__(self, in0: Data, in1: Data, sel: Bit) -> Data:
 
-            return Data(sel.ite(UInt(in1), UInt(in0)))
+            return Data(sel.ite(UInt(in0), UInt(in1)))
 
     return fp_mux

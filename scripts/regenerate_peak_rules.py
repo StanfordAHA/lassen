@@ -10,9 +10,9 @@ rr_path = f"{dir_path}/../lassen/rewrite_rules"
 
 rrule_files = glob.glob(f"{rr_path}/*.json")
 
-print("Removing saved rewrite rules")
-for file_ in rrule_files:
-    os.remove(file_)
+# print("Removing saved rewrite rules")
+# for file_ in rrule_files:
+#     os.remove(file_)
 
 rrule_peak_files = glob.glob(f"{rr_path}/*.py")
 
@@ -20,7 +20,7 @@ for file_ in rrule_peak_files:
     if "pipelined" in file_:
         os.remove(file_)
 
-solve_rules()
+# solve_rules()
 
 print("Generating pipelined rules")
 
