@@ -77,6 +77,7 @@ def fp_getffrac_fc(family: AbstractFamily):
                 signed_res = SInt[16](unsigned_res)
 
             # We are not checking for overflow when converting to int
+            signed_res = BitVector[16]((signed_res & 0xFF))
             res = signed_res
             return res
 
