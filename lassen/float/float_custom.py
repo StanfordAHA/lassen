@@ -194,6 +194,7 @@ def FPCustom_fc(family):
                     signed_res = -SInt[16](unsigned_res)
                 else:
                     signed_res = SInt[16](unsigned_res)
+                signed_res = BitVector[16]((signed_res & 0xFF))
 
                 # We are not checking for overflow when converting to int
                 res, res_p = signed_res, Bit(0)
