@@ -11,6 +11,7 @@ class FPCustom_t(Enum):
     FGetFInt = 4
     FGetFFrac = 5
     FCnvInt2F = 6
+    FBF16toINT8_PACK = 7
 
 
 @family_closure
@@ -198,6 +199,44 @@ def FPCustom_fc(family):
 
                 # We are not checking for overflow when converting to int
                 res, res_p = signed_res, Bit(0)
+            elif op == FPCustom_t.FBF16toINT8_PACK:
+                # Convert a from bf16 to int8
+                sign_a = BitVector[16](a & 0x8000)
+                mant_a = BitVector[16](a & 0x7F) | 0x80
+                exp_a = UData(a)[7:15]
+                biased_exp_a = SInt[9](exp_a.zext(1))
+                unbiased_exp_a = SInt[9](biased_exp_a - SInt[9](127))
+                if unbiased_exp_a < 0:
+                    mant_shift_a = BitVector[23](0)
+                else:
+                    mant_shift_a = BitVector[23](mant_a) << BitVector[23](unbiased_exp_a)
+                unsigned_res0_a = BitVector[23](mant_shift_a >> BitVector[23](7))
+                unsigned_res_a = BitVector[8](unsigned_res0_a[0:8])
+                if sign_a == 0x8000:
+                    int8_a = -SInt[8](unsigned_res_a)
+                else:
+                    int8_a = SInt[8](unsigned_res_a)
+
+                # Convert in1 from bf16 to int8
+                sign_b = BitVector[16](b & 0x8000)
+                mant_b = BitVector[16](b & 0x7F) | 0x80
+                exp_b = UData(b)[7:15]
+                biased_exp_b = SInt[9](exp_b.zext(1))
+                unbiased_exp_b = SInt[9](biased_exp_b - SInt[9](127))
+                if unbiased_exp_b < 0:
+                    mant_shift_b = BitVector[23](0)
+                else:
+                    mant_shift_b = BitVector[23](mant_b) << BitVector[23](unbiased_exp_b)
+                unsigned_res0_b = BitVector[23](mant_shift_b >> BitVector[23](7))
+                unsigned_res_b = BitVector[8](unsigned_res0_b[0:8])
+                if sign_b == 0x8000:
+                    int8_b = -SInt[8](unsigned_res_b)
+                else:
+                    int8_b = SInt[8](unsigned_res_b)
+
+                # Pack the two int8 values into one 16-bit BitVector
+                packed = (BitVector[16](int8_a) << BitVector[16](8)) | BitVector[16](int8_b)
+                res, res_p = packed, Bit(0)
             else:  # op == FPCustom_t.FCnvInt2F:
                 res, res_p = to_float_result, Bit(0)
 
