@@ -61,10 +61,11 @@ def fp_cnvint2f_fc(family: AbstractFamily):
     class fp_cnvint2f(Peak):
         def __call__(self, in0: Data, in1: Data) -> Data:
 
-            sign = BitVector[16](0)
-            if sign[15] == Bit(1):
+            if in0[15] == Bit(1):
+                sign = BitVector[16](0x8000)
                 abs_input = BitVector[16](-SInt[16](in0))
             else:
+                sign = BitVector[16](0)
                 abs_input = BitVector[16](in0)
             scale = SInt[16](-127)
             # for bit_pos in range(8):

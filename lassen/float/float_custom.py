@@ -12,6 +12,8 @@ class FPCustom_t(Enum):
     FGetFFrac = 5
     FCnvInt2F = 6
     FBF16toINT8_PACK = 7
+    FINT8toBF16_UNPACK_HIGH = 8
+    FINT8toBF16_UNPACK_LOW = 9
 
 
 @family_closure
@@ -237,6 +239,130 @@ def FPCustom_fc(family):
                 # Pack the two int8 values into one 16-bit BitVector
                 packed = (BitVector[16](int8_a) << BitVector[16](8)) | BitVector[16](int8_b)
                 res, res_p = packed, Bit(0)
+            elif op == FPCustom_t.FINT8toBF16_UNPACK_HIGH:
+                # Extract upper 8 bits as int8
+                int8_val = SInt[16](BitVector[8](a[8:16]))
+
+                # Convert int8 to bfloat16 using fp_cnvint2f logic
+                if (int8_val < 0):
+                    sign = BitVector[16](0x8000)
+                    abs_input = -int8_val
+                else:
+                    sign = BitVector[16](0x0000)
+                    abs_input = int8_val
+                scale = SInt[16](-127)
+                if abs_input[0] == Bit(1):
+                    scale = SInt[16](0)
+                if abs_input[1] == Bit(1):
+                    scale = SInt[16](1)
+                if abs_input[2] == Bit(1):
+                    scale = SInt[16](2)
+                if abs_input[3] == Bit(1):
+                    scale = SInt[16](3)
+                if abs_input[4] == Bit(1):
+                    scale = SInt[16](4)
+                if abs_input[5] == Bit(1):
+                    scale = SInt[16](5)
+                if abs_input[6] == Bit(1):
+                    scale = SInt[16](6)
+                if abs_input[7] == Bit(1):
+                    scale = SInt[16](7)
+                if abs_input[8] == Bit(1):
+                    scale = SInt[16](8)
+                if abs_input[9] == Bit(1):
+                    scale = SInt[16](9)
+                if abs_input[10] == Bit(1):
+                    scale = SInt[16](10)
+                if abs_input[11] == Bit(1):
+                    scale = SInt[16](11)
+                if abs_input[12] == Bit(1):
+                    scale = SInt[16](12)
+                if abs_input[13] == Bit(1):
+                    scale = SInt[16](13)
+                if abs_input[14] == Bit(1):
+                    scale = SInt[16](14)
+                if abs_input[15] == Bit(1):
+                    scale = SInt[16](15)
+                normmant_mul_left = SInt[16](abs_input)
+                normmant_mul_right = SInt[16](15) - scale
+                normmant_mask = SInt[16](0x7F00)
+
+                if scale >= 0:
+                    normmant = BitVector[16](
+                        (normmant_mul_left << normmant_mul_right) & normmant_mask
+                    )
+                else:
+                    normmant = BitVector[16](0)
+
+                normmant = BitVector[16](normmant) >> 8
+
+                biased_scale = scale + 127
+                to_float_result = (
+                    sign | ((BitVector[16](biased_scale) << 7) & (0xFF << 7)) | normmant
+                )
+                res, res_p = to_float_result, Bit(0)
+            elif op == FPCustom_t.FINT8toBF16_UNPACK_LOW:
+                # Extract lower 8 bits as int8
+                int8_val = SInt[16](BitVector[8](a[0:8]))
+
+                # Convert int8 to bfloat16 using fp_cnvint2f logic
+                if (int8_val < 0):
+                    sign = BitVector[16](0x8000)
+                    abs_input = -int8_val
+                else:
+                    sign = BitVector[16](0x0000)
+                    abs_input = int8_val
+                scale = SInt[16](-127)
+                if abs_input[0] == Bit(1):
+                    scale = SInt[16](0)
+                if abs_input[1] == Bit(1):
+                    scale = SInt[16](1)
+                if abs_input[2] == Bit(1):
+                    scale = SInt[16](2)
+                if abs_input[3] == Bit(1):
+                    scale = SInt[16](3)
+                if abs_input[4] == Bit(1):
+                    scale = SInt[16](4)
+                if abs_input[5] == Bit(1):
+                    scale = SInt[16](5)
+                if abs_input[6] == Bit(1):
+                    scale = SInt[16](6)
+                if abs_input[7] == Bit(1):
+                    scale = SInt[16](7)
+                if abs_input[8] == Bit(1):
+                    scale = SInt[16](8)
+                if abs_input[9] == Bit(1):
+                    scale = SInt[16](9)
+                if abs_input[10] == Bit(1):
+                    scale = SInt[16](10)
+                if abs_input[11] == Bit(1):
+                    scale = SInt[16](11)
+                if abs_input[12] == Bit(1):
+                    scale = SInt[16](12)
+                if abs_input[13] == Bit(1):
+                    scale = SInt[16](13)
+                if abs_input[14] == Bit(1):
+                    scale = SInt[16](14)
+                if abs_input[15] == Bit(1):
+                    scale = SInt[16](15)
+                normmant_mul_left = SInt[16](abs_input)
+                normmant_mul_right = SInt[16](15) - scale
+                normmant_mask = SInt[16](0x7F00)
+
+                if scale >= 0:
+                    normmant = BitVector[16](
+                        (normmant_mul_left << normmant_mul_right) & normmant_mask
+                    )
+                else:
+                    normmant = BitVector[16](0)
+
+                normmant = BitVector[16](normmant) >> 8
+
+                biased_scale = scale + 127
+                to_float_result = (
+                    sign | ((BitVector[16](biased_scale) << 7) & (0xFF << 7)) | normmant
+                )
+                res, res_p = to_float_result, Bit(0)
             else:  # op == FPCustom_t.FCnvInt2F:
                 res, res_p = to_float_result, Bit(0)
 
