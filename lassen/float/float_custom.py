@@ -14,6 +14,7 @@ class FPCustom_t(Enum):
     FBF16toINT8_PACK = 7
     FINT8toBF16_UNPACK_HIGH = 8
     FINT8toBF16_UNPACK_LOW = 9
+    FBIT8_PACK = 10
 
 
 @family_closure
@@ -363,6 +364,15 @@ def FPCustom_fc(family):
                     sign | ((BitVector[16](biased_scale) << 7) & (0xFF << 7)) | normmant
                 )
                 res, res_p = to_float_result, Bit(0)
+            elif op == FPCustom_t.FBIT8_PACK:
+                # Pack two 8-bit values into one 16-bit value
+                # This operation is similar to FBF16toINT8_PACK but without the BF16->INT8 conversion
+                high_bits = BitVector[8](a[0:8])
+                low_bits = BitVector[8](b[0:8])
+
+                # Pack using the same pattern as other packing operations
+                packed = (BitVector[16](high_bits) << BitVector[16](8)) | BitVector[16](low_bits)
+                res, res_p = packed, Bit(0)
             else:  # op == FPCustom_t.FCnvInt2F:
                 res, res_p = to_float_result, Bit(0)
 
