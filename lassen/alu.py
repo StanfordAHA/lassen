@@ -26,6 +26,7 @@ class ALU_t(Enum):
     TSS = 17
     CROP = 18
     MULSHR = 19
+    ADDSHR = 20
 
 
 class Signed_t(Enum):
@@ -177,6 +178,8 @@ def ALU_fc(family):
                 res, res_p = adder2_res, Bit(0)
             elif alu == ALU_t.CROP:
                 res, res_p = max_bc, Bit(0)
+            elif alu == ALU_t.ADDSHR:
+                res, res_p = adder_res >> UData(c), Bit(0)
             else:  # (alu == ALU_t.MULSHR):
                 res, res_p = shr, Bit(0)
 
