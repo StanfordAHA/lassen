@@ -14,6 +14,7 @@ class FPCustom_t(Enum):
     FBIT8_PACK = 7
     FBIT8_UNPACK_HIGH = 8
     FBIT8_UNPACK_LOW = 9
+    FGET_SHARED_EXP = 10
 
 
 @family_closure
@@ -25,6 +26,7 @@ def FPCustom_fc(family):
     SData = SInt[16]
     UInt = family.Unsigned
     UData = UInt[16]
+    UData8 = UInt[8]
     UData32 = UInt[32]
 
     FPExpBV = family.BitVector[8]
@@ -211,13 +213,21 @@ def FPCustom_fc(family):
                 res_p = Bit(0)
             elif op == FPCustom_t.FBIT8_PACK:
                 # Pack two 8-bit values into one 16-bit value
-                # This operation is similar to FBF16toINT8_PACK but without the BF16->INT8 conversion
                 high_bits = BitVector[8](a[0:8])
                 low_bits = BitVector[8](b[0:8])
 
                 # Pack using the same pattern as other packing operations
                 packed = (BitVector[16](high_bits) << BitVector[16](8)) | BitVector[16](low_bits)
                 res, res_p = packed, Bit(0)
+            elif op == FPCustom_t.FGET_SHARED_EXP:
+                # slice off the exponent field
+                exp8 = BitVector[8](a[7:15])
+                if exp8 == BitVector[8](0):
+                    shared_exp = UData8(127)
+                else:
+                    shared_exp = UData8(exp8) - UData8(6)
+                # zero-extend back to 16 bits
+                res, res_p = BitVector[16](shared_exp.zext(8)), Bit(0)
             else:  # op == FPCustom_t.FCnvInt2F:
                 res, res_p = to_float_result, Bit(0)
 
