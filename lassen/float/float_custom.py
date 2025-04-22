@@ -11,9 +11,10 @@ class FPCustom_t(Enum):
     FGetFInt = 4
     FGetFFrac = 5
     FCnvInt2F = 6
-    FBF16toINT8_PACK = 7
-    FINT8toBF16_UNPACK_HIGH = 8
-    FINT8toBF16_UNPACK_LOW = 9
+    FBIT8_PACK = 7
+    FBIT8_UNPACK_HIGH = 8
+    FGET_SHARED_EXP = 9
+    FE8M0_QUANT = 10
 
 
 @family_closure
@@ -25,6 +26,7 @@ def FPCustom_fc(family):
     SData = SInt[16]
     UInt = family.Unsigned
     UData = UInt[16]
+    UData8 = UInt[8]
     UData32 = UInt[32]
 
     FPExpBV = family.BitVector[8]
@@ -201,168 +203,55 @@ def FPCustom_fc(family):
 
                 # We are not checking for overflow when converting to int
                 res, res_p = signed_res, Bit(0)
-            elif op == FPCustom_t.FBF16toINT8_PACK:
-                # Convert a from bf16 to int8
-                sign_a = BitVector[16](a & 0x8000)
-                mant_a = BitVector[16](a & 0x7F) | 0x80
-                exp_a = UData(a)[7:15]
-                biased_exp_a = SInt[9](exp_a.zext(1))
-                unbiased_exp_a = SInt[9](biased_exp_a - SInt[9](127))
-                if unbiased_exp_a < 0:
-                    mant_shift_a = BitVector[23](0)
-                else:
-                    mant_shift_a = BitVector[23](mant_a) << BitVector[23](unbiased_exp_a)
-                unsigned_res0_a = BitVector[23](mant_shift_a >> BitVector[23](7))
-                unsigned_res_a = BitVector[8](unsigned_res0_a[0:8])
-                if sign_a == 0x8000:
-                    int8_a = -SInt[8](unsigned_res_a)
-                else:
-                    int8_a = SInt[8](unsigned_res_a)
+            elif op == FPCustom_t.FBIT8_UNPACK_HIGH:
+                # take bits 8-15 of `a`, tack on 8 zeros above
+                res = BitVector[16](a[8:16])
+                res_p = Bit(0)
+            elif op == FPCustom_t.FBIT8_PACK:
+                # Pack two 8-bit values into one 16-bit value
+                high_bits = BitVector[8](a[0:8])
+                low_bits = BitVector[8](b[0:8])
 
-                # Convert in1 from bf16 to int8
-                sign_b = BitVector[16](b & 0x8000)
-                mant_b = BitVector[16](b & 0x7F) | 0x80
-                exp_b = UData(b)[7:15]
-                biased_exp_b = SInt[9](exp_b.zext(1))
-                unbiased_exp_b = SInt[9](biased_exp_b - SInt[9](127))
-                if unbiased_exp_b < 0:
-                    mant_shift_b = BitVector[23](0)
-                else:
-                    mant_shift_b = BitVector[23](mant_b) << BitVector[23](unbiased_exp_b)
-                unsigned_res0_b = BitVector[23](mant_shift_b >> BitVector[23](7))
-                unsigned_res_b = BitVector[8](unsigned_res0_b[0:8])
-                if sign_b == 0x8000:
-                    int8_b = -SInt[8](unsigned_res_b)
-                else:
-                    int8_b = SInt[8](unsigned_res_b)
-
-                # Pack the two int8 values into one 16-bit BitVector
-                packed = (BitVector[16](int8_a) << BitVector[16](8)) | BitVector[16](int8_b)
+                # Pack using the same pattern as other packing operations
+                packed = (BitVector[16](high_bits) << BitVector[16](8)) | BitVector[16](low_bits)
                 res, res_p = packed, Bit(0)
-            elif op == FPCustom_t.FINT8toBF16_UNPACK_HIGH:
-                # Extract upper 8 bits as int8
-                int8_val = SInt[16](BitVector[8](a[8:16]))
-
-                # Convert int8 to bfloat16 using fp_cnvint2f logic
-                if (int8_val < 0):
-                    sign = BitVector[16](0x8000)
-                    abs_input = -int8_val
+            elif op == FPCustom_t.FGET_SHARED_EXP:
+                # slice off the exponent field
+                exp8 = BitVector[8](a[7:15])
+                if exp8 == BitVector[8](0):
+                    shared_exp = UData8(127)
                 else:
-                    sign = BitVector[16](0x0000)
-                    abs_input = int8_val
-                scale = SInt[16](-127)
-                if abs_input[0] == Bit(1):
-                    scale = SInt[16](0)
-                if abs_input[1] == Bit(1):
-                    scale = SInt[16](1)
-                if abs_input[2] == Bit(1):
-                    scale = SInt[16](2)
-                if abs_input[3] == Bit(1):
-                    scale = SInt[16](3)
-                if abs_input[4] == Bit(1):
-                    scale = SInt[16](4)
-                if abs_input[5] == Bit(1):
-                    scale = SInt[16](5)
-                if abs_input[6] == Bit(1):
-                    scale = SInt[16](6)
-                if abs_input[7] == Bit(1):
-                    scale = SInt[16](7)
-                if abs_input[8] == Bit(1):
-                    scale = SInt[16](8)
-                if abs_input[9] == Bit(1):
-                    scale = SInt[16](9)
-                if abs_input[10] == Bit(1):
-                    scale = SInt[16](10)
-                if abs_input[11] == Bit(1):
-                    scale = SInt[16](11)
-                if abs_input[12] == Bit(1):
-                    scale = SInt[16](12)
-                if abs_input[13] == Bit(1):
-                    scale = SInt[16](13)
-                if abs_input[14] == Bit(1):
-                    scale = SInt[16](14)
-                if abs_input[15] == Bit(1):
-                    scale = SInt[16](15)
-                normmant_mul_left = SInt[16](abs_input)
-                normmant_mul_right = SInt[16](15) - scale
-                normmant_mask = SInt[16](0x7F00)
+                    shared_exp = UData8(exp8) - UData8(6)
+                # zero-extend back to 16 bits
+                res, res_p = BitVector[16](shared_exp.zext(8)), Bit(0)
+            elif op == FPCustom_t.FE8M0_QUANT:
+                signa = BitVector[16]((a & 0x8000))
+                manta = BitVector[16]((a & 0x7F)) | 0x80
+                expa0 = UData(a)[7:15]
+                shared_exp = UData8(b[0:8])
+                biased_exp0 = SInt[9](expa0.zext(1))
+                biased_shared_exp = SInt[9](shared_exp.zext(1))
+                # Note: biased_shared_exp already contains bias of 127
+                unbiased_quant_exp0 = SInt[9](biased_exp0 - biased_shared_exp)
 
-                if scale >= 0:
-                    normmant = BitVector[16](
-                        (normmant_mul_left << normmant_mul_right) & normmant_mask
-                    )
+                if unbiased_quant_exp0 < 0:
+                    manta_shift0 = BitVector[23](manta) >> BitVector[23](-unbiased_quant_exp0)
                 else:
-                    normmant = BitVector[16](0)
+                    manta_shift0 = BitVector[23](manta) << BitVector[23](unbiased_quant_exp0)
 
-                normmant = BitVector[16](normmant) >> 8
+                # Extract the rounding bit
+                rounding_bit = (manta_shift0 >> BitVector[23](6)) & BitVector[23](1)
+                # Apply rounding by adding the rounding bit to the truncated result
+                unsigned_res0 = BitVector[23]((manta_shift0 >> BitVector[23](7)) + rounding_bit)
 
-                biased_scale = scale + 127
-                to_float_result = (
-                    sign | ((BitVector[16](biased_scale) << 7) & (0xFF << 7)) | normmant
-                )
-                res, res_p = to_float_result, Bit(0)
-            elif op == FPCustom_t.FINT8toBF16_UNPACK_LOW:
-                # Extract lower 8 bits as int8
-                int8_val = SInt[16](BitVector[8](a[0:8]))
-
-                # Convert int8 to bfloat16 using fp_cnvint2f logic
-                if (int8_val < 0):
-                    sign = BitVector[16](0x8000)
-                    abs_input = -int8_val
+                unsigned_res8 = BitVector[8](unsigned_res0[0:8])
+                if signa == 0x8000:
+                    signed_res8 = -SInt[8](unsigned_res8)
                 else:
-                    sign = BitVector[16](0x0000)
-                    abs_input = int8_val
-                scale = SInt[16](-127)
-                if abs_input[0] == Bit(1):
-                    scale = SInt[16](0)
-                if abs_input[1] == Bit(1):
-                    scale = SInt[16](1)
-                if abs_input[2] == Bit(1):
-                    scale = SInt[16](2)
-                if abs_input[3] == Bit(1):
-                    scale = SInt[16](3)
-                if abs_input[4] == Bit(1):
-                    scale = SInt[16](4)
-                if abs_input[5] == Bit(1):
-                    scale = SInt[16](5)
-                if abs_input[6] == Bit(1):
-                    scale = SInt[16](6)
-                if abs_input[7] == Bit(1):
-                    scale = SInt[16](7)
-                if abs_input[8] == Bit(1):
-                    scale = SInt[16](8)
-                if abs_input[9] == Bit(1):
-                    scale = SInt[16](9)
-                if abs_input[10] == Bit(1):
-                    scale = SInt[16](10)
-                if abs_input[11] == Bit(1):
-                    scale = SInt[16](11)
-                if abs_input[12] == Bit(1):
-                    scale = SInt[16](12)
-                if abs_input[13] == Bit(1):
-                    scale = SInt[16](13)
-                if abs_input[14] == Bit(1):
-                    scale = SInt[16](14)
-                if abs_input[15] == Bit(1):
-                    scale = SInt[16](15)
-                normmant_mul_left = SInt[16](abs_input)
-                normmant_mul_right = SInt[16](15) - scale
-                normmant_mask = SInt[16](0x7F00)
+                    signed_res8 = SInt[8](unsigned_res8)
 
-                if scale >= 0:
-                    normmant = BitVector[16](
-                        (normmant_mul_left << normmant_mul_right) & normmant_mask
-                    )
-                else:
-                    normmant = BitVector[16](0)
-
-                normmant = BitVector[16](normmant) >> 8
-
-                biased_scale = scale + 127
-                to_float_result = (
-                    sign | ((BitVector[16](biased_scale) << 7) & (0xFF << 7)) | normmant
-                )
-                res, res_p = to_float_result, Bit(0)
+                res = BitVector[16](signed_res8.zext(8))
+                res_p = Bit(0)
             else:  # op == FPCustom_t.FCnvInt2F:
                 res, res_p = to_float_result, Bit(0)
 

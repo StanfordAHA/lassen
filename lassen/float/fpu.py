@@ -14,6 +14,7 @@ class FPU_t(Enum):
     FP_cmp = 2
     FP_mul = 3
     FP_max = 4
+    FP_abs_max = 5
 
 float_lib = float_lib_gen(8, 7)
 
@@ -56,7 +57,7 @@ def FPU_fc(family):
 
     def fp_is_neg(val: Data):
         return family.Bit(val[-1])
-    
+
     @family.assemble(locals(), globals(), set_port_names=True)
     class FPU(Peak):
         def __init__(self):
@@ -75,7 +76,16 @@ def FPU_fc(family):
             neg_b = (fpu_op == FPU_t.FP_sub) | (fpu_op == FPU_t.FP_cmp) | (fpu_op == FPU_t.FP_max)
             if neg_b:
                 b = b ^ (2 ** (16 - 1))
-            Add_val = self.Add(a, b)
+
+            abs_mask  = Data((1 << 15) - 1)
+            abs_a     = a & abs_mask
+            abs_b     = b & abs_mask
+            abs_b_neg = abs_b ^ (1 << 15)
+
+            use_abs = family.Bit(fpu_op == FPU_t.FP_abs_max)
+            add_in0 = use_abs.ite(abs_a, a)
+            add_in1 = use_abs.ite(abs_b_neg, b)
+            Add_val = self.Add(add_in0, add_in1)
             Mul_val = self.Mul(a, b)
             if (
                 (fpu_op == FPU_t.FP_add)
@@ -89,6 +99,12 @@ def FPU_fc(family):
                     res = old_b
                 else:
                     res = a
+            elif (fpu_op == FPU_t.FP_abs_max):
+                # If abs_diff is negative, then abs_b is bigger in magnitude
+                if family.Bit(Add_val[-1]):
+                    res = abs_b
+                else:
+                    res = abs_a
             else:
                 res = Mul_val
 
