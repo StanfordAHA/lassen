@@ -15,6 +15,7 @@ class FPCustom_t(Enum):
     FBIT8_UNPACK_HIGH = 8
     FBIT8_UNPACK_LOW = 9
     FGET_SHARED_EXP = 10
+    FE8M0_QUANT = 11
 
 
 @family_closure
@@ -228,6 +229,34 @@ def FPCustom_fc(family):
                     shared_exp = UData8(exp8) - UData8(6)
                 # zero-extend back to 16 bits
                 res, res_p = BitVector[16](shared_exp.zext(8)), Bit(0)
+            elif op == FPCustom_t.FE8M0_QUANT:
+                signa = BitVector[16]((a & 0x8000))
+                manta = BitVector[16]((a & 0x7F)) | 0x80
+                expa0 = UData(a)[7:15]
+                shared_exp = UData8(b[0:8])
+                biased_exp0 = SInt[9](expa0.zext(1))
+                biased_shared_exp = SInt[9](shared_exp.zext(1))
+                # Note: biased_shared_exp already contains bias of 127
+                unbiased_quant_exp0 = SInt[9](biased_exp0 - biased_shared_exp)
+
+                if unbiased_quant_exp0 < 0:
+                    manta_shift0 = BitVector[23](manta) >> BitVector[23](-unbiased_quant_exp0)
+                else:
+                    manta_shift0 = BitVector[23](manta) << BitVector[23](unbiased_quant_exp0)
+
+                # Extract the rounding bit
+                rounding_bit = (manta_shift0 >> BitVector[23](6)) & BitVector[23](1)
+                # Apply rounding by adding the rounding bit to the truncated result
+                unsigned_res0 = BitVector[23]((manta_shift0 >> BitVector[23](7)) + rounding_bit)
+
+                unsigned_res8 = BitVector[8](unsigned_res0[0:8])
+                if signa == 0x8000:
+                    signed_res8 = -SInt[8](unsigned_res8)
+                else:
+                    signed_res8 = SInt[8](unsigned_res8)
+
+                res = BitVector[16](signed_res8.zext(8))
+                res_p = Bit(0)
             else:  # op == FPCustom_t.FCnvInt2F:
                 res, res_p = to_float_result, Bit(0)
 
