@@ -27,7 +27,6 @@ class ALU_t(Enum):
     CROP = 18
     MULSHR = 19
     ADDSHR = 20
-    INT8_TO_INT16 = 21
 
 
 class Signed_t(Enum):
@@ -181,19 +180,6 @@ def ALU_fc(family):
                 res, res_p = max_bc, Bit(0)
             elif alu == ALU_t.ADDSHR:
                 res, res_p = adder_res >> UData(c), Bit(0)
-            elif alu == ALU_t.INT8_TO_INT16:
-                int8_val = a[0:8]
-                if signed_ == Signed_t.signed:
-                    # Sign extension for signed values
-                    sign_bit = int8_val[7]
-                    upper_bits = Data(0xFF00) if sign_bit else Data(0x0000)
-                    res = upper_bits | Data(int8_val.zext(8))
-                else:
-                    # Zero extension for unsigned values
-                    res = Data(int8_val.zext(8))
-                res_p = Bit(0)
-                C = Bit(0)
-                V = Bit(0)
             else:  # (alu == ALU_t.MULSHR):
                 res, res_p = shr, Bit(0)
 

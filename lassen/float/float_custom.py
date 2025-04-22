@@ -13,9 +13,8 @@ class FPCustom_t(Enum):
     FCnvInt2F = 6
     FBIT8_PACK = 7
     FBIT8_UNPACK_HIGH = 8
-    FBIT8_UNPACK_LOW = 9
-    FGET_SHARED_EXP = 10
-    FE8M0_QUANT = 11
+    FGET_SHARED_EXP = 9
+    FE8M0_QUANT = 10
 
 
 @family_closure
@@ -207,10 +206,6 @@ def FPCustom_fc(family):
             elif op == FPCustom_t.FBIT8_UNPACK_HIGH:
                 # take bits 8-15 of `a`, tack on 8 zeros above
                 res = BitVector[16](a[8:16])
-                res_p = Bit(0)
-            elif op == FPCustom_t.FBIT8_UNPACK_LOW:
-                # take bits 0-7 of `a`, zeros fill upper half
-                res = BitVector[16](a[0:8])
                 res_p = Bit(0)
             elif op == FPCustom_t.FBIT8_PACK:
                 # Pack two 8-bit values into one 16-bit value
