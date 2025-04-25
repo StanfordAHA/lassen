@@ -20,8 +20,10 @@ def get_shared_exp_fc(family: AbstractFamily):
             exp8 = UInt8(in0[7:15])
 
             if exp8 == UInt8(0):
+                # Note: set to 127 to set scale value to 1.0 (2^(127-127))
                 shared8 = UInt8(127)
             else:
+                # Note: in rare case where exp8 is small, we will let it overflow and wrap as what voyager does
                 shared8 = exp8 - UInt8(6)
 
             # zero-extend back to 16 bits
