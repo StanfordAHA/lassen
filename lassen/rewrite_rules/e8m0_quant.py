@@ -37,10 +37,18 @@ def e8m0_quant_fc(family: AbstractFamily):
             unsigned_res0 = BitVector[23]((manta_shift0 >> BitVector[23](7)) + rounding_bit)
 
             unsigned_res8 = BitVector[8](unsigned_res0[0:8])
+            # Saturation for INT8 range: positive max 127, negative magnitude max 128
+            saturate_pos = (UInt8(unsigned_res8) <= UInt8(127)).ite(
+                unsigned_res8, BitVector[8](127)
+            )
+            saturate_neg = (UInt8(unsigned_res8) <= UInt8(128)).ite(
+                unsigned_res8, BitVector[8](128)
+            )
+            unsigned_res8_sat = (signa == 0x8000).ite(saturate_neg, saturate_pos)
             if signa == 0x8000:
-                signed_res8 = -SInt[8](unsigned_res8)
+                signed_res8 = -SInt[8](unsigned_res8_sat)
             else:
-                signed_res8 = SInt[8](unsigned_res8)
+                signed_res8 = SInt[8](unsigned_res8_sat)
 
             res = BitVector[16](signed_res8.zext(8))
             return res
