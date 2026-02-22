@@ -59,9 +59,7 @@ def solve_rules():
     if len(rrules) == 0:
         raise ValueError("No rewrite rule peak specifications found")
 
-    # We use maxtasksperchild=1 to kill and recreate the worker process after every single task, which prevents stack overflows
-    # We use 4 processes to avoid CPU starvation
-    pool = multiprocessing.Pool(4, maxtasksperchild=1)
+    pool = multiprocessing.Pool(16)
     pool.map(solve_rule, rrules)
 
 
