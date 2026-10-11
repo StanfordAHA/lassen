@@ -7,6 +7,7 @@ from .float.float_custom import FPCustom_t
 from .common import DATAWIDTH
 from peak import Const, family_closure
 from hwtypes.adt import Product, TaggedUnion
+from functools import lru_cache
 
 
 class Op_t(TaggedUnion):
@@ -15,9 +16,15 @@ class Op_t(TaggedUnion):
     fp_custom = FPCustom_t
 
 
-@family_closure
-def Inst_fc(family):
-    Data = family.BitVector[DATAWIDTH]
+@lru_cache(None)
+def gen_Inst_fc(width):
+    """Instruction of a `width`-bit PE: the 16-bit layout with `width`-bit
+    register constants (data0..2). Inst_fc is gen_Inst_fc(DATAWIDTH)."""
+    return family_closure(lambda family: _Inst(family, width))
+
+
+def _Inst(family, width):
+    Data = family.BitVector[width]
     Bit = family.Bit
 
     LUT_t, _ = LUT_t_fc(family)
@@ -41,3 +48,6 @@ def Inst_fc(family):
         bit2 = Bit  # RegF constant (1-bit)
 
     return Inst
+
+
+Inst_fc = gen_Inst_fc(DATAWIDTH)

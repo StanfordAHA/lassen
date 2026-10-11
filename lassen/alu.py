@@ -3,6 +3,7 @@ from peak.mapper.utils import rebind_type
 from .common import DATAWIDTH, BFloat16_fc
 from hwtypes.adt import Enum
 from hwtypes import BitVector, Bit as BitPy
+from functools import lru_cache
 
 
 class ALU_t(Enum):
@@ -41,18 +42,30 @@ def overflow(a, b, res):
     return (msb_a & msb_b & ~N) | (~msb_a & ~msb_b & N)
 
 
-@family_closure
-def ALU_fc(family):
+@lru_cache(None)
+def gen_ALU_fc(width):
+    """ALU of a `width`-bit PE. ALU_fc (16 bits) is gen_ALU_fc(DATAWIDTH)."""
+    return family_closure(_alu_closure(width))
 
-    Data = family.BitVector[DATAWIDTH]
+
+def _alu_closure(width):
+    def ALU_fc(family):
+        return _ALU(family, width)
+    return ALU_fc
+
+
+def _ALU(family, width):
+    # Mult1 returns the middle `width` bits of the 2*width product
+    half = width // 2
+    Data = family.BitVector[width]
     Bit = family.Bit
     SInt = family.Signed
-    SData = SInt[DATAWIDTH]
+    SData = SInt[width]
     UInt = family.Unsigned
-    UData = UInt[DATAWIDTH]
-    UData32 = UInt[32]
+    UData = UInt[width]
+    UData32 = UInt[2 * width]
 
-    DataPy = BitVector[DATAWIDTH]
+    DataPy = BitVector[width]
 
     @family.assemble(locals(), globals(), set_port_names=True)
     class ALU(Peak):
@@ -69,11 +82,11 @@ def ALU_fc(family):
 
             # MUL
             if signed_ == Signed_t.signed:
-                mula = UData32(SData(a).sext(16))
-                mulb = UData32(SData(b).sext(16))
+                mula = UData32(SData(a).sext(width))
+                mulb = UData32(SData(b).sext(width))
             else:  # signed_ == Signed_t.unsigned:
-                mula = UData(a).zext(16)
-                mulb = UData(b).zext(16)
+                mula = UData(a).zext(width)
+                mulb = UData(b).zext(width)
             mul = mula * mulb
 
             # LTE and min
@@ -98,7 +111,7 @@ def ALU_fc(family):
 
             # mulshift
             if alu == ALU_t.MULSHR:
-                shr_in0 = mul[:16]
+                shr_in0 = mul[:width]
             else:
                 shr_in0 = a
 
@@ -125,7 +138,7 @@ def ALU_fc(family):
             ):
                 adder2_in0 = adder_res
             else:
-                adder2_in0 = mul[:16]
+                adder2_in0 = mul[:width]
 
             # 2nd input
             if (alu == ALU_t.MULSUB) | (alu == ALU_t.TAS) | (alu == ALU_t.TSS):
@@ -144,17 +157,17 @@ def ALU_fc(family):
                 V = overflow(a, b, res)
                 res_p = C
             elif alu == ALU_t.Mult0:
-                res, C, V = mul[:16], Bit(0), Bit(0)
+                res, C, V = mul[:width], Bit(0), Bit(0)
                 res_p = C
             elif alu == ALU_t.Mult1:
-                res, C, V = mul[8:24], Bit(0), Bit(0)
+                res, C, V = mul[half:half + width], Bit(0), Bit(0)
                 res_p = C
             elif alu == ALU_t.Mult2:
-                res, C, V = mul[16:32], Bit(0), Bit(0)
+                res, C, V = mul[width:2 * width], Bit(0), Bit(0)
                 res_p = C
             elif alu == ALU_t.Abs:
                 abs_pred = SData(a) >= SData(0)
-                res, res_p = abs_pred.ite(a, UInt[16](-SInt[16](a))), Bit(a[-1])
+                res, res_p = abs_pred.ite(a, UInt[width](-SInt[width](a))), Bit(a[-1])
             elif alu == ALU_t.Sel:
                 res, res_p = d.ite(a, b), Bit(0)
             elif alu == ALU_t.And:
@@ -189,3 +202,6 @@ def ALU_fc(family):
             return res, res_p, Z, N, C, V
 
     return ALU
+
+
+ALU_fc = gen_ALU_fc(DATAWIDTH)
